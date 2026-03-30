@@ -1,0 +1,17 @@
+TASK-007 completed on 2026-03-30.
+
+Implemented:
+- Output renderer dispatch with explicit format override and TTY-based fallback
+- Human renderer with compact key:value output, status coloring, size and temperature formatting
+- Stable JSON renderer
+- YAML renderer
+- Table renderer via cli-table3
+- Field selection with dot notation for nested objects and arrays
+- Output module exports
+
+Tests added:
+- tests/unit/core/output.test.ts
+
+Validation:
+- npx vitest run
+- Result: 8 test files passed, 228 tests passed, 0 failed

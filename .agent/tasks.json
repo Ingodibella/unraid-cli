@@ -55,12 +55,12 @@
       "spec": "tasks/TASK-006.md",
       "dependencies": ["TASK-004"],
       "validation": "tests/unit/core/errors.test.ts passes"
-    }
+    },
     {
       "id": "TASK-007",
       "name": "Output Layer (human, json, yaml, table renderers)",
       "priority": 7,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-007.md",
       "dependencies": ["TASK-001"],
       "validation": "tests/unit/core/output.test.ts passes"
