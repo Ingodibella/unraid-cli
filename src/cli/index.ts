@@ -10,6 +10,7 @@ import { Command } from 'commander';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { formatUserError, getExitCode } from '../core/errors/user-errors.js';
 import { DEFAULTS, OUTPUT_FORMATS } from './globals.js';
 
 /** Parse an integer from string (ignores Commander's second arg to avoid radix issues) */
@@ -30,15 +31,17 @@ function getVersion(): string {
 
   // Walk up to find package.json (works from both src/ and dist/)
   const candidates = [
-    resolve(currentDir, '../../package.json'),   // from dist/cli/ or src/cli/
-    resolve(currentDir, '../../../package.json'), // fallback deeper nesting
+    resolve(currentDir, '../../package.json'),
+    resolve(currentDir, '../../../package.json'),
   ];
 
   for (const candidate of candidates) {
     try {
       const content = readFileSync(candidate, 'utf-8');
       const pkg: { version?: string } = JSON.parse(content) as { version?: string };
-      if (pkg.version) return pkg.version;
+      if (pkg.version) {
+        return pkg.version;
+      }
     } catch {
       // Try next candidate
     }
@@ -100,12 +103,36 @@ export function createProgram(): Command {
   return program;
 }
 
+export async function run(argv?: string[]): Promise<void> {
+  const program = createProgram();
+  await program.parseAsync(argv ?? process.argv);
+}
+
 /**
  * Main entry point. Parses argv and runs the matched command.
  */
-export async function main(argv?: string[]): Promise<void> {
-  const program = createProgram();
-  await program.parseAsync(argv ?? process.argv);
+export interface MainDependencies {
+  run: (argv?: string[]) => Promise<void>;
+  stderrWrite: typeof process.stderr.write;
+  exit: typeof process.exit;
+}
+
+export async function main(
+  argv?: string[],
+  dependencies: MainDependencies = {
+    run,
+    stderrWrite: process.stderr.write.bind(process.stderr),
+    exit: process.exit,
+  },
+): Promise<void> {
+  try {
+    await dependencies.run(argv);
+  } catch (error: unknown) {
+    const effectiveArgv = argv ?? process.argv;
+    const debug = effectiveArgv.includes('--debug');
+    dependencies.stderrWrite(formatUserError(error, { debug }));
+    dependencies.exit(getExitCode(error));
+  }
 }
 
 // Only run main() when executed directly, not when imported
@@ -115,8 +142,5 @@ const isDirectRun = process.argv[1] === currentFile
   || process.argv[1]?.endsWith('/src/cli/index.ts');
 
 if (isDirectRun) {
-  main().catch((err: unknown) => {
-    process.stderr.write(`Fatal: ${err instanceof Error ? err.message : String(err)}\n`);
-    process.exit(1);
-  });
+  void main();
 }

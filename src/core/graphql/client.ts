@@ -13,8 +13,13 @@ import { GraphQLClient, gql } from 'graphql-request';
 import { randomUUID } from 'crypto';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import type { DocumentNode } from 'graphql';
+import {
+  type GraphQLErrorDetail,
+  GraphQLResponseError,
+  normalizeGraphQLErrors,
+} from '../errors/graphql-errors.js';
 
-export { gql };
+export { gql, GraphQLResponseError };
 
 /** Options for creating a GraphQL client */
 export interface GraphQLClientOptions {
@@ -23,29 +28,6 @@ export interface GraphQLClientOptions {
   timeout?: number;
   debug?: boolean;
   requestId?: string;
-}
-
-/** Represents a single GraphQL error returned by the server */
-export interface GraphQLErrorDetail {
-  message: string;
-  locations?: Array<{ line: number; column: number }>;
-  path?: string[];
-  extensions?: Record<string, unknown>;
-}
-
-/** Thrown when the GraphQL response contains errors. Maps to exit code 8. */
-export class GraphQLResponseError extends Error {
-  readonly exitCode = 8;
-  readonly errors: GraphQLErrorDetail[];
-  readonly requestId: string;
-
-  constructor(errors: GraphQLErrorDetail[], requestId: string) {
-    const messages = errors.map((e) => e.message).join('; ');
-    super(`GraphQL error: ${messages}`);
-    this.name = 'GraphQLResponseError';
-    this.errors = errors;
-    this.requestId = requestId;
-  }
 }
 
 /** Typed ucli GraphQL client */
@@ -108,7 +90,7 @@ export function createClient(options: GraphQLClientOptions): UcliGraphQLClient {
       // We use rawRequest to capture errors in the response body
       const result = await inner.rawRequest<TData>(
         document as string,
-        variables as Record<string, unknown>
+        variables as Record<string, unknown> | undefined,
       );
 
       if (debug) {
@@ -132,10 +114,10 @@ export function createClient(options: GraphQLClientOptions): UcliGraphQLClient {
             locations: e.locations as GraphQLErrorDetail['locations'],
             path: e.path as string[],
             extensions: e.extensions as Record<string, unknown>,
-          })
+          }),
         );
         if (errors.length > 0) {
-          throw new GraphQLResponseError(errors, requestId);
+          throw normalizeGraphQLErrors({ errors, status: err.response?.status }, requestId);
         }
       }
       throw err;

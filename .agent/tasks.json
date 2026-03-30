@@ -51,11 +51,11 @@
       "id": "TASK-006",
       "name": "Error Handling + Exit Code Mapping",
       "priority": 6,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-006.md",
       "dependencies": ["TASK-004"],
       "validation": "tests/unit/core/errors.test.ts passes"
-    },
+    }
     {
       "id": "TASK-007",
       "name": "Output Layer (human, json, yaml, table renderers)",

@@ -11,16 +11,9 @@
 
 import { getDefaultCredentialsPath, readCredentials, getProfileApiKey } from './credentials.js';
 import { isValidApiKey, normalizeApiKey } from './api-key.js';
+import { AuthError } from '../errors/graphql-errors.js';
 
-/** Error thrown when authentication fails. Maps to exit code 3. */
-export class AuthError extends Error {
-  readonly exitCode = 3;
-
-  constructor(message: string) {
-    super(message);
-    this.name = 'AuthError';
-  }
-}
+export { AuthError } from '../errors/graphql-errors.js';
 
 /** Resolved auth context returned by resolveAuth */
 export interface ResolvedAuth {

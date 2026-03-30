@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createProgram } from '../../../src/cli/index.js';
+import * as cliModule from '../../../src/cli/index.js';
+
+const { createProgram, main } = cliModule;
 
 describe('createProgram', () => {
   let originalStdout: typeof process.stdout.write;
@@ -180,6 +182,36 @@ describe('createProgram', () => {
       );
       // 17 global flags + --no-color
       expect(allOptions.length).toBeGreaterThanOrEqual(17);
+    });
+  });
+
+  describe('top-level error boundary', () => {
+    it('maps errors to process.exit only in main()', async () => {
+      const stderrWrite = vi.fn(() => true);
+      const exit = vi.fn();
+      const run = vi.fn().mockRejectedValue(new Error('boom'));
+
+      await main(['node', 'ucli'], { run, stderrWrite, exit: exit as typeof process.exit });
+      expect(stderrWrite).toHaveBeenCalled();
+      expect(exit).toHaveBeenCalledWith(1);
+      expect(run).toHaveBeenCalledOnce();
+    });
+
+    it('includes stack traces when --debug is enabled', async () => {
+      const error = new Error('boom');
+      error.stack = 'Error: boom\n  at debug.ts:1:1';
+
+      const stderrWrite = vi.fn(() => true);
+      const exit = vi.fn();
+      const run = vi.fn().mockRejectedValue(error);
+
+      await main(['node', 'ucli', '--debug'], { run, stderrWrite, exit: exit as typeof process.exit });
+
+      const output = stderrWrite.mock.calls.map(([chunk]) => String(chunk)).join('');
+      expect(output).toContain('Runtime error: boom');
+      expect(output).toContain('debug.ts:1:1');
+      expect(exit).toHaveBeenCalledWith(1);
+      expect(run).toHaveBeenCalledOnce();
     });
   });
 
