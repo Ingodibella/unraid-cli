@@ -15,7 +15,7 @@
       "id": "TASK-002",
       "name": "Config Loader + XDG Paths + Env Overrides",
       "priority": 2,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-002.md",
       "dependencies": ["TASK-001"],
       "validation": "tests/unit/core/config.test.ts passes"
