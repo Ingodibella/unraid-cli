@@ -24,7 +24,7 @@
       "id": "TASK-003",
       "name": "Auth Resolver + Credential Storage",
       "priority": 3,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-003.md",
       "dependencies": ["TASK-002"],
       "validation": "tests/unit/core/auth.test.ts passes"
