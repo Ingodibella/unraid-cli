@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Coverage
+coverage/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Generated GraphQL types (re-generate from schema)
+# src/generated/ is tracked but regenerated via codegen
+
+# Agent logs (local only)
+.agent/logs/
+.agent/history/
+.agent/screenshots/
+
+# Debug
+*.log
+npm-debug.log*

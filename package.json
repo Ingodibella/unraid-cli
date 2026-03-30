@@ -1,0 +1,55 @@
+{
+  "name": "ucli",
+  "version": "0.0.1",
+  "description": "The serious CLI for serious Unraid operators. Built on the official GraphQL API.",
+  "type": "module",
+  "bin": {
+    "ucli": "./dist/cli/index.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/ tests/",
+    "lint:fix": "eslint src/ tests/ --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "typecheck": "tsc --noEmit",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "check": "npm run typecheck && npm run lint && npm run test"
+  },
+  "keywords": [
+    "unraid",
+    "cli",
+    "graphql",
+    "homelab",
+    "server-management"
+  ],
+  "author": "Ingo Di Bella",
+  "license": "MIT",
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/typescript": "^4.0.0",
+    "@graphql-codegen/typescript-operations": "^4.0.0",
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^3.0.0"
+  },
+  "dependencies": {
+    "commander": "^13.0.0",
+    "graphql": "^16.0.0",
+    "graphql-request": "^7.0.0",
+    "yaml": "^2.0.0",
+    "chalk": "^5.0.0",
+    "cli-table3": "^0.6.0"
+  }
+}
