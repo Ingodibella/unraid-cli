@@ -33,7 +33,7 @@
       "id": "TASK-004",
       "name": "GraphQL Client Core",
       "priority": 4,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-004.md",
       "dependencies": ["TASK-003"],
       "validation": "tests/unit/core/graphql-client.test.ts passes"
