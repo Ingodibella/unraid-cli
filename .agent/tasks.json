@@ -6,7 +6,7 @@
       "id": "TASK-001",
       "name": "CLI Framework Setup + Global Flags",
       "priority": 1,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-001.md",
       "dependencies": [],
       "validation": "npm run typecheck passes, ucli --version prints version"

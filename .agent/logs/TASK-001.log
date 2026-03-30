@@ -1,0 +1,28 @@
+TASK-001: CLI Framework Setup + Global Flags
+=============================================
+Date: 2026-03-30
+Status: done
+Commit: 0f81b68
+
+## Implemented
+- src/cli/index.ts: Commander.js program "ucli" with version from package.json, all 18 global flags
+- src/cli/globals.ts: GlobalOptions interface, OutputFormat type, DEFAULTS, OUTPUT_FORMATS, resolveGlobalOptions()
+- vitest.config.ts: Vitest configuration for the project
+- Fixed parseInt radix bug (Commander passes previousValue as second arg to parser, breaking parseInt)
+
+## Global Flags Registered
+--host, --api-key, --profile, -o/--output, --fields, --filter, --sort,
+--page, --page-size, --all, --timeout, --retry, --debug, -v/--verbose,
+-q/--quiet, -y/--yes, --force, --no-color
+
+## Tests
+- tests/unit/cli/globals.test.ts: 16 tests (OUTPUT_FORMATS, DEFAULTS, resolveGlobalOptions)
+- tests/unit/cli/program.test.ts: 32 tests (program creation, all option registrations, option parsing from argv)
+- Total: 48 tests, all passing
+
+## Validation
+- tsc --noEmit: OK
+- tsc (build): OK
+- node dist/cli/index.js --version: 0.0.1
+- node dist/cli/index.js --help: shows all options
+- npx vitest run: 48/48 passed
