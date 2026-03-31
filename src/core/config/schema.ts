@@ -19,6 +19,14 @@ export interface UcliConfig {
   profiles?: Record<string, ProfileConfig>;
 }
 
+interface RawProfileConfig extends Record<string, unknown> {
+  host?: unknown;
+  apiKey?: unknown;
+  api_key?: unknown;
+  output?: unknown;
+  timeout?: unknown;
+}
+
 /** Resolved config after all sources are merged */
 export interface ResolvedConfig {
   host?: string;
@@ -50,11 +58,13 @@ export function validateConfig(raw: unknown): UcliConfig {
   }
 
   const obj = raw as Record<string, unknown>;
+  const normalized: UcliConfig = {};
 
   if ('default_profile' in obj && obj['default_profile'] !== undefined) {
     if (typeof obj['default_profile'] !== 'string') {
       throw new ConfigValidationError('default_profile must be a string');
     }
+    normalized.default_profile = obj['default_profile'];
   }
 
   if ('profiles' in obj && obj['profiles'] !== undefined) {
@@ -63,36 +73,52 @@ export function validateConfig(raw: unknown): UcliConfig {
     }
 
     const profiles = obj['profiles'] as Record<string, unknown>;
+    const normalizedProfiles: Record<string, ProfileConfig> = {};
+
     for (const [name, profile] of Object.entries(profiles)) {
       if (typeof profile !== 'object' || Array.isArray(profile) || profile === null) {
         throw new ConfigValidationError(`profiles.${name} must be a mapping`);
       }
 
-      const p = profile as Record<string, unknown>;
+      const p = profile as RawProfileConfig;
+      const normalizedProfile: ProfileConfig = {};
 
-      if ('host' in p && p['host'] !== undefined && typeof p['host'] !== 'string') {
-        throw new ConfigValidationError(`profiles.${name}.host must be a string`);
+      if ('host' in p && p.host !== undefined) {
+        if (typeof p.host !== 'string') {
+          throw new ConfigValidationError(`profiles.${name}.host must be a string`);
+        }
+        normalizedProfile.host = p.host;
       }
 
-      if ('apiKey' in p && p['apiKey'] !== undefined && typeof p['apiKey'] !== 'string') {
-        throw new ConfigValidationError(`profiles.${name}.apiKey must be a string`);
+      const rawApiKey = p.apiKey ?? p.api_key;
+      if (rawApiKey !== undefined) {
+        if (typeof rawApiKey !== 'string') {
+          throw new ConfigValidationError(`profiles.${name}.apiKey must be a string`);
+        }
+        normalizedProfile.apiKey = rawApiKey;
       }
 
-      if ('output' in p && p['output'] !== undefined) {
-        if (!OUTPUT_FORMATS.includes(p['output'] as OutputFormat)) {
+      if ('output' in p && p.output !== undefined) {
+        if (!OUTPUT_FORMATS.includes(p.output as OutputFormat)) {
           throw new ConfigValidationError(
             `profiles.${name}.output must be one of: ${OUTPUT_FORMATS.join(', ')}`
           );
         }
+        normalizedProfile.output = p.output as OutputFormat;
       }
 
-      if ('timeout' in p && p['timeout'] !== undefined) {
-        if (typeof p['timeout'] !== 'number' || p['timeout'] <= 0) {
+      if ('timeout' in p && p.timeout !== undefined) {
+        if (typeof p.timeout !== 'number' || p.timeout <= 0) {
           throw new ConfigValidationError(`profiles.${name}.timeout must be a positive number`);
         }
+        normalizedProfile.timeout = p.timeout;
       }
+
+      normalizedProfiles[name] = normalizedProfile;
     }
+
+    normalized.profiles = normalizedProfiles;
   }
 
-  return obj as UcliConfig;
+  return normalized;
 }

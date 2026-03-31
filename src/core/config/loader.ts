@@ -94,10 +94,11 @@ export function resolveConfig(
   const fileConfig = loadConfigFile(configPath);
 
   // Determine active profile name
-  const profileName = flags.profile ?? envConfig.profile;
+  const requestedProfileName = flags.profile ?? envConfig.profile;
+  const activeProfileName = requestedProfileName ?? fileConfig.default_profile;
 
   // Resolve active profile
-  const activeProfile = resolveProfile(fileConfig, profileName);
+  const activeProfile = resolveProfile(fileConfig, requestedProfileName);
 
   // Merge: flags > env > active profile > defaults
   const resolved: ResolvedConfig = {
@@ -111,7 +112,7 @@ export function resolveConfig(
       flags.timeout ??
       activeProfile?.timeout ??
       CONFIG_DEFAULTS.timeout,
-    profile: profileName,
+    profile: activeProfileName,
   };
 
   return resolved;

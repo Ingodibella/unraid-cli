@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createProgram } from '../../../src/cli/index.js';
 import { GraphQLResponseError } from '../../../src/core/errors/index.js';
 
@@ -29,12 +29,21 @@ vi.mock('../../../src/core/graphql/client.js', async (importOriginal) => {
   };
 });
 
+
 describe('system command group', () => {
+  let tmpConfigDir: string | undefined;
   beforeEach(() => {
     vi.clearAllMocks();
     executeMock.mockResolvedValue(fixture);
     process.env.UCLI_HOST = 'http://tower.local:7777';
     process.env.UCLI_API_KEY = 'test-api-key';
+  });
+
+  afterEach(() => {
+    if (tmpConfigDir) {
+      rmSync(tmpConfigDir, { recursive: true, force: true });
+      tmpConfigDir = undefined;
+    }
   });
 
   it('registers the system command and all subcommands', () => {
@@ -49,6 +58,41 @@ describe('system command group', () => {
       'uptime',
       'resources',
     ]);
+  });
+
+  it('reads host and apiKey from config.yaml when env vars are absent', async () => {
+    const program = createProgram();
+    let stdout = '';
+    tmpConfigDir = resolve(process.cwd(), '.tmp-test-config-system');
+    mkdirSync(join(tmpConfigDir, 'ucli'), { recursive: true });
+    writeFileSync(
+      join(tmpConfigDir, 'ucli', 'config.yaml'),
+      `
+default_profile: tower
+profiles:
+  tower:
+    host: http://tower.local:7777
+    api_key: config-api-key
+`,
+      'utf8',
+    );
+
+    delete process.env.UCLI_HOST;
+    delete process.env.UCLI_API_KEY;
+    process.env.XDG_CONFIG_HOME = tmpConfigDir;
+
+    process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
+      stdout += String(chunk);
+      return true;
+    });
+
+    await program.parseAsync(['node', 'ucli', 'system', 'info', '--output', 'json']);
+
+    expect(JSON.parse(stdout)).toMatchObject({ hostname: 'tower' });
+    expect(createClientMock).toHaveBeenCalledWith(expect.objectContaining({
+      endpoint: 'http://tower.local:7777/graphql',
+      apiKey: 'config-api-key',
+    }));
   });
 
   it('renders system info in human mode', async () => {

@@ -89,6 +89,23 @@ describe('validateConfig', () => {
     expect(config.profiles?.['home']?.host).toBe('http://tower:7777');
   });
 
+  it('normalizes api_key to apiKey', () => {
+    const config = validateConfig({
+      default_profile: 'tower',
+      profiles: {
+        tower: {
+          host: 'http://tower:7777',
+          api_key: 'snake-key',
+        },
+      },
+    });
+
+    expect(config.profiles?.['tower']).toEqual({
+      host: 'http://tower:7777',
+      apiKey: 'snake-key',
+    });
+  });
+
   it('throws on non-object input', () => {
     expect(() => validateConfig('not an object')).toThrow(ConfigValidationError);
     expect(() => validateConfig(42)).toThrow(ConfigValidationError);
@@ -248,6 +265,7 @@ profiles:
     expect(result.host).toBe('http://tower:7777');
     expect(result.output).toBe('table');
     expect(result.timeout).toBe(60);
+    expect(result.profile).toBe('home');
   });
 
   it('CLI flags override env vars and profile', () => {
@@ -334,5 +352,26 @@ profiles:
     };
     const result = resolveConfig({}, env);
     expect(result.host).toBe('http://workserver:7777');
+    expect(result.profile).toBe('work');
+  });
+
+  it('reads api_key from config profiles', () => {
+    const configDir = join(tmpDir, 'ucli');
+    mkdirSync(configDir, { recursive: true });
+    writeFileSync(
+      join(configDir, 'config.yaml'),
+      `
+default_profile: tower
+profiles:
+  tower:
+    host: http://tower:7777
+    api_key: snake-key
+`
+    );
+    const env = { XDG_CONFIG_HOME: tmpDir };
+    const result = resolveConfig({}, env);
+    expect(result.host).toBe('http://tower:7777');
+    expect(result.apiKey).toBe('snake-key');
+    expect(result.profile).toBe('tower');
   });
 });
