@@ -127,7 +127,7 @@
       "id": "TASK-012",
       "name": "Command: array show|status|devices + parity status|history",
       "priority": 12,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-012.md",
       "dependencies": [
         "TASK-004",

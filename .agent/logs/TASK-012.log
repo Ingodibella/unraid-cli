@@ -1,0 +1,30 @@
+TASK-012 completed on 2026-03-31.
+
+Scope
+- Implemented array command group with subcommands: show, status, devices, parity status, parity history
+- Added GraphQL queries and typed result models in src/generated/array.ts
+- Added shared array command helpers in src/commands/array/shared.ts
+- Registered array command in src/cli/index.ts
+- Added array fixtures and command tests
+
+Files
+- src/cli/index.ts
+- src/commands/array/index.ts
+- src/commands/array/show.ts
+- src/commands/array/status.ts
+- src/commands/array/devices.ts
+- src/commands/array/parity.ts
+- src/commands/array/shared.ts
+- src/generated/array.ts
+- tests/fixtures/array-response.json
+- tests/unit/commands/array.test.ts
+- .agent/tasks.json
+
+Validation
+- npm run typecheck && npx vitest run tests/unit/commands/array.test.ts
+- npm test
+
+Result
+- Typecheck passed
+- Targeted array command tests passed: 11/11
+- Full suite passed: 281/281
