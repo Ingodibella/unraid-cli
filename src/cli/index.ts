@@ -18,6 +18,11 @@ import { createNotificationsCommand } from '../commands/notifications/index.js';
 import { createSystemCommand } from '../commands/system/index.js';
 import { createVmsCommand } from '../commands/vms/index.js';
 import { createSharesCommand } from '../commands/shares/index.js';
+import { createLogsCommand } from '../commands/logs/index.js';
+import { createServicesCommand } from '../commands/services/index.js';
+import { createNetworkCommand } from '../commands/network/index.js';
+import { createSchemaCommand } from '../commands/schema/index.js';
+import { createDiagnosticsCommand } from '../commands/diagnostics/index.js';
 import { DEFAULTS, OUTPUT_FORMATS } from './globals.js';
 
 /** Parse an integer from string (ignores Commander's second arg to avoid radix issues) */
@@ -114,6 +119,11 @@ export function createProgram(): Command {
   program.addCommand(createNotificationsCommand());
   program.addCommand(createVmsCommand());
   program.addCommand(createSharesCommand());
+  program.addCommand(createLogsCommand());
+  program.addCommand(createServicesCommand());
+  program.addCommand(createNetworkCommand());
+  program.addCommand(createSchemaCommand());
+  program.addCommand(createDiagnosticsCommand());
 
   return program;
 }

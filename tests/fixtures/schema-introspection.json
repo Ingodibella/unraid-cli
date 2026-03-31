@@ -1,0 +1,222 @@
+{
+  "__schema": {
+    "description": "Unraid GraphQL API v7.1.0",
+    "queryType": { "name": "Query" },
+    "mutationType": { "name": "Mutation" },
+    "subscriptionType": null,
+    "directives": [],
+    "types": [
+      {
+        "kind": "OBJECT",
+        "name": "Query",
+        "description": null,
+        "fields": [
+          {
+            "name": "system",
+            "description": null,
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "type": { "kind": "OBJECT", "name": "System", "ofType": null }
+          },
+          {
+            "name": "array",
+            "description": null,
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "type": { "kind": "OBJECT", "name": "Array", "ofType": null }
+          },
+          {
+            "name": "notifications",
+            "description": null,
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": { "kind": "OBJECT", "name": "Notification", "ofType": null }
+            }
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Mutation",
+        "description": null,
+        "fields": [
+          {
+            "name": "array",
+            "description": null,
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "type": { "kind": "OBJECT", "name": "Array", "ofType": null }
+          },
+          {
+            "name": "notifications",
+            "description": null,
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "type": { "kind": "OBJECT", "name": "NotificationMutation", "ofType": null }
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "System",
+        "description": null,
+        "fields": [
+          {
+            "name": "info",
+            "description": null,
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "type": { "kind": "OBJECT", "name": "Info", "ofType": null }
+          },
+          {
+            "name": "status",
+            "description": null,
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "type": { "kind": "SCALAR", "name": "String", "ofType": null }
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Info",
+        "description": "Server metadata v7.1.0",
+        "fields": [
+          {
+            "name": "apiVersion",
+            "description": null,
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "type": { "kind": "SCALAR", "name": "String", "ofType": null }
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Array",
+        "description": null,
+        "fields": [
+          {
+            "name": "state",
+            "description": null,
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "type": { "kind": "SCALAR", "name": "String", "ofType": null }
+          },
+          {
+            "name": "devices",
+            "description": null,
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": { "kind": "OBJECT", "name": "Disk", "ofType": null }
+            }
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Disk",
+        "description": null,
+        "fields": [
+          {
+            "name": "name",
+            "description": null,
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "type": { "kind": "NON_NULL", "name": null, "ofType": { "kind": "SCALAR", "name": "String", "ofType": null } }
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Notification",
+        "description": null,
+        "fields": [
+          {
+            "name": "id",
+            "description": null,
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "type": { "kind": "NON_NULL", "name": null, "ofType": { "kind": "SCALAR", "name": "ID", "ofType": null } }
+          },
+          {
+            "name": "title",
+            "description": null,
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "type": { "kind": "SCALAR", "name": "String", "ofType": null }
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "NotificationMutation",
+        "description": null,
+        "fields": [
+          {
+            "name": "archive",
+            "description": null,
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "type": { "kind": "SCALAR", "name": "Boolean", "ofType": null }
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      { "kind": "SCALAR", "name": "String", "description": null, "specifiedByURL": null },
+      { "kind": "SCALAR", "name": "Boolean", "description": null, "specifiedByURL": null },
+      { "kind": "SCALAR", "name": "ID", "description": null, "specifiedByURL": null }
+    ]
+  }
+}

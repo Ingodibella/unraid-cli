@@ -1,0 +1,27 @@
+[2026-03-31 13:39:00 +0200] TASK-023 completed
+
+Implemented schema exploration command group:
+- schema info
+- schema queries
+- schema mutations
+- schema type <name>
+- schema fields <query> --depth
+- schema export --format json|sdl --file
+- schema diff --snapshot
+- schema validate
+
+Added shared helper for introspection access and schema transforms:
+- src/commands/schema/shared.ts
+
+CLI registration:
+- Added schema command registration in src/cli/index.ts
+
+Tests added:
+- tests/unit/commands/schema.test.ts
+- tests/fixtures/schema-introspection.json
+
+Verification:
+- npm run typecheck && npx vitest run tests/unit/commands/schema.test.ts
+- npm test
+
+TASK-023 marked done in .agent/tasks.json

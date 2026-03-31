@@ -270,7 +270,7 @@
       "id": "TASK-023",
       "name": "Command: schema info|queries|mutations|type|fields|export|diff|validate",
       "priority": 23,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-023.md",
       "dependencies": [
         "TASK-010",
@@ -282,20 +282,21 @@
       "id": "TASK-024",
       "name": "Command: diagnostics doctor|ping|latency|permissions|env|graphql",
       "priority": 24,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-024.md",
       "dependencies": [
         "TASK-004",
         "TASK-003",
         "TASK-010"
       ],
-      "validation": "tests/unit/commands/diagnostics.test.ts passes"
+      "validation": "tests/unit/commands/diagnostics.test.ts passes",
+      "updatedAt": "2026-03-31T11:39:03.290Z"
     },
     {
       "id": "TASK-025",
       "name": "Command: logs list|get|tail|system|search + services list|get|status + network status|interfaces",
       "priority": 25,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-025.md",
       "dependencies": [
         "TASK-004",
