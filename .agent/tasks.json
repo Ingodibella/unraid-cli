@@ -103,7 +103,7 @@
       "id": "TASK-010",
       "name": "Schema Snapshot + Introspection Tooling",
       "priority": 10,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-010.md",
       "dependencies": [
         "TASK-004"

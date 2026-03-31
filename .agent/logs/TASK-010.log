@@ -1,0 +1,25 @@
+TASK-010 done
+
+Summary
+- implemented GraphQL schema introspection helpers
+- added JSON and SDL schema snapshot save and load support
+- added schema version extraction and capability detection utilities
+- exported new graphql and capabilities modules
+- added unit coverage for introspection, snapshots, version extraction, and missing capability detection
+
+Changed Files
+- src/core/graphql/introspection.ts
+- src/core/graphql/index.ts
+- src/core/capabilities/detector.ts
+- src/core/capabilities/schema-version.ts
+- src/core/capabilities/index.ts
+- tests/unit/core/introspection.test.ts
+- .agent/tasks.json
+
+Validation
+- npm run typecheck && npx vitest run tests/unit/core/introspection.test.ts
+- npm test
+
+Results
+- targeted: 1 file passed, 7 tests passed
+- full suite: 11 files passed, 263 tests passed
