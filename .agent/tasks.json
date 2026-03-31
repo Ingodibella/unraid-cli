@@ -17,7 +17,9 @@
       "priority": 2,
       "status": "done",
       "spec": "tasks/TASK-002.md",
-      "dependencies": ["TASK-001"],
+      "dependencies": [
+        "TASK-001"
+      ],
       "validation": "tests/unit/core/config.test.ts passes"
     },
     {
@@ -26,7 +28,9 @@
       "priority": 3,
       "status": "done",
       "spec": "tasks/TASK-003.md",
-      "dependencies": ["TASK-002"],
+      "dependencies": [
+        "TASK-002"
+      ],
       "validation": "tests/unit/core/auth.test.ts passes"
     },
     {
@@ -35,7 +39,9 @@
       "priority": 4,
       "status": "done",
       "spec": "tasks/TASK-004.md",
-      "dependencies": ["TASK-003"],
+      "dependencies": [
+        "TASK-003"
+      ],
       "validation": "tests/unit/core/graphql-client.test.ts passes"
     },
     {
@@ -44,7 +50,9 @@
       "priority": 5,
       "status": "done",
       "spec": "tasks/TASK-005.md",
-      "dependencies": ["TASK-004"],
+      "dependencies": [
+        "TASK-004"
+      ],
       "validation": "tests/unit/core/transport.test.ts passes"
     },
     {
@@ -53,7 +61,9 @@
       "priority": 6,
       "status": "done",
       "spec": "tasks/TASK-006.md",
-      "dependencies": ["TASK-004"],
+      "dependencies": [
+        "TASK-004"
+      ],
       "validation": "tests/unit/core/errors.test.ts passes"
     },
     {
@@ -62,16 +72,20 @@
       "priority": 7,
       "status": "done",
       "spec": "tasks/TASK-007.md",
-      "dependencies": ["TASK-001"],
+      "dependencies": [
+        "TASK-001"
+      ],
       "validation": "tests/unit/core/output.test.ts passes"
     },
     {
       "id": "TASK-008",
       "name": "Safety Engine (S0-S3 classification + confirmation guards)",
       "priority": 8,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-008.md",
-      "dependencies": ["TASK-001"],
+      "dependencies": [
+        "TASK-001"
+      ],
       "validation": "tests/unit/core/safety.test.ts passes"
     },
     {
@@ -80,7 +94,9 @@
       "priority": 9,
       "status": "pending",
       "spec": "tasks/TASK-009.md",
-      "dependencies": ["TASK-007"],
+      "dependencies": [
+        "TASK-007"
+      ],
       "validation": "tests/unit/core/filters.test.ts passes"
     },
     {
@@ -89,7 +105,9 @@
       "priority": 10,
       "status": "pending",
       "spec": "tasks/TASK-010.md",
-      "dependencies": ["TASK-004"],
+      "dependencies": [
+        "TASK-004"
+      ],
       "validation": "tests/unit/core/introspection.test.ts passes"
     },
     {
@@ -98,7 +116,11 @@
       "priority": 11,
       "status": "pending",
       "spec": "tasks/TASK-011.md",
-      "dependencies": ["TASK-004", "TASK-007", "TASK-006"],
+      "dependencies": [
+        "TASK-004",
+        "TASK-007",
+        "TASK-006"
+      ],
       "validation": "tests/unit/commands/system.test.ts passes"
     },
     {
@@ -107,7 +129,11 @@
       "priority": 12,
       "status": "pending",
       "spec": "tasks/TASK-012.md",
-      "dependencies": ["TASK-004", "TASK-007", "TASK-006"],
+      "dependencies": [
+        "TASK-004",
+        "TASK-007",
+        "TASK-006"
+      ],
       "validation": "tests/unit/commands/array.test.ts passes"
     },
     {
@@ -116,7 +142,11 @@
       "priority": 13,
       "status": "pending",
       "spec": "tasks/TASK-013.md",
-      "dependencies": ["TASK-004", "TASK-007", "TASK-009"],
+      "dependencies": [
+        "TASK-004",
+        "TASK-007",
+        "TASK-009"
+      ],
       "validation": "tests/unit/commands/disks.test.ts passes"
     },
     {
@@ -125,7 +155,11 @@
       "priority": 14,
       "status": "pending",
       "spec": "tasks/TASK-014.md",
-      "dependencies": ["TASK-004", "TASK-007", "TASK-009"],
+      "dependencies": [
+        "TASK-004",
+        "TASK-007",
+        "TASK-009"
+      ],
       "validation": "tests/unit/commands/containers.test.ts passes"
     },
     {
@@ -134,7 +168,11 @@
       "priority": 15,
       "status": "pending",
       "spec": "tasks/TASK-015.md",
-      "dependencies": ["TASK-004", "TASK-007", "TASK-009"],
+      "dependencies": [
+        "TASK-004",
+        "TASK-007",
+        "TASK-009"
+      ],
       "validation": "tests/unit/commands/vms.test.ts passes"
     },
     {
@@ -143,7 +181,11 @@
       "priority": 16,
       "status": "pending",
       "spec": "tasks/TASK-016.md",
-      "dependencies": ["TASK-004", "TASK-007", "TASK-009"],
+      "dependencies": [
+        "TASK-004",
+        "TASK-007",
+        "TASK-009"
+      ],
       "validation": "tests/unit/commands/notifications.test.ts passes"
     },
     {
@@ -152,7 +194,10 @@
       "priority": 17,
       "status": "pending",
       "spec": "tasks/TASK-017.md",
-      "dependencies": ["TASK-004", "TASK-007"],
+      "dependencies": [
+        "TASK-004",
+        "TASK-007"
+      ],
       "validation": "tests/unit/commands/shares.test.ts passes"
     },
     {
@@ -161,7 +206,15 @@
       "priority": 18,
       "status": "pending",
       "spec": "tasks/TASK-018.md",
-      "dependencies": ["TASK-011", "TASK-012", "TASK-013", "TASK-014", "TASK-015", "TASK-016", "TASK-017"],
+      "dependencies": [
+        "TASK-011",
+        "TASK-012",
+        "TASK-013",
+        "TASK-014",
+        "TASK-015",
+        "TASK-016",
+        "TASK-017"
+      ],
       "validation": "tests/contract/golden.test.ts passes"
     },
     {
@@ -170,7 +223,10 @@
       "priority": 19,
       "status": "pending",
       "spec": "tasks/TASK-019.md",
-      "dependencies": ["TASK-014", "TASK-008"],
+      "dependencies": [
+        "TASK-014",
+        "TASK-008"
+      ],
       "validation": "tests/unit/commands/containers-write.test.ts passes"
     },
     {
@@ -179,7 +235,10 @@
       "priority": 20,
       "status": "pending",
       "spec": "tasks/TASK-020.md",
-      "dependencies": ["TASK-015", "TASK-008"],
+      "dependencies": [
+        "TASK-015",
+        "TASK-008"
+      ],
       "validation": "tests/unit/commands/vms-write.test.ts passes"
     },
     {
@@ -188,7 +247,10 @@
       "priority": 21,
       "status": "pending",
       "spec": "tasks/TASK-021.md",
-      "dependencies": ["TASK-012", "TASK-008"],
+      "dependencies": [
+        "TASK-012",
+        "TASK-008"
+      ],
       "validation": "tests/unit/commands/array-write.test.ts passes"
     },
     {
@@ -197,7 +259,11 @@
       "priority": 22,
       "status": "pending",
       "spec": "tasks/TASK-022.md",
-      "dependencies": ["TASK-016", "TASK-013", "TASK-008"],
+      "dependencies": [
+        "TASK-016",
+        "TASK-013",
+        "TASK-008"
+      ],
       "validation": "tests/unit/commands/notifications-write.test.ts and disks-write.test.ts pass"
     },
     {
@@ -206,7 +272,10 @@
       "priority": 23,
       "status": "pending",
       "spec": "tasks/TASK-023.md",
-      "dependencies": ["TASK-010", "TASK-007"],
+      "dependencies": [
+        "TASK-010",
+        "TASK-007"
+      ],
       "validation": "tests/unit/commands/schema.test.ts passes"
     },
     {
@@ -215,7 +284,11 @@
       "priority": 24,
       "status": "pending",
       "spec": "tasks/TASK-024.md",
-      "dependencies": ["TASK-004", "TASK-003", "TASK-010"],
+      "dependencies": [
+        "TASK-004",
+        "TASK-003",
+        "TASK-010"
+      ],
       "validation": "tests/unit/commands/diagnostics.test.ts passes"
     },
     {
@@ -224,7 +297,11 @@
       "priority": 25,
       "status": "pending",
       "spec": "tasks/TASK-025.md",
-      "dependencies": ["TASK-004", "TASK-007", "TASK-009"],
+      "dependencies": [
+        "TASK-004",
+        "TASK-007",
+        "TASK-009"
+      ],
       "validation": "tests/unit/commands/logs.test.ts, services.test.ts, network.test.ts pass"
     }
   ]

@@ -1,0 +1,15 @@
+TASK-008 completed on 2026-03-31.
+
+Implemented:
+- Safety class registry for write commands with S0-S3 mapping
+- Confirmation guard flow for tty and non-tty execution
+- --yes and --force enforcement for critical and destructive actions
+- Shared assertSafety helper for command integration
+- Safety module exports
+
+Tests added:
+- tests/unit/core/safety.test.ts
+
+Validation:
+- npx vitest run
+- Result: 9 test files passed, 243 tests passed, 0 failed
