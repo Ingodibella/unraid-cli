@@ -1,0 +1,15 @@
+{
+  "name": "unraid-cli",
+  "displayName": "Unraid CLI",
+  "description": "TypeScript CLI for Unraid Server GraphQL API. 12 command groups for system, arrays, disks, containers, VMs, shares, logs, and diagnostics. Built for humans and AI agents.",
+  "version": "1.0.0",
+  "author": "Ingodibella",
+  "license": "MIT",
+  "repository": "https://github.com/Ingodibella/unraid-cli",
+  "tags": ["unraid", "cli", "graphql", "server", "nas", "docker", "terminal", "ai-agent", "typescript", "automation"],
+  "skillPath": "AGENTS.md",
+  "requirements": {
+    "binaries": ["node"],
+    "runtimes": ["node20+"]
+  }
+}

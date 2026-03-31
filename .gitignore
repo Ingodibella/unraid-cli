@@ -25,10 +25,8 @@ Thumbs.db
 # Generated GraphQL types (re-generate from schema)
 # src/generated/ is tracked but regenerated via codegen
 
-# Agent logs (local only)
-.agent/logs/
-.agent/history/
-.agent/screenshots/
+# Agent workspace (local dev only)
+.agent/
 
 # Debug
 *.log
