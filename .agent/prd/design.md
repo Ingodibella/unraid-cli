@@ -196,7 +196,7 @@ S3: Require both --yes AND --force. Extra warning message.
 default_profile: home
 profiles:
   home:
-    host: http://192.168.2.19:7777
+    host: http://192.168.1.100:7777
     output: human
     timeout: 30
   office:
@@ -209,9 +209,9 @@ profiles:
 # credentials.yaml (permissions: 0600)
 profiles:
   home:
-    api_key: "encrypted-or-plaintext-key"
+    api_key: "YOUR_API_KEY"
   office:
-    api_key: "encrypted-or-plaintext-key"
+    api_key: "YOUR_API_KEY"
 ```
 
 ### Auth Flow

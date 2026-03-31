@@ -38,8 +38,8 @@ TypeScript typecheck: **GRÜN** (0 Errors)
 
 ## Live-Test Credentials
 ```bash
-export UCLI_HOST=http://192.168.2.19:7777
-export UCLI_API_KEY=3eccfcc379e06c1fc701673643c313d8983fab149cc836edc3cbe20b14163ad4
+export UCLI_HOST=http://192.168.1.100:7777
+export UCLI_API_KEY=YOUR_API_KEY
 ```
 
 ## Nächste Schritte
