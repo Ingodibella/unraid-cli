@@ -1,0 +1,17 @@
+# TASK-005 Log
+
+## Status: done
+
+## Was implementiert
+- `src/core/transport/http.ts`: executeHttp() factory mit AbortController-Timeout, normalisierten Fehlerklassen (TransportError, NetworkError, TimeoutError, HttpError, RateLimitError), parseRetryAfter() fuer Retry-After Header-Parsing
+- `src/core/transport/retry.ts`: withRetry() mit exponentiellem Backoff und Jitter, isRetryable() Guard, computeDelay() Helper. Write-Ops (S1-S3) werden nie automatisch wiederholt.
+- `src/core/transport/rate-limit.ts`: withRateLimit() wartet auf Retry-After oder defaultBackoffMs, bis maxRetries erschoepft
+
+## Tests
+- `tests/unit/core/transport.test.ts`: 43 neue Tests
+
+## Test-Ergebnis (gesamt)
+179 Tests, 6 Suites, alle bestanden. Kein Fehler.
+
+## Git Commit
+78b2337 [TASK-005] HTTP transport + retry + rate limit handling

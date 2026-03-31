@@ -1,0 +1,17 @@
+TASK-016: Command: notifications list|get|latest|watch
+Status: done
+Date: 2026-03-31
+
+Implementation:
+- src/commands/notifications/ (index, list, get, latest, watch, shared)
+- src/generated/notifications.ts (GraphQL queries + types)
+- CLI registered in src/cli/index.ts
+- tests/fixtures/notifications-response.json
+- tests/unit/commands/notifications.test.ts (6 tests)
+
+Notes:
+- Sub-agent initial attempt failed on watch test (setInterval DI binding issue)
+- Fixed: watch test uses createNotificationsWatchCommand() directly with injected deps
+- Fixed: JSON output assertion adjusted for pretty-printed format
+
+Test: 309/309 green (17 files)

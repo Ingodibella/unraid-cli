@@ -179,7 +179,7 @@
       "id": "TASK-016",
       "name": "Command: notifications list|get|latest|watch",
       "priority": 16,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-016.md",
       "dependencies": [
         "TASK-004",

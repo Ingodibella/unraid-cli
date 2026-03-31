@@ -1,0 +1,179 @@
+import type { Command } from 'commander';
+import { DEFAULTS, OUTPUT_FORMATS, resolveGlobalOptions, type GlobalOptions } from '../../cli/globals.js';
+import { resolveAuth } from '../../core/auth/resolver.js';
+import { resolveConfig } from '../../core/config/loader.js';
+import { InvalidUsageError, NotFoundError } from '../../core/errors/graphql-errors.js';
+import { paginate } from '../../core/filters/index.js';
+import { createClient, type UcliGraphQLClient } from '../../core/graphql/client.js';
+import { renderOutput } from '../../core/output/renderer.js';
+import {
+  NOTIFICATIONS_SNAPSHOT_QUERY,
+  type NotificationRecord,
+  type NotificationsSnapshotQuery,
+} from '../../generated/notifications.js';
+
+export interface NotificationsCommandDependencies {
+  createGraphQLClient: typeof createClient;
+  stdoutWrite: (chunk: string) => boolean;
+  stderrWrite: (chunk: string) => boolean;
+  setInterval: typeof globalThis.setInterval;
+  clearInterval: typeof globalThis.clearInterval;
+  addSignalListener: (signal: NodeJS.Signals, listener: () => void) => void;
+  removeSignalListener: (signal: NodeJS.Signals, listener: () => void) => void;
+}
+
+export const defaultNotificationsCommandDependencies: NotificationsCommandDependencies = {
+  createGraphQLClient: createClient,
+  stdoutWrite: (chunk: string) => process.stdout.write(chunk),
+  stderrWrite: (chunk: string) => process.stderr.write(chunk),
+  setInterval: globalThis.setInterval,
+  clearInterval: globalThis.clearInterval,
+  addSignalListener: (signal, listener) => process.on(signal, listener),
+  removeSignalListener: (signal, listener) => process.off(signal, listener),
+};
+
+function toGraphQLEndpoint(host: string): string {
+  return host.endsWith('/graphql') ? host : `${host.replace(/\/$/, '')}/graphql`;
+}
+
+function createNotificationsClient(
+  options: GlobalOptions,
+  dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
+): UcliGraphQLClient {
+  const resolvedConfig = resolveConfig(options);
+  const auth = resolveAuth({
+    host: options.host ?? resolvedConfig.host,
+    apiKey: options.apiKey ?? resolvedConfig.apiKey,
+    profile: options.profile ?? resolvedConfig.profile,
+  });
+
+  return dependencies.createGraphQLClient({
+    endpoint: toGraphQLEndpoint(auth.host),
+    apiKey: auth.apiKey,
+    timeout: options.timeout * 1000,
+    debug: options.debug,
+  });
+}
+
+export async function fetchNotifications(
+  options: GlobalOptions,
+  dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
+): Promise<NotificationRecord[]> {
+  const data = await createNotificationsClient(options, dependencies).execute<NotificationsSnapshotQuery>(
+    NOTIFICATIONS_SNAPSHOT_QUERY,
+  );
+
+  return data.notifications;
+}
+
+export async function fetchNotification(
+  id: string,
+  options: GlobalOptions,
+  dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
+): Promise<NotificationRecord> {
+  const notifications = await fetchNotifications(options, dependencies);
+  const notification = notifications.find((entry) => entry.id === id) ?? null;
+  if (notification == null) {
+    throw new NotFoundError(`Notification not found: ${id}`);
+  }
+
+  return notification;
+}
+
+export function writeRenderedOutput(
+  data: unknown,
+  options: GlobalOptions,
+  dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
+): void {
+  dependencies.stdoutWrite(
+    renderOutput(data, {
+      format: options.output,
+      fields: options.fields,
+      noColor: options.noColor,
+      quiet: options.quiet,
+      verbose: options.verbose,
+      stdoutIsTTY: process.stdout.isTTY,
+    }),
+  );
+}
+
+export function applyNotificationsCommandOptions(command: Command): Command {
+  return command
+    .option('--host <url>', 'Unraid server URL')
+    .option('--api-key <key>', 'API key for authentication')
+    .option('--profile <name>', 'Configuration profile to use')
+    .option('-o, --output <format>', `Output format (${OUTPUT_FORMATS.join(', ')})`, DEFAULTS.output)
+    .option('--fields <fields>', 'Comma-separated list of fields to include')
+    .option('--timeout <seconds>', 'Request timeout in seconds', Number.parseInt, DEFAULTS.timeout)
+    .option('--debug', 'Enable debug output on stderr')
+    .option('-v, --verbose', 'Enable verbose output')
+    .option('-q, --quiet', 'Suppress non-essential output')
+    .option('--no-color', 'Disable colored output');
+}
+
+export function applyNotificationsListOptions(command: Command): Command {
+  return applyNotificationsCommandOptions(command)
+    .option('--filter <expr>', 'Filter expression (e.g. severity=alert)')
+    .option('--sort <expr>', 'Sort expression (e.g. timestamp:desc)')
+    .option('--page <number>', 'Page number for paginated results', Number.parseInt)
+    .option('--page-size <number>', 'Items per page', Number.parseInt)
+    .option('--all', 'Fetch all pages (disable pagination)');
+}
+
+export function applyNotificationsLatestOptions(command: Command): Command {
+  return applyNotificationsCommandOptions(command)
+    .option('--limit <number>', 'Number of notifications to return', Number.parseInt, 10);
+}
+
+export function applyNotificationsWatchOptions(command: Command): Command {
+  return applyNotificationsCommandOptions(command)
+    .option('--interval <seconds>', 'Polling interval in seconds', Number.parseInt, 10);
+}
+
+export function resolveNotificationsOptions(command: Command): GlobalOptions {
+  const parentOptions = command.parent?.optsWithGlobals() ?? {};
+  const localOptions = command.opts();
+  return resolveGlobalOptions({ ...parentOptions, ...localOptions });
+}
+
+export function paginateItems<T>(items: readonly T[], options: GlobalOptions): T[] {
+  return paginate(items, {
+    page: options.page,
+    pageSize: options.pageSize,
+    all: options.all,
+  }).items;
+}
+
+export function toNotificationListRecord(notification: NotificationRecord): Record<string, unknown> {
+  return {
+    id: notification.id,
+    title: notification.title,
+    message: notification.message,
+    severity: normalizeSeverity(notification.severity),
+    timestamp: notification.timestamp,
+    read: notification.read,
+  };
+}
+
+export function normalizeSeverity(severity: string | null): string | null {
+  return severity?.trim().toLowerCase() ?? null;
+}
+
+export function timestampToMillis(timestamp: string | null): number {
+  if (timestamp == null) {
+    return 0;
+  }
+
+  const value = Date.parse(timestamp);
+  return Number.isFinite(value) ? value : 0;
+}
+
+export function sortByNewest(notifications: NotificationRecord[]): NotificationRecord[] {
+  return [...notifications].sort((left, right) => timestampToMillis(right.timestamp) - timestampToMillis(left.timestamp));
+}
+
+export function validateIntervalSeconds(intervalSeconds: number): void {
+  if (!Number.isFinite(intervalSeconds) || intervalSeconds < 1) {
+    throw new InvalidUsageError('Watch interval must be at least 1 second.');
+  }
+}

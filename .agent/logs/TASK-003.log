@@ -1,0 +1,19 @@
+# TASK-003 Log
+
+## Status: done
+
+## Implementiert
+- `src/core/auth/api-key.ts`: isValidApiKey (non-empty string check), normalizeApiKey (trim)
+- `src/core/auth/credentials.ts`: readCredentials / writeCredentials (0600 permissions), getProfileApiKey, setProfileApiKey. Credentials at ~/.config/ucli/credentials.yaml (XDG-compliant).
+- `src/core/auth/resolver.ts`: resolveAuth() mit Prioritaetskette --api-key flag > UCLI_API_KEY env > profile credentials. Wirft AuthError (exitCode=3) mit Hinweis auf "ucli auth login" bei fehlenden Credentials.
+- `src/core/auth/index.ts`: Re-exports aller Auth-Module
+
+## Tests
+- `tests/unit/core/auth.test.ts`: 35 Tests, alle bestanden
+- Abgedeckt: Flag-Override, Env-Override, Profile-Credential-Loading, fehlende Credentials (AuthError), exitCode 3, Datei-Permissions (0600), Whitespace-Trimming
+
+## Ergebnis
+35/35 Tests bestanden (1 Versuch)
+
+## Git Commit
+f0895d0 - [TASK-003] Auth Resolver + Credential Storage

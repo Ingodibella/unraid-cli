@@ -1,0 +1,23 @@
+# TASK-002 Log
+
+## Status: done
+
+## Implementiert
+- `src/core/config/schema.ts`: UcliConfig/ProfileConfig/ResolvedConfig types, validateConfig() function
+- `src/core/config/env.ts`: readEnvConfig() reads UCLI_HOST, UCLI_API_KEY, UCLI_PROFILE, UCLI_CONFIG
+- `src/core/config/profiles.ts`: resolveProfile() and listProfiles() helpers
+- `src/core/config/loader.ts`: loadConfigFile() (XDG-aware, YAML parsing), resolveConfig() merger
+- `src/core/config/index.ts`: re-exports all modules
+
+## Besonderheiten
+- Missing config file is silently treated as empty config (no error)
+- Invalid YAML or semantically wrong config throws ConfigValidationError (exit code 2 semantics)
+- UCLI_CONFIG overrides config path entirely
+- Resolution order: CLI flags > env vars > active profile (by name) > default_profile > built-in defaults
+
+## Tests
+- `tests/unit/core/config.test.ts`: 30 tests, alle bestanden
+- Deckt ab: XDG paths, env vars, profile resolution, file loading, validation errors, flag overrides
+
+## Git Commit
+5d0e0dd [TASK-002] Config Loader + XDG Paths + Env Overrides

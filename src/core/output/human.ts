@@ -84,12 +84,16 @@ function formatString(value: string, painter: typeof chalk): string {
     return painter.green(value);
   }
 
-  if (['stopped', 'offline', 'failed', 'error'].includes(lowered)) {
+  if (['stopped', 'offline', 'failed', 'error', 'alert', 'critical', 'fatal'].includes(lowered)) {
     return painter.red(value);
   }
 
-  if (['degraded', 'warning', 'pending'].includes(lowered)) {
+  if (['degraded', 'warning', 'pending', 'notice'].includes(lowered)) {
     return painter.yellow(value);
+  }
+
+  if (['info'].includes(lowered)) {
+    return painter.blue(value);
   }
 
   return value;

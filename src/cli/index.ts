@@ -14,6 +14,7 @@ import { formatUserError, getExitCode } from '../core/errors/user-errors.js';
 import { createArrayCommand } from '../commands/array/index.js';
 import { createContainersCommand } from '../commands/containers/index.js';
 import { createDisksCommand } from '../commands/disks/index.js';
+import { createNotificationsCommand } from '../commands/notifications/index.js';
 import { createSystemCommand } from '../commands/system/index.js';
 import { createVmsCommand } from '../commands/vms/index.js';
 import { DEFAULTS, OUTPUT_FORMATS } from './globals.js';
@@ -109,6 +110,7 @@ export function createProgram(): Command {
   program.addCommand(createArrayCommand());
   program.addCommand(createDisksCommand());
   program.addCommand(createContainersCommand());
+  program.addCommand(createNotificationsCommand());
   program.addCommand(createVmsCommand());
 
   return program;

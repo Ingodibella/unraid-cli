@@ -1,0 +1,19 @@
+2026-03-30 TASK-006 done
+
+Implemented:
+- kept the CLI error boundary in src/cli/index.ts and made it explicitly testable via injected dependencies for run, stderr write, and exit
+- updated tests/unit/cli/program.test.ts to test main() through dependency injection instead of spying on the ESM module namespace
+
+Why this fix:
+- the blocker was caused by an ESM spy mismatch, not by broken runtime behavior
+- main() previously closed over the local run binding, so spying on cliModule.run was not a reliable test seam
+- dependency injection is the minimal clean fix because it preserves production behavior and gives the tests an honest, deterministic boundary to assert
+
+Validation:
+- npx vitest run
+- Result: 7 test files passed, 212 tests passed, 0 failed
+
+Task status:
+- TASK-006 marked done in .agent/tasks.json
+- blocked_reason removed
+- ready for next task

@@ -1,0 +1,38 @@
+# TASK-004 Log
+
+## Status: done
+
+## Implementiert
+
+- `src/core/graphql/client.ts`: `createClient(options)` Factory
+  - `GraphQLClientOptions` interface (endpoint, apiKey, timeout, debug, requestId)
+  - `x-api-key` und `x-request-id` Header werden automatisch injiziert
+  - Timeout via custom fetch wrapper mit AbortController (default 30s)
+  - Request ID per UUID generiert (oder extern uebergeben)
+  - Debug-Modus loggt Request/Response auf stderr
+  - `GraphQLResponseError` (exitCode=8) bei GraphQL-Fehlern in der Response
+  - `UcliGraphQLClient` Interface mit typisierter `execute<T>()` Methode
+- `src/core/graphql/operations.ts`: Leere Operations-Registry (Platzhalter)
+
+## Tests
+
+- `tests/unit/core/graphql-client.test.ts`: 23 Tests
+  - Client-Erstellung und Optionen
+  - Auth-Header-Injektion (x-api-key, x-request-id)
+  - Request ID Generierung und Eindeutigkeit
+  - Timeout-Konfiguration (fetch wrapper vorhanden)
+  - Variablen-Weiterleitung
+  - GraphQL-Error-Erkennung und GraphQLResponseError-Throw
+  - exitCode=8 auf GraphQLResponseError
+  - requestId auf GraphQLResponseError
+  - Re-throw nicht-GraphQL-Fehler unveraendert
+  - Debug-Modus stderr-Ausgabe (request, response, errors)
+
+## Ergebnis
+
+- 23/23 Tests bestanden (1. Versuch)
+- Gesamte Suite: 136/136 Tests bestanden
+
+## Git Commit
+
+884ba1d [TASK-004] GraphQL client core with auth header injection, timeout, debug, and error handling
