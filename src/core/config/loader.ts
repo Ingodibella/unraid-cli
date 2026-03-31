@@ -5,7 +5,7 @@
  * CLI flags > env vars > active profile > default profile > built-in defaults.
  */
 
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 import { parse as parseYaml } from 'yaml';
@@ -20,6 +20,39 @@ const CONFIG_DEFAULTS: ResolvedConfig = {
   output: DEFAULTS.output,
   timeout: DEFAULTS.timeout,
 };
+
+/**
+ * Check config file permissions and warn if too permissive.
+ * On Unix systems, warns (stderr) if the file is group- or world-readable.
+ * The fix: chmod 0600 <file>
+ *
+ * @param filePath - The config file path.
+ * @returns true if permissions are acceptable, false if insecure.
+ */
+export function checkConfigFilePermissions(filePath: string): boolean {
+  try {
+    const stats = statSync(filePath);
+    const mode = stats.mode;
+
+    // Extract permission bits for group and other
+    const groupRead = (mode & 0o040) !== 0;  // Group read
+    const otherRead = (mode & 0o004) !== 0;  // Others read
+
+    if (groupRead || otherRead) {
+      process.stderr.write(
+        `Warning: Config file "${filePath}" has insecure permissions. ` +
+        `Expected 0600 (owner read/write only), got ${`0${(mode & 0o777).toString(8)}`}. ` +
+        `Run: chmod 0600 "${filePath}"\n`
+      );
+      return false;
+    }
+    return true; // Permissions are good (no group/other read)
+  } catch {
+    // If we can't read stats (e.g., Windows), just return true
+    // to avoid false warnings. The security check is Unix-specific.
+    return true;
+  }
+}
 
 /**
  * Returns the XDG config home directory.
@@ -47,6 +80,9 @@ export function loadConfigFile(
   if (!existsSync(configPath)) {
     return {};
   }
+
+  // Check file permissions before reading
+  checkConfigFilePermissions(configPath);
 
   let content: string;
   try {

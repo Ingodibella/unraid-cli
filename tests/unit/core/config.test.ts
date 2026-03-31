@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { writeFileSync, mkdirSync, rmSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
@@ -7,6 +7,7 @@ import {
   resolveConfig,
   getDefaultConfigPath,
   getXdgConfigHome,
+  checkConfigFilePermissions,
 } from '../../../src/core/config/loader.js';
 import { validateConfig, ConfigValidationError } from '../../../src/core/config/schema.js';
 import { readEnvConfig } from '../../../src/core/config/env.js';
@@ -22,6 +23,7 @@ function makeTmpDir(): string {
 function writeConfig(dir: string, content: string): string {
   const path = join(dir, 'config.yaml');
   writeFileSync(path, content, 'utf-8');
+  chmodSync(path, 0o600);
   return path;
 }
 
