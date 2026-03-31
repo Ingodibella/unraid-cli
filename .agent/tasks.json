@@ -166,7 +166,7 @@
       "id": "TASK-015",
       "name": "Command: vms list|get|status|inspect",
       "priority": 15,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-015.md",
       "dependencies": [
         "TASK-004",

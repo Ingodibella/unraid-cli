@@ -1,0 +1,28 @@
+TASK-015 completed on 2026-03-31.
+
+Summary:
+- Implemented vms command group with list, get, status, and inspect subcommands.
+- Added GraphQL queries and TypeScript types for VM list and VM by-name access.
+- Added shared VM command helper for auth, options, pagination, and output rendering.
+- Registered vms command in the CLI.
+- Added VM fixture coverage and unit tests for list, detail, status summary, inspect, filtering, sorting, paging, fields, and output modes.
+
+Files changed:
+- src/cli/index.ts
+- src/generated/vms.ts
+- src/commands/vms/index.ts
+- src/commands/vms/list.ts
+- src/commands/vms/get.ts
+- src/commands/vms/status.ts
+- src/commands/vms/inspect.ts
+- src/commands/vms/shared.ts
+- tests/fixtures/vms-response.json
+- tests/unit/commands/vms.test.ts
+- .agent/tasks.json
+
+Validation:
+- npm run typecheck && npx vitest run tests/unit/commands/vms.test.ts
+- npm test
+
+Result:
+- TASK-015 marked done.
