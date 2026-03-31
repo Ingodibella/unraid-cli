@@ -1,4 +1,5 @@
 import Table from 'cli-table3';
+import { sanitizeTerminalText } from './sanitize.js';
 
 export interface TableRenderOptions {
   quiet?: boolean;
@@ -50,14 +51,14 @@ function renderTableFromObject(data: Record<string, unknown>): string {
 
 function formatCell(value: unknown): string {
   if (Array.isArray(value) || isPlainObject(value)) {
-    return JSON.stringify(value);
+    return sanitizeTerminalText(JSON.stringify(value));
   }
 
   if (value == null) {
     return '';
   }
 
-  return String(value);
+  return sanitizeTerminalText(String(value));
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

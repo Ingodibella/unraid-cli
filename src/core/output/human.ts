@@ -1,4 +1,5 @@
 import chalk, { Chalk } from 'chalk';
+import { sanitizeTerminalText } from './sanitize.js';
 
 export interface HumanRenderOptions {
   noColor?: boolean;
@@ -79,24 +80,25 @@ function formatValue(value: unknown, painter: typeof chalk): string {
 }
 
 function formatString(value: string, painter: typeof chalk): string {
-  const lowered = value.toLowerCase();
+  const safeValue = sanitizeTerminalText(value);
+  const lowered = safeValue.toLowerCase();
   if (['running', 'healthy', 'online', 'ok', 'success'].includes(lowered)) {
-    return painter.green(value);
+    return painter.green(safeValue);
   }
 
   if (['stopped', 'offline', 'failed', 'error', 'alert', 'critical', 'fatal'].includes(lowered)) {
-    return painter.red(value);
+    return painter.red(safeValue);
   }
 
   if (['degraded', 'warning', 'pending', 'notice'].includes(lowered)) {
-    return painter.yellow(value);
+    return painter.yellow(safeValue);
   }
 
   if (['info'].includes(lowered)) {
-    return painter.blue(value);
+    return painter.blue(safeValue);
   }
 
-  return value;
+  return safeValue;
 }
 
 function formatNumber(value: number): string {

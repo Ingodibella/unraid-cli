@@ -75,6 +75,12 @@ describe('renderHuman', () => {
     expect(result).not.toContain('#1');
     expect(result).toContain('name: tower');
   });
+
+  it('sanitizes terminal escape sequences in string values', () => {
+    const result = renderHuman({ message: '\u001b[2J\u001b[Hspoof' }, { noColor: true });
+    expect(result).toContain('message: spoof');
+    expect(result).not.toContain('\u001b[');
+  });
 });
 
 describe('structured renderers', () => {
@@ -108,6 +114,12 @@ describe('structured renderers', () => {
     expect(result).toContain('status');
     expect(result).toContain('disk1');
     expect(result).toContain('disk2');
+  });
+
+  it('sanitizes terminal escape sequences in table cells', () => {
+    const result = renderTable([{ message: '\u001b]52;c;SGVsbG8=\u0007payload' }]);
+    expect(result).toContain('payload');
+    expect(result).not.toContain(']52;c;SGVsbG8=');
   });
 });
 
