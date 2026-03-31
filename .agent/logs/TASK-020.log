@@ -1,0 +1,35 @@
+[2026-03-31 13:20 Europe/Berlin] TASK-020 completed: VM write commands.
+
+Implemented:
+- Added VM write commands under src/commands/vms/:
+  - start
+  - stop
+  - pause
+  - resume
+  - reboot
+  - reset
+  - force-stop
+- Added safety-enforced write execution helper in src/commands/vms/shared.ts.
+- Added VM write GraphQL mutations and types in src/generated/vms.ts:
+  - VM_START_MUTATION
+  - VM_STOP_MUTATION
+  - VM_PAUSE_MUTATION
+  - VM_RESUME_MUTATION
+  - VM_REBOOT_MUTATION
+  - VM_RESET_MUTATION
+  - VM_FORCE_STOP_MUTATION
+- Registered write commands in src/commands/vms/index.ts.
+- Corrected safety classifier mapping for vms.stop to S1 in src/core/safety/classifier.ts.
+- Added test suite: tests/unit/commands/vms-write.test.ts.
+
+Validation:
+1) npm run typecheck && npx vitest run tests/unit/commands/vms-write.test.ts
+   - PASS (11 tests)
+2) npm test
+   - PASS (354/354)
+
+Project updates:
+- Set TASK-020 status to done in .agent/tasks.json
+
+Commit:
+- [TASK-020] Implement VM write commands

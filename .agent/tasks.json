@@ -221,7 +221,7 @@
       "id": "TASK-019",
       "name": "Write Commands: containers start|stop|restart|pause|unpause|remove",
       "priority": 19,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-019.md",
       "dependencies": [
         "TASK-014",
@@ -233,7 +233,7 @@
       "id": "TASK-020",
       "name": "Write Commands: vms start|stop|pause|resume|reboot|reset|force-stop",
       "priority": 20,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-020.md",
       "dependencies": [
         "TASK-015",
@@ -245,7 +245,7 @@
       "id": "TASK-021",
       "name": "Write Commands: array start|stop + parity check start|pause|resume|cancel",
       "priority": 21,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-021.md",
       "dependencies": [
         "TASK-012",

@@ -67,6 +67,12 @@ describe('containers command group', () => {
       'inspect',
       'logs',
       'stats',
+      'start',
+      'stop',
+      'restart',
+      'pause',
+      'unpause',
+      'remove',
     ]);
   });
 

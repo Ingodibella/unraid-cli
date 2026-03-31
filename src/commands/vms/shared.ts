@@ -6,6 +6,7 @@ import { NotFoundError } from '../../core/errors/index.js';
 import { paginate } from '../../core/filters/index.js';
 import { createClient, type UcliGraphQLClient } from '../../core/graphql/client.js';
 import { renderOutput } from '../../core/output/renderer.js';
+import { assertSafety } from '../../core/safety/index.js';
 import { VM_QUERY, VMS_QUERY, type VmQuery, type VmQueryVariables, type VmRecord, type VmsQuery } from '../../generated/vms.js';
 
 export interface VmsCommandDependencies {
@@ -61,6 +62,38 @@ export async function fetchVm(
   }
 
   return vm;
+}
+
+export interface VmWriteActionInput {
+  action: 'start' | 'stop' | 'pause' | 'resume' | 'reboot' | 'reset' | 'force-stop';
+  commandPath: string;
+  mutation: string;
+  name: string;
+  options: GlobalOptions;
+  dependencies?: VmsCommandDependencies;
+}
+
+export interface VmWriteActionOutput {
+  action: string;
+  name: string;
+  status: string | null;
+  state: string | null;
+}
+
+export async function executeVmWriteAction(input: VmWriteActionInput): Promise<VmWriteActionOutput> {
+  const dependencies = input.dependencies ?? defaultVmsCommandDependencies;
+  await assertSafety(input.commandPath, { yes: input.options.yes, force: input.options.force }, { stdout: process.stdout });
+
+  await createVmsClient(input.options, dependencies).execute(input.mutation, { name: input.name });
+
+  const vm = await fetchVm(input.name, input.options, dependencies);
+
+  return {
+    action: input.action,
+    name: vm.name ?? input.name,
+    status: vm.status,
+    state: vm.state,
+  };
 }
 
 export function writeRenderedOutput(

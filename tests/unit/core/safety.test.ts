@@ -18,6 +18,7 @@ describe('safety classifier', () => {
   it('maps write commands to the expected safety classes', () => {
     expect(SAFETY_CLASS_REGISTRY['containers.start']).toBe(SafetyClass.S1);
     expect(SAFETY_CLASS_REGISTRY['array.stop']).toBe(SafetyClass.S2);
+    expect(SAFETY_CLASS_REGISTRY['parity.start']).toBe(SafetyClass.S1);
     expect(SAFETY_CLASS_REGISTRY['notifications.delete']).toBe(SafetyClass.S3);
   });
 });

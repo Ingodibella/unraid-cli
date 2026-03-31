@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { createParityCheckCommand } from './parity-check.js';
 import type { ArrayCommandDependencies } from './shared.js';
 import {
   applyArrayCommandOptions,
@@ -70,6 +71,8 @@ export function createParityCommand(
         writeRenderedOutput(mapParityHistory(snapshot), options, dependencies);
       }),
   );
+
+  parity.addCommand(createParityCheckCommand(dependencies));
 
   return parity;
 }

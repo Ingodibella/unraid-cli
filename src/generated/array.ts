@@ -37,6 +37,45 @@ export interface ParityHistoryQuery {
   parityHistory: ParityHistoryEntry[];
 }
 
+export interface ArraySetStateMutation {
+  array: {
+    setState: {
+      state: string | null;
+      success: boolean | null;
+      message: string | null;
+    } | null;
+  };
+}
+
+export type ArraySetStateMutationVariables = Record<string, unknown> & {
+  state: string;
+};
+
+export interface ParityCheckControlMutation {
+  parityCheck: {
+    start: {
+      status: string | null;
+      success: boolean | null;
+      message: string | null;
+    } | null;
+    pause: {
+      status: string | null;
+      success: boolean | null;
+      message: string | null;
+    } | null;
+    resume: {
+      status: string | null;
+      success: boolean | null;
+      message: string | null;
+    } | null;
+    cancel: {
+      status: string | null;
+      success: boolean | null;
+      message: string | null;
+    } | null;
+  };
+}
+
 export const ARRAY_QUERY = gql`
   query ArraySnapshot {
     array {
@@ -70,6 +109,66 @@ export const PARITY_HISTORY_QUERY = gql`
       errors
       speed
       status
+    }
+  }
+`;
+
+export const ARRAY_SET_STATE_MUTATION = gql`
+  mutation ArraySetState($state: String!) {
+    array {
+      setState(state: $state) {
+        state
+        success
+        message
+      }
+    }
+  }
+`;
+
+export const PARITY_CHECK_START_MUTATION = gql`
+  mutation ParityCheckStart {
+    parityCheck {
+      start {
+        status
+        success
+        message
+      }
+    }
+  }
+`;
+
+export const PARITY_CHECK_PAUSE_MUTATION = gql`
+  mutation ParityCheckPause {
+    parityCheck {
+      pause {
+        status
+        success
+        message
+      }
+    }
+  }
+`;
+
+export const PARITY_CHECK_RESUME_MUTATION = gql`
+  mutation ParityCheckResume {
+    parityCheck {
+      resume {
+        status
+        success
+        message
+      }
+    }
+  }
+`;
+
+export const PARITY_CHECK_CANCEL_MUTATION = gql`
+  mutation ParityCheckCancel {
+    parityCheck {
+      cancel {
+        status
+        success
+        message
+      }
     }
   }
 `;

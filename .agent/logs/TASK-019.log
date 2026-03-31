@@ -1,0 +1,23 @@
+[2026-03-31 13:20 Europe/Berlin] TASK-019 completed.
+
+Implemented:
+- Container write commands: start, stop, restart, pause, unpause, remove
+- Safety integration:
+  - S1: containers.start|stop|restart|pause|unpause
+  - S3: containers.remove
+- GraphQL docker mutations in src/generated/containers.ts
+- Shared write helper for container write commands
+- CLI registration under containers command group
+- Unit tests in tests/unit/commands/containers-write.test.ts
+
+Additional compatibility adjustments to keep full suite green:
+- Added --yes/--force option support to array and containers command option helpers
+- Updated existing registration tests for expanded command groups
+- Aligned array write tests with current execute() call signature
+- Fixed ArraySetStateMutationVariables to satisfy strict GraphQL client variable typing
+
+Validation:
+1) npm run typecheck && npx vitest run tests/unit/commands/containers-write.test.ts
+   - PASS (9/9)
+2) npm test
+   - PASS (354/354)

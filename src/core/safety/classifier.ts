@@ -25,14 +25,14 @@ export const SAFETY_CLASS_REGISTRY: Readonly<Record<string, SafetyClass>> = Obje
   'parity.cancel': SafetyClass.S2,
   'parity.pause': SafetyClass.S1,
   'parity.resume': SafetyClass.S1,
-  'parity.start': SafetyClass.S2,
+  'parity.start': SafetyClass.S1,
   'vms.force-stop': SafetyClass.S3,
   'vms.pause': SafetyClass.S1,
   'vms.reboot': SafetyClass.S2,
   'vms.reset': SafetyClass.S3,
   'vms.resume': SafetyClass.S1,
   'vms.start': SafetyClass.S1,
-  'vms.stop': SafetyClass.S2,
+  'vms.stop': SafetyClass.S1,
 });
 
 export function resolveSafetyClass(commandPath: string): SafetyClass {

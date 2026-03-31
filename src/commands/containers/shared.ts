@@ -14,6 +14,7 @@ import {
   type DockerContainerRecord,
   type DockerSnapshotQuery,
   type DockerStatsRecord,
+  type DockerWriteMutationVariables,
 } from '../../generated/containers.js';
 
 export interface ContainersCommandDependencies {
@@ -74,6 +75,15 @@ export async function fetchContainer(
   return container;
 }
 
+export async function executeDockerMutation<TMutation>(
+  query: string,
+  name: string,
+  options: GlobalOptions,
+  dependencies: ContainersCommandDependencies = defaultContainersCommandDependencies,
+): Promise<TMutation> {
+  return createContainersClient(options, dependencies).execute<TMutation, DockerWriteMutationVariables>(query, { name });
+}
+
 export function writeRenderedOutput(
   data: unknown,
   options: GlobalOptions,
@@ -102,6 +112,8 @@ export function applyContainersCommandOptions(command: Command): Command {
     .option('--debug', 'Enable debug output on stderr')
     .option('-v, --verbose', 'Enable verbose output')
     .option('-q, --quiet', 'Suppress non-essential output')
+    .option('-y, --yes', 'Skip confirmation prompts')
+    .option('--force', 'Allow destructive operations (with --yes for S3)')
     .option('--no-color', 'Disable colored output');
 }
 

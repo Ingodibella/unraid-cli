@@ -51,6 +51,45 @@ export type DockerContainerQueryVariables = Record<string, unknown> & {
   name: string;
 };
 
+export interface DockerMutationResult {
+  success: boolean | null;
+  message: string | null;
+}
+
+export interface DockerStartMutation {
+  docker: {
+    start: DockerMutationResult | null;
+  };
+}
+
+export interface DockerStopMutation {
+  docker: {
+    stop: DockerMutationResult | null;
+  };
+}
+
+export interface DockerPauseMutation {
+  docker: {
+    pause: DockerMutationResult | null;
+  };
+}
+
+export interface DockerUnpauseMutation {
+  docker: {
+    unpause: DockerMutationResult | null;
+  };
+}
+
+export interface DockerRemoveMutation {
+  docker: {
+    removeContainer: DockerMutationResult | null;
+  };
+}
+
+export type DockerWriteMutationVariables = Record<string, unknown> & {
+  name: string;
+};
+
 const DOCKER_CONTAINER_FIELDS = gql`
   fragment DockerContainerFields on DockerContainer {
     id
@@ -103,6 +142,73 @@ export const DOCKER_CONTAINER_QUERY = gql`
     docker {
       container(name: $name) {
         ...DockerContainerFields
+      }
+    }
+  }
+`;
+
+const DOCKER_MUTATION_RESULT_FIELDS = gql`
+  fragment DockerMutationResultFields on DockerMutationResult {
+    success
+    message
+  }
+`;
+
+export const DOCKER_START_MUTATION = gql`
+  ${DOCKER_MUTATION_RESULT_FIELDS}
+
+  mutation DockerStart($name: String!) {
+    docker {
+      start(name: $name) {
+        ...DockerMutationResultFields
+      }
+    }
+  }
+`;
+
+export const DOCKER_STOP_MUTATION = gql`
+  ${DOCKER_MUTATION_RESULT_FIELDS}
+
+  mutation DockerStop($name: String!) {
+    docker {
+      stop(name: $name) {
+        ...DockerMutationResultFields
+      }
+    }
+  }
+`;
+
+export const DOCKER_PAUSE_MUTATION = gql`
+  ${DOCKER_MUTATION_RESULT_FIELDS}
+
+  mutation DockerPause($name: String!) {
+    docker {
+      pause(name: $name) {
+        ...DockerMutationResultFields
+      }
+    }
+  }
+`;
+
+export const DOCKER_UNPAUSE_MUTATION = gql`
+  ${DOCKER_MUTATION_RESULT_FIELDS}
+
+  mutation DockerUnpause($name: String!) {
+    docker {
+      unpause(name: $name) {
+        ...DockerMutationResultFields
+      }
+    }
+  }
+`;
+
+export const DOCKER_REMOVE_MUTATION = gql`
+  ${DOCKER_MUTATION_RESULT_FIELDS}
+
+  mutation DockerRemoveContainer($name: String!) {
+    docker {
+      removeContainer(name: $name) {
+        ...DockerMutationResultFields
       }
     }
   }

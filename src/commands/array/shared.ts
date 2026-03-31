@@ -6,8 +6,16 @@ import { createClient, type UcliGraphQLClient } from '../../core/graphql/client.
 import { renderOutput } from '../../core/output/renderer.js';
 import {
   ARRAY_QUERY,
+  ARRAY_SET_STATE_MUTATION,
+  PARITY_CHECK_CANCEL_MUTATION,
+  PARITY_CHECK_PAUSE_MUTATION,
+  PARITY_CHECK_RESUME_MUTATION,
+  PARITY_CHECK_START_MUTATION,
   PARITY_HISTORY_QUERY,
   type ArrayQuery,
+  type ArraySetStateMutation,
+  type ArraySetStateMutationVariables,
+  type ParityCheckControlMutation,
   type ParityHistoryQuery,
 } from '../../generated/array.js';
 
@@ -25,10 +33,10 @@ function toGraphQLEndpoint(host: string): string {
   return host.endsWith('/graphql') ? host : `${host.replace(/\/$/, '')}/graphql`;
 }
 
-export async function fetchArray(
+function createArrayClient(
   options: GlobalOptions,
   dependencies: ArrayCommandDependencies = defaultArrayCommandDependencies,
-): Promise<ArrayQuery> {
+): UcliGraphQLClient {
   const resolvedConfig = resolveConfig(options);
   const auth = resolveAuth({
     host: options.host ?? resolvedConfig.host,
@@ -36,13 +44,19 @@ export async function fetchArray(
     profile: options.profile ?? resolvedConfig.profile,
   });
 
-  const client = dependencies.createGraphQLClient({
+  return dependencies.createGraphQLClient({
     endpoint: toGraphQLEndpoint(auth.host),
     apiKey: auth.apiKey,
     timeout: options.timeout * 1000,
     debug: options.debug,
   });
+}
 
+export async function fetchArray(
+  options: GlobalOptions,
+  dependencies: ArrayCommandDependencies = defaultArrayCommandDependencies,
+): Promise<ArrayQuery> {
+  const client = createArrayClient(options, dependencies);
   return executeArrayQuery(client);
 }
 
@@ -50,20 +64,7 @@ export async function fetchParityHistory(
   options: GlobalOptions,
   dependencies: ArrayCommandDependencies = defaultArrayCommandDependencies,
 ): Promise<ParityHistoryQuery> {
-  const resolvedConfig = resolveConfig(options);
-  const auth = resolveAuth({
-    host: options.host ?? resolvedConfig.host,
-    apiKey: options.apiKey ?? resolvedConfig.apiKey,
-    profile: options.profile ?? resolvedConfig.profile,
-  });
-
-  const client = dependencies.createGraphQLClient({
-    endpoint: toGraphQLEndpoint(auth.host),
-    apiKey: auth.apiKey,
-    timeout: options.timeout * 1000,
-    debug: options.debug,
-  });
-
+  const client = createArrayClient(options, dependencies);
   return executeParityHistoryQuery(client);
 }
 
@@ -73,6 +74,49 @@ export async function executeArrayQuery(client: UcliGraphQLClient): Promise<Arra
 
 export async function executeParityHistoryQuery(client: UcliGraphQLClient): Promise<ParityHistoryQuery> {
   return client.execute<ParityHistoryQuery>(PARITY_HISTORY_QUERY);
+}
+
+export async function executeArraySetStateMutation(
+  state: string,
+  options: GlobalOptions,
+  dependencies: ArrayCommandDependencies = defaultArrayCommandDependencies,
+): Promise<ArraySetStateMutation> {
+  const client = createArrayClient(options, dependencies);
+  return client.execute<ArraySetStateMutation, ArraySetStateMutationVariables>(ARRAY_SET_STATE_MUTATION, {
+    state,
+  });
+}
+
+export async function executeParityCheckStartMutation(
+  options: GlobalOptions,
+  dependencies: ArrayCommandDependencies = defaultArrayCommandDependencies,
+): Promise<ParityCheckControlMutation> {
+  const client = createArrayClient(options, dependencies);
+  return client.execute<ParityCheckControlMutation>(PARITY_CHECK_START_MUTATION);
+}
+
+export async function executeParityCheckPauseMutation(
+  options: GlobalOptions,
+  dependencies: ArrayCommandDependencies = defaultArrayCommandDependencies,
+): Promise<ParityCheckControlMutation> {
+  const client = createArrayClient(options, dependencies);
+  return client.execute<ParityCheckControlMutation>(PARITY_CHECK_PAUSE_MUTATION);
+}
+
+export async function executeParityCheckResumeMutation(
+  options: GlobalOptions,
+  dependencies: ArrayCommandDependencies = defaultArrayCommandDependencies,
+): Promise<ParityCheckControlMutation> {
+  const client = createArrayClient(options, dependencies);
+  return client.execute<ParityCheckControlMutation>(PARITY_CHECK_RESUME_MUTATION);
+}
+
+export async function executeParityCheckCancelMutation(
+  options: GlobalOptions,
+  dependencies: ArrayCommandDependencies = defaultArrayCommandDependencies,
+): Promise<ParityCheckControlMutation> {
+  const client = createArrayClient(options, dependencies);
+  return client.execute<ParityCheckControlMutation>(PARITY_CHECK_CANCEL_MUTATION);
 }
 
 export function writeRenderedOutput(
@@ -103,6 +147,8 @@ export function applyArrayCommandOptions(command: Command): Command {
     .option('--debug', 'Enable debug output on stderr')
     .option('-v, --verbose', 'Enable verbose output')
     .option('-q, --quiet', 'Suppress non-essential output')
+    .option('-y, --yes', 'Skip confirmation prompts')
+    .option('--force', 'Allow destructive operations (with --yes for S3)')
     .option('--no-color', 'Disable colored output');
 }
 

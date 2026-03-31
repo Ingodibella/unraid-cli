@@ -61,6 +61,13 @@ describe('vms command group', () => {
       'get',
       'status',
       'inspect',
+      'start',
+      'stop',
+      'pause',
+      'resume',
+      'reboot',
+      'reset',
+      'force-stop',
     ]);
   });
 
