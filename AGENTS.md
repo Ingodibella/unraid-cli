@@ -1,85 +1,55 @@
-# AGENTS.md
+---
+name: ucli
+description: |
+  Stateless CLI for Unraid Server (7.2+ GraphQL API).
+  Use when the user asks about Unraid system status, containers, VMs, storage,
+  notifications, logs, or any server management task.
+version: "0.1.0"
+metadata:
+  author: Ingodibella
+---
 
-This document is for AI agents operating `ucli`.
+# ucli agent guide
 
-ucli is a stateless CLI for Unraid Server, built for structured automation. Prefer explicit flags, machine-readable output, and short command chains over terminal heuristics.
+CLI: `ucli [global flags] <group> <command> [args...]`
 
-## Recommended Defaults
-
-For most agent workflows, start here:
+## Recommended defaults
 
 ```bash
 ucli --output json --quiet <group> <command>
 ```
 
-Why:
+- `--output json` for machine-readable output
+- `--quiet` to suppress decorative text
+- `--fields` to shrink payloads
+- `--filter` and `--sort` to shape data before it hits your context
 
-- `--output json` gives predictable machine-readable output
-- `--quiet` suppresses non-essential text
-- subcommands are stateless, so retrying is safe
-- global flags work consistently across command groups
+## Guardrails
 
-Add these when useful:
+- Prefer read-only commands first. Inspect before acting.
+- Use `--yes` only in deliberate automation paths, never speculatively.
+- Pair destructive actions with explicit identifiers. No fuzzy matching in the shell.
+- Re-fetch state after any mutation. Do not trust a prior cache.
+- Treat exit code `0` as success. Non-zero: capture stderr, retry only on transient failures.
 
-- `--fields` to reduce payload size
-- `--filter` to narrow result sets before parsing
-- `--sort` to get deterministic ordering
-- `--page-size` or `--all` for pagination control
-- `--timeout` and `--retry` for network-sensitive workflows
+## Command groups
 
-## Exit Codes
+| Group | Typical use |
+|---|---|
+| `system` | `info`, `health`, `status`, `resources`, `uptime` |
+| `array` | `status`, `devices`, `parity`, parity-check actions |
+| `disks` | Inventory, SMART, temp, usage, mount |
+| `containers` | `list`, `inspect`, `logs`, `stats`, lifecycle actions |
+| `notifications` | `list`, `latest`, `get`, `create`, `archive` |
+| `vms` | `list`, `inspect`, lifecycle actions |
+| `shares` | `list`, `get`, usage |
+| `logs` | `list`, `get`, `system`, `tail`, `search` |
+| `services` | `list`, `get`, `status` |
+| `network` | Interfaces, status |
+| `schema` | API introspection |
+| `diagnostics` | `ping`, `latency`, `env`, `doctor` |
 
-Treat exit code `0` as success.
-
-Treat any non-zero exit code as failure and inspect stderr. ucli maps user-facing failures to explicit exit codes in the error layer, so agents should rely on process status first, then parse stderr only when needed.
-
-Practical rule:
-
-1. Check exit code.
-2. If non-zero, capture stderr.
-3. Retry only when the failure class is transient, for example latency or transport issues.
-4. Do not assume partial success from human-readable output.
-
-## Output Strategy
-
-Use the smallest useful payload.
-
-Examples:
-
-```bash
-ucli containers list --output json --fields id,names,state,status
-ucli shares list --output json --fields name,used,free --sort name:asc
-ucli notifications list --output json --filter importance=warning
-```
-
-Guidelines:
-
-- Prefer `json` for agent parsing
-- Use `yaml` only when downstream tooling expects YAML
-- Avoid human output unless a person will read it directly
-- Prefer `--fields` before post-processing in your own code
-- Prefer `--filter` and `--sort` before loading large result sets into the model context
-
-## Command Overview
-
-Primary command groups for agent use:
-
-- `system`: info, health, status, resources, uptime
-- `array`: state, devices, parity, parity-check actions
-- `disks`: inventory, SMART, temp, usage, mount state
-- `containers`: list, inspect, logs, stats, start, stop, restart, pause, remove
-- `notifications`: list, latest, get, create, archive, unread state
-- `vms`: list, inspect, status, start, stop, reboot, pause, resume, reset
-- `shares`: list, get, usage
-- `logs`: list, get, system, tail, search
-- `services`: list, get, status
-- `network`: interfaces, status
-- `schema`: API introspection and validation
-- `diagnostics`: ping, latency, env, permissions, GraphQL, doctor
-
-## Workflow: System Health Check
-
-Use this when an operator or scheduler asks for a fast health snapshot.
+## Workflow: health check
 
 ```bash
 ucli system info --output json --quiet
@@ -88,58 +58,40 @@ ucli array status --output json --quiet
 ucli services status --output json --quiet
 ```
 
-Suggested agent pattern:
+1. Fetch each separately. Fail fast on non-zero exits.
+2. Summarize array state, service state, resource pressure, warnings.
+3. Only pull logs if the snapshot shows trouble.
 
-1. Fetch each command separately.
-2. Fail fast on non-zero exit codes.
-3. Summarize array state, service state, resource pressure, and notable warnings.
-4. Only fetch logs if the health snapshot indicates trouble.
-
-## Workflow: Container Management
-
-Inspect, then act.
-
-List running containers:
+## Workflow: container management
 
 ```bash
+# list running
 ucli containers list --output json --quiet --fields id,names,state,status --sort names:asc
-```
 
-Inspect one container:
-
-```bash
+# inspect one
 ucli containers inspect <id> --output json --quiet
-```
 
-Restart a container:
-
-```bash
+# restart
 ucli containers restart <id> --yes --output json --quiet
 ```
 
-Recommended pattern:
-
-1. Resolve the target container from `id` or `names`.
+1. Resolve target by `id` or `names`.
 2. Inspect current state.
-3. Execute the lifecycle command with `--yes` when confirmation could block automation.
+3. Execute with `--yes` when confirmation would block automation.
 4. Re-read status after mutation.
 
-## Safety Notes
+## Anti-patterns
 
-- Prefer read-only commands first
-- Use `--yes` only for deliberate automation paths
-- Pair destructive actions with explicit identifiers, never fuzzy matching in the shell
-- Re-fetch state after any mutation, do not trust a prior cache
+- Don't parse human-readable output. Always use `--output json`.
+- Don't assume partial success from human-readable text. Check exit codes.
+- Don't retry on non-transient errors (auth, bad arguments, missing resources).
+- Don't skip `--fields` on large result sets. Token waste adds up fast.
+- Don't chain mutations without re-fetching state between them.
+- Don't use `--force` unless you understand exactly what it skips.
 
-## Configuration Notes
+## Configuration
 
-ucli supports config profiles and environment variables. Default config path:
-
-```text
-~/.config/ucli/config.yaml
-```
-
-Typical config shape:
+Default config path: `~/.config/ucli/config.yaml`
 
 ```yaml
 default_profile: lab
@@ -151,8 +103,4 @@ profiles:
     timeout: 30
 ```
 
-When operating as an agent, prefer one of these approaches:
-
-- pass `--host` and `--api-key` explicitly for isolated jobs
-- use `--profile <name>` for stable environments
-- keep `--output json` explicit even if the profile has another default
+Prefer `--host` and `--api-key` explicitly for isolated jobs, `--profile <name>` for stable environments.
