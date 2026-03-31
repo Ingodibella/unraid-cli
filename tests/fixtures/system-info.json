@@ -1,0 +1,44 @@
+{
+  "info": {
+    "osPlatform": "Linux",
+    "distro": "Unraid",
+    "release": "6.12.10",
+    "hostname": "tower",
+    "uptime": 93784
+  },
+  "server": {
+    "state": "started",
+    "dockerRunning": true,
+    "vmRunning": false,
+    "cpuUsage": 23.5,
+    "memoryUsage": 12884901888,
+    "memoryTotal": 34359738368,
+    "storageUsed": 4398046511104,
+    "storageTotal": 8796093022208,
+    "cacheUsage": 61.2,
+    "parityStatus": "healthy",
+    "parityProgress": 100,
+    "temps": {
+      "cpu": 46,
+      "motherboard": 39,
+      "array": 33
+    },
+    "disks": [
+      {
+        "name": "disk1",
+        "status": "healthy",
+        "temperature": 34
+      },
+      {
+        "name": "disk2",
+        "status": "healthy",
+        "temperature": 36
+      },
+      {
+        "name": "parity",
+        "status": "healthy",
+        "temperature": 37
+      }
+    ]
+  }
+}

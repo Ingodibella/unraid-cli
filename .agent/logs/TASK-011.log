@@ -1,0 +1,26 @@
+[TASK-011] Implement system command group
+
+Changed files:
+- src/cli/index.ts
+- src/commands/system/index.ts
+- src/commands/system/shared.ts
+- src/commands/system/info.ts
+- src/commands/system/status.ts
+- src/commands/system/health.ts
+- src/commands/system/uptime.ts
+- src/commands/system/resources.ts
+- src/generated/system.ts
+- tests/fixtures/system-info.json
+- tests/unit/commands/system.test.ts
+- .agent/tasks.json
+
+Validation:
+- npm run typecheck && npx vitest run tests/unit/commands/system.test.ts
+- npm run typecheck && npm test
+
+Result:
+- Added system info, status, health, uptime, and resources commands
+- Added shared typed system snapshot query and mapping helpers
+- Registered system command group in CLI
+- Added fixture-backed command tests with mocked GraphQL client
+- Full suite green: 270 tests across 12 files

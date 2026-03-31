@@ -11,6 +11,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { formatUserError, getExitCode } from '../core/errors/user-errors.js';
+import { createSystemCommand } from '../commands/system/index.js';
 import { DEFAULTS, OUTPUT_FORMATS } from './globals.js';
 
 /** Parse an integer from string (ignores Commander's second arg to avoid radix issues) */
@@ -99,6 +100,8 @@ export function createProgram(): Command {
 
   // Display options
   program.option('--no-color', 'Disable colored output');
+
+  program.addCommand(createSystemCommand());
 
   return program;
 }

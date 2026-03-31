@@ -114,7 +114,7 @@
       "id": "TASK-011",
       "name": "Command: system info|status|health|uptime|resources",
       "priority": 11,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-011.md",
       "dependencies": [
         "TASK-004",
