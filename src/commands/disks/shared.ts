@@ -8,9 +8,14 @@ import { createClient, type UcliGraphQLClient } from '../../core/graphql/client.
 import { renderOutput } from '../../core/output/renderer.js';
 import {
   ASSIGNABLE_DISKS_QUERY,
+  DISK_CLEAR_STATS_MUTATION,
+  DISK_MOUNT_MUTATION,
   DISK_QUERY,
+  DISK_UNMOUNT_MUTATION,
   DISKS_QUERY,
+  type ArrayDiskMutation,
   type AssignableDisksQuery,
+  type DiskMutationVariables,
   type DiskQuery,
   type DiskQueryVariables,
   type DisksQuery,
@@ -19,6 +24,13 @@ import {
 export interface DisksCommandDependencies {
   createGraphQLClient: typeof createClient;
   stdoutWrite: (chunk: string) => boolean;
+}
+
+export interface DiskWriteResult {
+  action: 'mount' | 'unmount' | 'clear-stats';
+  name: string;
+  success: boolean;
+  message: string | null;
 }
 
 export const defaultDisksCommandDependencies: DisksCommandDependencies = {
@@ -77,6 +89,36 @@ export async function fetchAssignableDisks(
   return createDisksClient(options, dependencies).execute<AssignableDisksQuery>(ASSIGNABLE_DISKS_QUERY);
 }
 
+export async function mountDisk(
+  name: string,
+  options: GlobalOptions,
+  dependencies: DisksCommandDependencies = defaultDisksCommandDependencies,
+): Promise<ArrayDiskMutation> {
+  return createDisksClient(options, dependencies).execute<ArrayDiskMutation, DiskMutationVariables>(DISK_MOUNT_MUTATION, { name });
+}
+
+export async function unmountDisk(
+  name: string,
+  options: GlobalOptions,
+  dependencies: DisksCommandDependencies = defaultDisksCommandDependencies,
+): Promise<ArrayDiskMutation> {
+  return createDisksClient(options, dependencies).execute<ArrayDiskMutation, DiskMutationVariables>(
+    DISK_UNMOUNT_MUTATION,
+    { name },
+  );
+}
+
+export async function clearDiskStats(
+  name: string,
+  options: GlobalOptions,
+  dependencies: DisksCommandDependencies = defaultDisksCommandDependencies,
+): Promise<ArrayDiskMutation> {
+  return createDisksClient(options, dependencies).execute<ArrayDiskMutation, DiskMutationVariables>(
+    DISK_CLEAR_STATS_MUTATION,
+    { name },
+  );
+}
+
 export function writeRenderedOutput(
   data: unknown,
   options: GlobalOptions,
@@ -105,6 +147,8 @@ export function applyDisksCommandOptions(command: Command): Command {
     .option('--debug', 'Enable debug output on stderr')
     .option('-v, --verbose', 'Enable verbose output')
     .option('-q, --quiet', 'Suppress non-essential output')
+    .option('-y, --yes', 'Skip confirmation prompts')
+    .option('--force', 'Allow destructive operations (with --yes for S3)')
     .option('--no-color', 'Disable colored output');
 }
 

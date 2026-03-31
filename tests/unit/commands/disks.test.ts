@@ -59,6 +59,9 @@ describe('disks command group', () => {
       'usage',
       'temp',
       'assignable',
+      'mount',
+      'unmount',
+      'clear-stats',
     ]);
   });
 

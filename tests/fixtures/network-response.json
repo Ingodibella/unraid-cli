@@ -1,0 +1,36 @@
+{
+  "network": {
+    "hostname": "tower",
+    "gateway": "192.168.1.1",
+    "dns": ["1.1.1.1", "8.8.8.8"],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "status": "up",
+        "mac": "52:54:00:12:34:56",
+        "ipv4": "192.168.1.10/24",
+        "ipv6": "fe80::5054:ff:fe12:3456/64",
+        "mtu": 1500,
+        "speed": 1000
+      },
+      {
+        "name": "br0",
+        "status": "up",
+        "mac": "52:54:00:65:43:21",
+        "ipv4": "192.168.1.11/24",
+        "ipv6": null,
+        "mtu": 1500,
+        "speed": 1000
+      },
+      {
+        "name": "wg0",
+        "status": "down",
+        "mac": null,
+        "ipv4": "10.253.0.1/24",
+        "ipv6": null,
+        "mtu": 1420,
+        "speed": null
+      }
+    ]
+  }
+}

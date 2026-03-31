@@ -51,6 +51,23 @@ export type DiskQueryVariables = Record<string, unknown> & {
   name: string;
 };
 
+export interface DiskMutationResult {
+  success: boolean | null;
+  message: string | null;
+}
+
+export interface ArrayDiskMutation {
+  arrayMutations: {
+    mountArrayDisk: DiskMutationResult | null;
+    unmountArrayDisk: DiskMutationResult | null;
+    clearArrayDiskStatistics: DiskMutationResult | null;
+  };
+}
+
+export type DiskMutationVariables = Record<string, unknown> & {
+  name: string;
+};
+
 const DISK_FIELDS = gql`
   fragment DiskFields on Disk {
     name
@@ -106,6 +123,39 @@ export const ASSIGNABLE_DISKS_QUERY = gql`
       status
       type
       filesystem
+    }
+  }
+`;
+
+export const DISK_MOUNT_MUTATION = gql`
+  mutation DiskMount($name: String!) {
+    arrayMutations {
+      mountArrayDisk(name: $name) {
+        success
+        message
+      }
+    }
+  }
+`;
+
+export const DISK_UNMOUNT_MUTATION = gql`
+  mutation DiskUnmount($name: String!) {
+    arrayMutations {
+      unmountArrayDisk(name: $name) {
+        success
+        message
+      }
+    }
+  }
+`;
+
+export const DISK_CLEAR_STATS_MUTATION = gql`
+  mutation DiskClearStats($name: String!) {
+    arrayMutations {
+      clearArrayDiskStatistics(name: $name) {
+        success
+        message
+      }
     }
   }
 `;

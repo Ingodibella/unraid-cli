@@ -7,9 +7,25 @@ import { paginate } from '../../core/filters/index.js';
 import { createClient, type UcliGraphQLClient } from '../../core/graphql/client.js';
 import { renderOutput } from '../../core/output/renderer.js';
 import {
+  ARCHIVE_ALL_NOTIFICATIONS_MUTATION,
+  ARCHIVE_NOTIFICATION_MUTATION,
+  CREATE_NOTIFICATION_MUTATION,
+  DELETE_ARCHIVED_NOTIFICATIONS_MUTATION,
+  DELETE_NOTIFICATION_MUTATION,
   NOTIFICATIONS_SNAPSHOT_QUERY,
+  UNARCHIVE_NOTIFICATION_MUTATION,
+  UNREAD_NOTIFICATION_MUTATION,
+  type ArchiveAllNotificationsMutation,
+  type ArchiveNotificationMutation,
+  type CreateNotificationMutation,
+  type CreateNotificationVariables,
+  type DeleteArchivedNotificationsMutation,
+  type DeleteNotificationMutation,
+  type NotificationIdVariables,
   type NotificationRecord,
   type NotificationsSnapshotQuery,
+  type UnarchiveNotificationMutation,
+  type UnreadNotificationMutation,
 } from '../../generated/notifications.js';
 
 export interface NotificationsCommandDependencies {
@@ -80,6 +96,79 @@ export async function fetchNotification(
   return notification;
 }
 
+export async function archiveNotification(
+  id: string,
+  options: GlobalOptions,
+  dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
+): Promise<ArchiveNotificationMutation> {
+  return createNotificationsClient(options, dependencies).execute<ArchiveNotificationMutation, NotificationIdVariables>(
+    ARCHIVE_NOTIFICATION_MUTATION,
+    { id },
+  );
+}
+
+export async function archiveAllNotifications(
+  options: GlobalOptions,
+  dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
+): Promise<ArchiveAllNotificationsMutation> {
+  return createNotificationsClient(options, dependencies).execute<ArchiveAllNotificationsMutation>(
+    ARCHIVE_ALL_NOTIFICATIONS_MUTATION,
+  );
+}
+
+export async function unarchiveNotification(
+  id: string,
+  options: GlobalOptions,
+  dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
+): Promise<UnarchiveNotificationMutation> {
+  return createNotificationsClient(options, dependencies).execute<UnarchiveNotificationMutation, NotificationIdVariables>(
+    UNARCHIVE_NOTIFICATION_MUTATION,
+    { id },
+  );
+}
+
+export async function unreadNotification(
+  id: string,
+  options: GlobalOptions,
+  dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
+): Promise<UnreadNotificationMutation> {
+  return createNotificationsClient(options, dependencies).execute<UnreadNotificationMutation, NotificationIdVariables>(
+    UNREAD_NOTIFICATION_MUTATION,
+    { id },
+  );
+}
+
+export async function deleteNotification(
+  id: string,
+  options: GlobalOptions,
+  dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
+): Promise<DeleteNotificationMutation> {
+  return createNotificationsClient(options, dependencies).execute<DeleteNotificationMutation, NotificationIdVariables>(
+    DELETE_NOTIFICATION_MUTATION,
+    { id },
+  );
+}
+
+export async function deleteArchivedNotifications(
+  options: GlobalOptions,
+  dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
+): Promise<DeleteArchivedNotificationsMutation> {
+  return createNotificationsClient(options, dependencies).execute<DeleteArchivedNotificationsMutation>(
+    DELETE_ARCHIVED_NOTIFICATIONS_MUTATION,
+  );
+}
+
+export async function createNotification(
+  variables: CreateNotificationVariables,
+  options: GlobalOptions,
+  dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
+): Promise<CreateNotificationMutation> {
+  return createNotificationsClient(options, dependencies).execute<CreateNotificationMutation, CreateNotificationVariables>(
+    CREATE_NOTIFICATION_MUTATION,
+    variables,
+  );
+}
+
 export function writeRenderedOutput(
   data: unknown,
   options: GlobalOptions,
@@ -108,6 +197,8 @@ export function applyNotificationsCommandOptions(command: Command): Command {
     .option('--debug', 'Enable debug output on stderr')
     .option('-v, --verbose', 'Enable verbose output')
     .option('-q, --quiet', 'Suppress non-essential output')
+    .option('-y, --yes', 'Skip confirmation prompts')
+    .option('--force', 'Allow destructive operations (with --yes for S3)')
     .option('--no-color', 'Disable colored output');
 }
 

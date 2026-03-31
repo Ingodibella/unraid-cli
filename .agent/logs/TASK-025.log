@@ -1,0 +1,11 @@
+TASK-025: Logs, Services, Network commands
+Status: done
+Date: 2026-03-31
+
+Implementation:
+- src/commands/logs/ (list, get, tail, system, search)
+- src/commands/services/ (list, get, status)
+- src/commands/network/ (status, interfaces)
+- tests/unit/commands/logs.test.ts (6 tests)
+- tests/unit/commands/services.test.ts
+- tests/unit/commands/network.test.ts (4 tests)

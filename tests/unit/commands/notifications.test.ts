@@ -47,6 +47,11 @@ describe('notifications command group', () => {
       'get',
       'latest',
       'watch',
+      'archive',
+      'unarchive',
+      'unread',
+      'delete',
+      'create',
     ]);
   });
 

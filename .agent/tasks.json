@@ -257,7 +257,7 @@
       "id": "TASK-022",
       "name": "Write Commands: notifications archive|unarchive|delete|create + disks mount|unmount",
       "priority": 22,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-022.md",
       "dependencies": [
         "TASK-016",

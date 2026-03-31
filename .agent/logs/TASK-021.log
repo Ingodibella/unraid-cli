@@ -1,0 +1,25 @@
+[TASK-021] Implement array write commands
+Date: 2026-03-31
+
+Implemented:
+- Added array write commands: array start, array stop
+- Added parity check lifecycle write commands: array parity check start|pause|resume|cancel
+- Added safety enforcement via assertSafety:
+  - S2: array.start, array.stop, parity.cancel
+  - S1: parity.start, parity.pause, parity.resume
+- Added GraphQL mutations and types in src/generated/array.ts:
+  - ARRAY_SET_STATE_MUTATION
+  - PARITY_CHECK_START_MUTATION
+  - PARITY_CHECK_PAUSE_MUTATION
+  - PARITY_CHECK_RESUME_MUTATION
+  - PARITY_CHECK_CANCEL_MUTATION
+- Extended array shared command helpers for write mutation execution
+- Registered new write commands in array command tree
+- Updated safety registry parity.start to S1 per TASK-021 spec
+- Added tests in tests/unit/commands/array-write.test.ts
+- Extended safety unit test coverage for parity.start classification
+- Marked TASK-021 as done in .agent/tasks.json
+
+Validation:
+- npm run typecheck && npx vitest run tests/unit/commands/array-write.test.ts
+- npm test

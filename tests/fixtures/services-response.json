@@ -1,0 +1,28 @@
+{
+  "services": [
+    {
+      "name": "docker",
+      "status": "running",
+      "enabled": true,
+      "pid": 1024,
+      "uptime": "1d 3h",
+      "description": "Docker daemon"
+    },
+    {
+      "name": "smbd",
+      "status": "running",
+      "enabled": true,
+      "pid": 2048,
+      "uptime": "5h 12m",
+      "description": "Samba file sharing"
+    },
+    {
+      "name": "nfsd",
+      "status": "stopped",
+      "enabled": false,
+      "pid": null,
+      "uptime": null,
+      "description": "NFS server"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+TASK-024: Diagnostics commands
+Status: done
+Date: 2026-03-31
+
+Implementation:
+- src/commands/diagnostics/ (doctor, ping, latency, permissions, env, graphql)
+- tests/unit/commands/diagnostics.test.ts

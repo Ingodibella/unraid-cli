@@ -1,0 +1,12 @@
+TASK-022: Write Commands: notifications + disks
+Status: done
+Date: 2026-03-31
+
+Implementation:
+- Notification writes: archive, unarchive, unread, delete, create
+- Disk writes: mount, unmount, clear-stats
+- Safety guards: S1/S2/S3 per spec
+- tests/unit/commands/notifications-write.test.ts (5 tests)
+- tests/unit/commands/disks-write.test.ts (3 tests)
+
+Notes: Sub-agent timed out before commit, manually committed after verifying all tests green.
