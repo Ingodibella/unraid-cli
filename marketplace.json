@@ -6,10 +6,25 @@
   "author": "Ingodibella",
   "license": "MIT",
   "repository": "https://github.com/Ingodibella/unraid-cli",
-  "tags": ["unraid", "cli", "graphql", "server", "nas", "docker", "terminal", "ai-agent", "typescript", "automation"],
-  "skillPath": "AGENTS.md",
+  "tags": [
+    "unraid",
+    "cli",
+    "graphql",
+    "server",
+    "nas",
+    "docker",
+    "terminal",
+    "ai-agent",
+    "typescript",
+    "automation"
+  ],
+  "skillPath": "SKILL.md",
   "requirements": {
-    "binaries": ["node"],
-    "runtimes": ["node20+"]
+    "binaries": [
+      "node"
+    ],
+    "runtimes": [
+      "node20+"
+    ]
   }
 }
