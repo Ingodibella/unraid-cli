@@ -38,6 +38,7 @@ export interface ServerQuery {
     name: string;
     status: string;
     lanip: string;
+    wanip: string;
   } | null;
 }
 
@@ -79,6 +80,7 @@ export const SYSTEM_SNAPSHOT_QUERY = gql`
       name
       status
       lanip
+      wanip
     }
   }
 `;

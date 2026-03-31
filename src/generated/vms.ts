@@ -1,179 +1,90 @@
 import { gql } from '../core/graphql/client.js';
 
 export interface VmRecord {
-  id: string | null;
+  id: string;
   name: string | null;
-  status: string | null;
-  state: string | null;
-  vcpus: number | null;
-  memory: number | null;
-  diskSize: number | null;
-  os: string | null;
-  autostart: boolean | null;
-  createdAt: string | null;
-  updatedAt: string | null;
-  ipAddress: string | null;
-  vncPort: number | null;
-  inspect: Record<string, unknown> | null;
+  state: string;
+  uuid?: string | null;
 }
 
 export interface VmsQuery {
-  vms: VmRecord[];
+  vms: { domains: VmRecord[] | null; domain: VmRecord[] | null };
 }
 
 export interface VmQuery {
-  vm: VmRecord | null;
+  vms: { domains: VmRecord[] | null; domain: VmRecord[] | null };
 }
 
-export interface VmMutationResult {
-  success: boolean | null;
-  message: string | null;
+export interface VmQueryVariables {
+  id: string;
 }
-
-export interface VmMutations {
-  start: VmMutationResult | null;
-  stop: VmMutationResult | null;
-  pause: VmMutationResult | null;
-  resume: VmMutationResult | null;
-  reboot: VmMutationResult | null;
-  reset: VmMutationResult | null;
-  forceStop: VmMutationResult | null;
-}
-
-export interface VmMutationsQuery {
-  vmMutations: VmMutations;
-}
-
-export type VmQueryVariables = Record<string, unknown> & {
-  name: string;
-};
-
-const VM_FIELDS = gql`
-  fragment VmFields on Vm {
-    id
-    name
-    status
-    state
-    vcpus
-    memory
-    diskSize
-    os
-    autostart
-    createdAt
-    updatedAt
-    ipAddress
-    vncPort
-    inspect
-  }
-`;
-
-const VM_MUTATION_RESULT_FIELDS = gql`
-  fragment VmMutationResultFields on VmMutationResult {
-    success
-    message
-  }
-`;
 
 export const VMS_QUERY = gql`
-  ${VM_FIELDS}
-
   query Vms {
     vms {
-      ...VmFields
+      domains {
+        id
+        name
+        state
+      }
+      domain {
+        id
+        name
+        state
+        uuid
+      }
     }
   }
 `;
 
-export const VM_QUERY = gql`
-  ${VM_FIELDS}
-
-  query Vm($name: String!) {
-    vm(name: $name) {
-      ...VmFields
-    }
-  }
-`;
+export const VM_QUERY = VMS_QUERY;
 
 export const VM_START_MUTATION = gql`
-  ${VM_MUTATION_RESULT_FIELDS}
-
-  mutation VmStart($name: String!) {
-    vmMutations {
-      start(name: $name) {
-        ...VmMutationResultFields
-      }
+  mutation VmStart($id: PrefixedID!) {
+    vm {
+      start(id: $id)
     }
   }
 `;
-
 export const VM_STOP_MUTATION = gql`
-  ${VM_MUTATION_RESULT_FIELDS}
-
-  mutation VmStop($name: String!) {
-    vmMutations {
-      stop(name: $name) {
-        ...VmMutationResultFields
-      }
+  mutation VmStop($id: PrefixedID!) {
+    vm {
+      stop(id: $id)
     }
   }
 `;
-
 export const VM_PAUSE_MUTATION = gql`
-  ${VM_MUTATION_RESULT_FIELDS}
-
-  mutation VmPause($name: String!) {
-    vmMutations {
-      pause(name: $name) {
-        ...VmMutationResultFields
-      }
+  mutation VmPause($id: PrefixedID!) {
+    vm {
+      pause(id: $id)
     }
   }
 `;
-
 export const VM_RESUME_MUTATION = gql`
-  ${VM_MUTATION_RESULT_FIELDS}
-
-  mutation VmResume($name: String!) {
-    vmMutations {
-      resume(name: $name) {
-        ...VmMutationResultFields
-      }
+  mutation VmResume($id: PrefixedID!) {
+    vm {
+      resume(id: $id)
     }
   }
 `;
-
 export const VM_REBOOT_MUTATION = gql`
-  ${VM_MUTATION_RESULT_FIELDS}
-
-  mutation VmReboot($name: String!) {
-    vmMutations {
-      reboot(name: $name) {
-        ...VmMutationResultFields
-      }
+  mutation VmReboot($id: PrefixedID!) {
+    vm {
+      reboot(id: $id)
     }
   }
 `;
-
 export const VM_RESET_MUTATION = gql`
-  ${VM_MUTATION_RESULT_FIELDS}
-
-  mutation VmReset($name: String!) {
-    vmMutations {
-      reset(name: $name) {
-        ...VmMutationResultFields
-      }
+  mutation VmReset($id: PrefixedID!) {
+    vm {
+      reset(id: $id)
     }
   }
 `;
-
 export const VM_FORCE_STOP_MUTATION = gql`
-  ${VM_MUTATION_RESULT_FIELDS}
-
-  mutation VmForceStop($name: String!) {
-    vmMutations {
-      forceStop(name: $name) {
-        ...VmMutationResultFields
-      }
+  mutation VmForceStop($id: PrefixedID!) {
+    vm {
+      forceStop(id: $id)
     }
   }
 `;

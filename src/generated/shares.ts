@@ -1,12 +1,17 @@
 import { gql } from '../core/graphql/client.js';
 
 export interface ShareRecord {
+  id: string;
   name: string | null;
-  type: string | null;
-  size: number | null;
-  used: number | null;
   free: number | null;
-  allocation: string | null;
+  used: number | null;
+  size: number | null;
+  include: string[] | null;
+  exclude: string[] | null;
+  cache: boolean | null;
+  nameOrig: string | null;
+  comment: string | null;
+  floor: string | null;
 }
 
 export interface SharesSnapshotQuery {
@@ -16,12 +21,17 @@ export interface SharesSnapshotQuery {
 export const SHARES_SNAPSHOT_QUERY = gql`
   query SharesSnapshot {
     shares {
+      id
       name
-      type
-      size
-      used
       free
-      allocation
+      used
+      size
+      include
+      exclude
+      cache
+      nameOrig
+      comment
+      floor
     }
   }
 `;

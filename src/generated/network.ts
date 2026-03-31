@@ -1,57 +1,51 @@
 import { gql } from '../core/graphql/client.js';
 
 export interface NetworkInterfaceRecord {
-  name: string | null;
+  name: string;
+  description: string | null;
+  macAddress: string | null;
   status: string | null;
-  mac: string | null;
-  ipv4: string | null;
-  ipv6: string | null;
-  mtu: number | null;
-  speed: number | null;
-}
-
-export interface NetworkRecord {
-  hostname: string | null;
-  gateway: string | null;
-  dns: string[];
-  interfaces: NetworkInterfaceRecord[];
+  protocol: string | null;
+  ipAddress: string | null;
+  netmask: string | null;
 }
 
 export interface NetworkQuery {
-  network: NetworkRecord;
+  network: {
+    id: string;
+    accessUrls: Array<{
+      ipv4: string | null;
+      ipv6: string | null;
+      type: string;
+      name: string | null;
+    }> | null;
+  };
+  info: {
+    networkInterfaces: NetworkInterfaceRecord[];
+  };
 }
 
-const NETWORK_INTERFACE_FIELDS = gql`
-  fragment NetworkInterfaceFields on NetworkInterface {
-    name
-    status
-    mac
-    ipv4
-    ipv6
-    mtu
-    speed
-  }
-`;
-
-const NETWORK_FIELDS = gql`
-  ${NETWORK_INTERFACE_FIELDS}
-
-  fragment NetworkFields on Network {
-    hostname
-    gateway
-    dns
-    interfaces {
-      ...NetworkInterfaceFields
-    }
-  }
-`;
-
 export const NETWORK_QUERY = gql`
-  ${NETWORK_FIELDS}
-
   query Network {
     network {
-      ...NetworkFields
+      id
+      accessUrls {
+        ipv4
+        ipv6
+        type
+        name
+      }
+    }
+    info {
+      networkInterfaces {
+        name
+        description
+        macAddress
+        status
+        protocol
+        ipAddress
+        netmask
+      }
     }
   }
 `;

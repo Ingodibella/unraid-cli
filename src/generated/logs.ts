@@ -1,63 +1,51 @@
 import { gql } from '../core/graphql/client.js';
 
 export interface LogFileRecord {
-  name: string | null;
-  path: string | null;
-  size: number | null;
-  updatedAt: string | null;
-  content: string | null;
+  name: string;
+  path: string;
+  size: number;
+  modifiedAt: string;
+}
+
+export interface LogFileContentRecord {
+  path: string;
+  content: string;
+  totalLines: number;
+  startLine: number | null;
 }
 
 export interface LogsSnapshotQuery {
-  logs: {
-    logFiles: LogFileRecord[];
-    system: LogFileRecord | null;
-  };
+  logFiles: LogFileRecord[];
 }
 
 export interface LogFileQuery {
-  logs: {
-    logFile: LogFileRecord | null;
-  };
+  logFile: LogFileContentRecord | null;
 }
 
-export type LogFileQueryVariables = Record<string, unknown> & {
-  name: string;
-};
-
-const LOG_FILE_FIELDS = gql`
-  fragment LogFileFields on LogFile {
-    name
-    path
-    size
-    updatedAt
-    content
-  }
-`;
+export interface LogFileQueryVariables {
+  path: string;
+  lines?: number;
+  startLine?: number;
+}
 
 export const LOGS_SNAPSHOT_QUERY = gql`
-  ${LOG_FILE_FIELDS}
-
   query LogsSnapshot {
-    logs {
-      logFiles {
-        ...LogFileFields
-      }
-      system {
-        ...LogFileFields
-      }
+    logFiles {
+      name
+      path
+      size
+      modifiedAt
     }
   }
 `;
 
 export const LOG_FILE_QUERY = gql`
-  ${LOG_FILE_FIELDS}
-
-  query LogFile($name: String!) {
-    logs {
-      logFile(name: $name) {
-        ...LogFileFields
-      }
+  query LogFile($path: String!, $lines: Int, $startLine: Int) {
+    logFile(path: $path, lines: $lines, startLine: $startLine) {
+      path
+      content
+      totalLines
+      startLine
     }
   }
 `;

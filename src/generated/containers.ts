@@ -4,35 +4,19 @@ export interface DockerPortRecord {
   ip: string | null;
   privatePort: number | null;
   publicPort: number | null;
-  type: string | null;
-}
-
-export interface DockerStatsRecord {
-  cpuPercent: number | null;
-  memoryUsage: number | null;
-  memoryLimit: number | null;
-  memoryPercent: number | null;
-  networkRx: number | null;
-  networkTx: number | null;
-  blockRead: number | null;
-  blockWrite: number | null;
-  pids: number | null;
+  type: string;
 }
 
 export interface DockerContainerRecord {
-  id: string | null;
-  name: string | null;
-  image: string | null;
-  status: string | null;
-  state: string | null;
-  command: string | null;
-  createdAt: string | null;
-  startedAt: string | null;
-  uptime: string | null;
+  id: string;
+  names: string[];
+  image: string;
+  imageId: string;
+  state: string;
+  status: string;
+  created: number;
   ports: DockerPortRecord[];
-  logs: string | null;
-  inspect: Record<string, unknown> | null;
-  stats: DockerStatsRecord | null;
+  autoStart: boolean;
 }
 
 export interface DockerSnapshotQuery {
@@ -43,173 +27,129 @@ export interface DockerSnapshotQuery {
 
 export interface DockerContainerQuery {
   docker: {
-    container: DockerContainerRecord | null;
+    containers: DockerContainerRecord[];
   };
 }
 
-export type DockerContainerQueryVariables = Record<string, unknown> & {
-  name: string;
-};
-
-export interface DockerMutationResult {
-  success: boolean | null;
-  message: string | null;
+export interface DockerContainerQueryVariables {
+  id: string;
 }
 
 export interface DockerStartMutation {
-  docker: {
-    start: DockerMutationResult | null;
-  };
+  docker: { start: DockerContainerRecord };
 }
-
 export interface DockerStopMutation {
-  docker: {
-    stop: DockerMutationResult | null;
-  };
+  docker: { stop: DockerContainerRecord };
 }
-
 export interface DockerPauseMutation {
-  docker: {
-    pause: DockerMutationResult | null;
-  };
+  docker: { pause: DockerContainerRecord };
 }
-
 export interface DockerUnpauseMutation {
-  docker: {
-    unpause: DockerMutationResult | null;
-  };
+  docker: { unpause: DockerContainerRecord };
 }
-
 export interface DockerRemoveMutation {
-  docker: {
-    removeContainer: DockerMutationResult | null;
-  };
+  docker: { removeContainer: boolean };
 }
 
-export type DockerWriteMutationVariables = Record<string, unknown> & {
-  name: string;
-};
-
-const DOCKER_CONTAINER_FIELDS = gql`
-  fragment DockerContainerFields on DockerContainer {
-    id
-    name
-    image
-    status
-    state
-    command
-    createdAt
-    startedAt
-    uptime
-    ports {
-      ip
-      privatePort
-      publicPort
-      type
-    }
-    logs
-    inspect
-    stats {
-      cpuPercent
-      memoryUsage
-      memoryLimit
-      memoryPercent
-      networkRx
-      networkTx
-      blockRead
-      blockWrite
-      pids
-    }
-  }
-`;
+export interface DockerWriteMutationVariables {
+  id: string;
+}
 
 export const DOCKER_SNAPSHOT_QUERY = gql`
-  ${DOCKER_CONTAINER_FIELDS}
-
   query DockerSnapshot {
     docker {
       containers {
-        ...DockerContainerFields
+        id
+        names
+        image
+        imageId
+        state
+        status
+        created
+        ports {
+          ip
+          privatePort
+          publicPort
+          type
+        }
+        autoStart
       }
     }
   }
 `;
 
-export const DOCKER_CONTAINER_QUERY = gql`
-  ${DOCKER_CONTAINER_FIELDS}
-
-  query DockerContainer($name: String!) {
-    docker {
-      container(name: $name) {
-        ...DockerContainerFields
-      }
-    }
-  }
-`;
-
-const DOCKER_MUTATION_RESULT_FIELDS = gql`
-  fragment DockerMutationResultFields on DockerMutationResult {
-    success
-    message
-  }
-`;
+export const DOCKER_CONTAINER_QUERY = DOCKER_SNAPSHOT_QUERY;
 
 export const DOCKER_START_MUTATION = gql`
-  ${DOCKER_MUTATION_RESULT_FIELDS}
-
-  mutation DockerStart($name: String!) {
+  mutation DockerStart($id: PrefixedID!) {
     docker {
-      start(name: $name) {
-        ...DockerMutationResultFields
+      start(id: $id) {
+        id
+        names
+        image
+        imageId
+        state
+        status
+        created
+        autoStart
+        ports {
+          ip
+          privatePort
+          publicPort
+          type
+        }
       }
     }
   }
 `;
 
 export const DOCKER_STOP_MUTATION = gql`
-  ${DOCKER_MUTATION_RESULT_FIELDS}
-
-  mutation DockerStop($name: String!) {
+  mutation DockerStop($id: PrefixedID!) {
     docker {
-      stop(name: $name) {
-        ...DockerMutationResultFields
+      stop(id: $id) {
+        id
+        names
+        image
+        imageId
+        state
+        status
+        created
+        autoStart
+        ports {
+          ip
+          privatePort
+          publicPort
+          type
+        }
       }
     }
   }
 `;
 
 export const DOCKER_PAUSE_MUTATION = gql`
-  ${DOCKER_MUTATION_RESULT_FIELDS}
-
-  mutation DockerPause($name: String!) {
+  mutation DockerPause($id: PrefixedID!) {
     docker {
-      pause(name: $name) {
-        ...DockerMutationResultFields
+      pause(id: $id) {
+        id
       }
     }
   }
 `;
 
 export const DOCKER_UNPAUSE_MUTATION = gql`
-  ${DOCKER_MUTATION_RESULT_FIELDS}
-
-  mutation DockerUnpause($name: String!) {
+  mutation DockerUnpause($id: PrefixedID!) {
     docker {
-      unpause(name: $name) {
-        ...DockerMutationResultFields
+      unpause(id: $id) {
+        id
       }
     }
   }
 `;
 
 export const DOCKER_REMOVE_MUTATION = gql`
-  ${DOCKER_MUTATION_RESULT_FIELDS}
-
-  mutation DockerRemoveContainer($name: String!) {
+  mutation DockerRemoveContainer($id: PrefixedID!) {
     docker {
-      removeContainer(name: $name) {
-        ...DockerMutationResultFields
-      }
+      removeContainer(id: $id)
     }
   }
 `;

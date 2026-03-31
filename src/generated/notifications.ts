@@ -1,115 +1,159 @@
 import { gql } from '../core/graphql/client.js';
 
 export interface NotificationRecord {
-  id: string | null;
-  title: string | null;
-  message: string | null;
-  severity: string | null;
+  id: string;
+  title: string;
+  subject: string;
+  description: string;
+  importance: 'ALERT' | 'INFO' | 'WARNING';
+  link: string | null;
+  type: 'UNREAD' | 'ARCHIVE';
   timestamp: string | null;
-  read: boolean | null;
 }
 
 export interface NotificationsSnapshotQuery {
-  notifications: NotificationRecord[];
+  notifications: {
+    overview: {
+      unread: { info: number; warning: number; alert: number; total: number };
+      archive: { info: number; warning: number; alert: number; total: number };
+    };
+    list: NotificationRecord[];
+  };
 }
 
-export interface NotificationMutationResult {
-  success: boolean | null;
-  message: string | null;
+export interface NotificationIdVariables { id: string; type?: 'UNREAD' | 'ARCHIVE'; }
+export interface CreateNotificationVariables {
+  input: {
+    title: string;
+    subject: string;
+    description: string;
+    importance: 'ALERT' | 'INFO' | 'WARNING';
+    link?: string;
+  };
 }
 
-export interface ArchiveNotificationMutation {
-  archiveNotification: NotificationMutationResult | null;
-}
-
-export interface ArchiveAllNotificationsMutation {
-  archiveAllNotifications: NotificationMutationResult | null;
-}
-
-export interface UnarchiveNotificationMutation {
-  unarchiveNotification: NotificationMutationResult | null;
-}
-
-export interface UnreadNotificationMutation {
-  unreadNotification: NotificationMutationResult | null;
-}
-
-export interface DeleteNotificationMutation {
-  deleteNotification: NotificationMutationResult | null;
-}
-
-export interface DeleteArchivedNotificationsMutation {
-  deleteArchivedNotifications: NotificationMutationResult | null;
-}
-
-export interface CreateNotificationMutation {
-  createNotification: NotificationRecord | null;
-}
-
-export type NotificationIdVariables = Record<string, unknown> & {
-  id: string;
-};
-
-export type CreateNotificationVariables = Record<string, unknown> & {
-  title: string;
-  message: string;
-  severity: string;
-};
+export interface ArchiveNotificationMutation { archiveNotification: NotificationRecord; }
+export interface ArchiveAllNotificationsMutation { archiveAll: NotificationsSnapshotQuery['notifications']['overview']; }
+export interface UnarchiveNotificationMutation { unarchiveNotifications: NotificationsSnapshotQuery['notifications']['overview']; }
+export interface UnreadNotificationMutation { unreadNotification: NotificationRecord; }
+export interface DeleteNotificationMutation { deleteNotification: NotificationsSnapshotQuery['notifications']['overview']; }
+export interface DeleteArchivedNotificationsMutation { deleteArchivedNotifications: NotificationsSnapshotQuery['notifications']['overview']; }
+export interface CreateNotificationMutation { createNotification: NotificationRecord; }
 
 export const NOTIFICATIONS_SNAPSHOT_QUERY = gql`
-  query NotificationsSnapshot {
+  query NotificationsSnapshot($filter: NotificationFilter!) {
     notifications {
-      id
-      title
-      message
-      severity
-      timestamp
-      read
+      overview {
+        unread {
+          info
+          warning
+          alert
+          total
+        }
+        archive {
+          info
+          warning
+          alert
+          total
+        }
+      }
+      list(filter: $filter) {
+        id
+        title
+        subject
+        description
+        importance
+        link
+        type
+        timestamp
+      }
     }
   }
 `;
 
 export const ARCHIVE_NOTIFICATION_MUTATION = gql`
-  mutation ArchiveNotification($id: String!) {
+  mutation ArchiveNotification($id: PrefixedID!) {
     archiveNotification(id: $id) {
-      success
-      message
+      id
+      title
+      subject
+      description
+      importance
+      link
+      type
+      timestamp
     }
   }
 `;
 
 export const ARCHIVE_ALL_NOTIFICATIONS_MUTATION = gql`
   mutation ArchiveAllNotifications {
-    archiveAllNotifications {
-      success
-      message
+    archiveAll {
+      unread {
+        info
+        warning
+        alert
+        total
+      }
+      archive {
+        info
+        warning
+        alert
+        total
+      }
     }
   }
 `;
 
 export const UNARCHIVE_NOTIFICATION_MUTATION = gql`
-  mutation UnarchiveNotification($id: String!) {
-    unarchiveNotification(id: $id) {
-      success
-      message
+  mutation UnarchiveNotification($id: PrefixedID!) {
+    unarchiveNotifications(ids: [$id]) {
+      unread {
+        info
+        warning
+        alert
+        total
+      }
+      archive {
+        info
+        warning
+        alert
+        total
+      }
     }
   }
 `;
 
 export const UNREAD_NOTIFICATION_MUTATION = gql`
-  mutation UnreadNotification($id: String!) {
+  mutation UnreadNotification($id: PrefixedID!) {
     unreadNotification(id: $id) {
-      success
-      message
+      id
+      title
+      subject
+      description
+      importance
+      link
+      type
+      timestamp
     }
   }
 `;
 
 export const DELETE_NOTIFICATION_MUTATION = gql`
-  mutation DeleteNotification($id: String!) {
-    deleteNotification(id: $id) {
-      success
-      message
+  mutation DeleteNotification($id: PrefixedID!, $type: NotificationType!) {
+    deleteNotification(id: $id, type: $type) {
+      unread {
+        info
+        warning
+        alert
+        total
+      }
+      archive {
+        info
+        warning
+        alert
+        total
+      }
     }
   }
 `;
@@ -117,21 +161,33 @@ export const DELETE_NOTIFICATION_MUTATION = gql`
 export const DELETE_ARCHIVED_NOTIFICATIONS_MUTATION = gql`
   mutation DeleteArchivedNotifications {
     deleteArchivedNotifications {
-      success
-      message
+      unread {
+        info
+        warning
+        alert
+        total
+      }
+      archive {
+        info
+        warning
+        alert
+        total
+      }
     }
   }
 `;
 
 export const CREATE_NOTIFICATION_MUTATION = gql`
-  mutation CreateNotification($title: String!, $message: String!, $severity: String!) {
-    createNotification(title: $title, message: $message, severity: $severity) {
+  mutation CreateNotification($input: NotificationData!) {
+    createNotification(input: $input) {
       id
       title
-      message
-      severity
+      subject
+      description
+      importance
+      link
+      type
       timestamp
-      read
     }
   }
 `;

@@ -1,12 +1,11 @@
 import { gql } from '../core/graphql/client.js';
 
 export interface ServiceRecord {
+  id: string;
   name: string | null;
-  status: string | null;
-  enabled: boolean | null;
-  pid: number | null;
-  uptime: string | null;
-  description: string | null;
+  online: boolean | null;
+  version: string | null;
+  uptime: { timestamp: string | null } | null;
 }
 
 export interface ServicesQuery {
@@ -14,40 +13,25 @@ export interface ServicesQuery {
 }
 
 export interface ServiceQuery {
-  service: ServiceRecord | null;
+  services: ServiceRecord[];
 }
 
-export type ServiceQueryVariables = Record<string, unknown> & {
+export interface ServiceQueryVariables {
   name: string;
-};
-
-const SERVICE_FIELDS = gql`
-  fragment ServiceFields on Service {
-    name
-    status
-    enabled
-    pid
-    uptime
-    description
-  }
-`;
+}
 
 export const SERVICES_QUERY = gql`
-  ${SERVICE_FIELDS}
-
   query Services {
     services {
-      ...ServiceFields
+      id
+      name
+      online
+      version
+      uptime {
+        timestamp
+      }
     }
   }
 `;
 
-export const SERVICE_QUERY = gql`
-  ${SERVICE_FIELDS}
-
-  query Service($name: String!) {
-    service(name: $name) {
-      ...ServiceFields
-    }
-  }
-`;
+export const SERVICE_QUERY = SERVICES_QUERY;

@@ -1,27 +1,36 @@
 import { gql } from '../core/graphql/client.js';
 
-export interface ArrayDisk {
+export interface ArraySlotDisk {
+  idx?: number | null;
   name: string | null;
+  device: string | null;
   size: number | null;
   status: string | null;
-  temperature: number | null;
-  filesystem: string | null;
+  rotational?: boolean | null;
+  temp: number | null;
+  numReads?: number | null;
+  numWrites?: number | null;
+  numErrors?: number | null;
 }
 
 export interface ArrayQuery {
   array: {
-    state: string | null;
-    capacity: number | null;
-    used: number | null;
-    free: number | null;
-    diskCount: number | null;
-    disks: ArrayDisk[];
-    parity: {
-      status: string | null;
+    state: string;
+    capacity: {
+      kilobytes: { free: string; used: string; total: string };
+      disks: { free: string; used: string; total: string };
+    };
+    boot: ArraySlotDisk | null;
+    parities: ArraySlotDisk[];
+    parityCheckStatus: {
+      status: string;
       progress: number | null;
-      speed: number | null;
       errors: number | null;
+      running: boolean | null;
+      paused: boolean | null;
     } | null;
+    disks: ArraySlotDisk[];
+    caches: ArraySlotDisk[];
   };
 }
 
@@ -29,8 +38,8 @@ export interface ParityHistoryEntry {
   date: string | null;
   duration: number | null;
   errors: number | null;
-  speed: number | null;
-  status: string | null;
+  speed: string | null;
+  status: string;
 }
 
 export interface ParityHistoryQuery {
@@ -38,41 +47,19 @@ export interface ParityHistoryQuery {
 }
 
 export interface ArraySetStateMutation {
-  array: {
-    setState: {
-      state: string | null;
-      success: boolean | null;
-      message: string | null;
-    } | null;
-  };
+  array: { setState: { state: string } };
 }
 
-export type ArraySetStateMutationVariables = Record<string, unknown> & {
-  state: string;
-};
+export interface ArraySetStateMutationVariables {
+  desiredState: 'START' | 'STOP';
+}
 
 export interface ParityCheckControlMutation {
   parityCheck: {
-    start: {
-      status: string | null;
-      success: boolean | null;
-      message: string | null;
-    } | null;
-    pause: {
-      status: string | null;
-      success: boolean | null;
-      message: string | null;
-    } | null;
-    resume: {
-      status: string | null;
-      success: boolean | null;
-      message: string | null;
-    } | null;
-    cancel: {
-      status: string | null;
-      success: boolean | null;
-      message: string | null;
-    } | null;
+    start?: unknown;
+    pause?: unknown;
+    resume?: unknown;
+    cancel?: unknown;
   };
 }
 
@@ -80,22 +67,59 @@ export const ARRAY_QUERY = gql`
   query ArraySnapshot {
     array {
       state
-      capacity
-      used
-      free
-      diskCount
-      disks {
+      capacity {
+        kilobytes {
+          free
+          used
+          total
+        }
+        disks {
+          free
+          used
+          total
+        }
+      }
+      boot {
         name
+        device
         size
         status
-        temperature
-        filesystem
+        temp
       }
-      parity {
+      parities {
+        idx
+        name
+        device
+        size
+        status
+        temp
+      }
+      parityCheckStatus {
         status
         progress
-        speed
         errors
+        running
+        paused
+      }
+      disks {
+        idx
+        name
+        device
+        size
+        status
+        rotational
+        temp
+        numReads
+        numWrites
+        numErrors
+      }
+      caches {
+        idx
+        name
+        device
+        size
+        status
+        temp
       }
     }
   }
@@ -114,12 +138,10 @@ export const PARITY_HISTORY_QUERY = gql`
 `;
 
 export const ARRAY_SET_STATE_MUTATION = gql`
-  mutation ArraySetState($state: String!) {
+  mutation ArraySetState($desiredState: ArrayStateInputState!) {
     array {
-      setState(state: $state) {
+      setState(input: { desiredState: $desiredState }) {
         state
-        success
-        message
       }
     }
   }
@@ -128,11 +150,7 @@ export const ARRAY_SET_STATE_MUTATION = gql`
 export const PARITY_CHECK_START_MUTATION = gql`
   mutation ParityCheckStart {
     parityCheck {
-      start {
-        status
-        success
-        message
-      }
+      start(correct: false)
     }
   }
 `;
@@ -140,11 +158,7 @@ export const PARITY_CHECK_START_MUTATION = gql`
 export const PARITY_CHECK_PAUSE_MUTATION = gql`
   mutation ParityCheckPause {
     parityCheck {
-      pause {
-        status
-        success
-        message
-      }
+      pause
     }
   }
 `;
@@ -152,11 +166,7 @@ export const PARITY_CHECK_PAUSE_MUTATION = gql`
 export const PARITY_CHECK_RESUME_MUTATION = gql`
   mutation ParityCheckResume {
     parityCheck {
-      resume {
-        status
-        success
-        message
-      }
+      resume
     }
   }
 `;
@@ -164,11 +174,7 @@ export const PARITY_CHECK_RESUME_MUTATION = gql`
 export const PARITY_CHECK_CANCEL_MUTATION = gql`
   mutation ParityCheckCancel {
     parityCheck {
-      cancel {
-        status
-        success
-        message
-      }
+      cancel
     }
   }
 `;
