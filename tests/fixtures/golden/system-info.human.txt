@@ -1,0 +1,6 @@
+osPlatform: Linux
+distro: Unraid
+release: 6.12.10
+hostname: tower
+uptime: 93784
+uptimeHuman: 1 day, 2 hours, 3 minutes, 4 seconds

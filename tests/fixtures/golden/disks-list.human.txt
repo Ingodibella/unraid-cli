@@ -1,0 +1,34 @@
+#1
+name: disk1
+size: 3.64 TB
+status: healthy
+temp: 34C
+type: data
+
+#2
+name: disk2
+size: 3.64 TB
+status: warning
+temp: 45C
+type: data
+
+#3
+name: cache
+size: 931.51 GB
+status: healthy
+temp: 55C
+type: cache
+
+#4
+name: parity
+size: 3.64 TB
+status: healthy
+temp: 37C
+type: parity
+
+#5
+name: flash
+size: 60.00 GB
+status: healthy
+temp: unknown
+type: flash

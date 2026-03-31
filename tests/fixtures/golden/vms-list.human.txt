@@ -1,0 +1,20 @@
+#1
+name: ubuntu-dev
+status: running
+vcpus: 4
+memory: 8.00 GB
+diskSize: 64.00 GB
+
+#2
+name: win11
+status: stopped
+vcpus: 6
+memory: 16.00 GB
+diskSize: 128.00 GB
+
+#3
+name: haos
+status: paused
+vcpus: 2
+memory: 4.00 GB
+diskSize: 32.00 GB

@@ -1,0 +1,23 @@
+[
+  {
+    "diskSize": "64.00 GB",
+    "memory": "8.00 GB",
+    "name": "ubuntu-dev",
+    "status": "running",
+    "vcpus": 4
+  },
+  {
+    "diskSize": "128.00 GB",
+    "memory": "16.00 GB",
+    "name": "win11",
+    "status": "stopped",
+    "vcpus": 6
+  },
+  {
+    "diskSize": "32.00 GB",
+    "memory": "4.00 GB",
+    "name": "haos",
+    "status": "paused",
+    "vcpus": 2
+  }
+]

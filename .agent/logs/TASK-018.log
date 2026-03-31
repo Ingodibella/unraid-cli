@@ -1,0 +1,25 @@
+[2026-03-31 13:10 Europe/Berlin] TASK-018 completed: Golden test fixtures for read commands.
+
+Implemented:
+- Added contract test: tests/contract/golden.test.ts
+- Added golden fixtures (human + json) under tests/fixtures/golden/ for:
+  - system-info
+  - array-show
+  - disks-list
+  - containers-list
+  - vms-list
+  - notifications-list
+  - shares-list
+- Golden generation support via env flag UCLI_UPDATE_GOLDEN=1 in test helper.
+
+Validation:
+1) npm run typecheck && npx vitest run tests/contract/golden.test.ts
+   - PASS (14 tests)
+2) npm test
+   - PASS (328/328)
+
+Project updates:
+- Set TASK-018 status to done in .agent/tasks.json
+
+Commit:
+- [TASK-018] Golden test fixtures for read commands

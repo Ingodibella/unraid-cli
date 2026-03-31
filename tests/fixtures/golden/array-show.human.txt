@@ -1,0 +1,5 @@
+state: Started
+capacity: 10.00 TB
+used: 4.00 TB
+free: 6.00 TB
+diskCount: 4

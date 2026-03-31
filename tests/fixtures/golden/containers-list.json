@@ -1,0 +1,23 @@
+[
+  {
+    "image": "nginx:1.27",
+    "name": "nginx",
+    "ports": "8080->80/tcp",
+    "status": "running",
+    "uptime": "1d 2h"
+  },
+  {
+    "image": "redis:7",
+    "name": "redis",
+    "ports": "6379->6379/tcp",
+    "status": "paused",
+    "uptime": "2d 5h"
+  },
+  {
+    "image": "postgres:16",
+    "name": "postgres",
+    "ports": "none",
+    "status": "stopped",
+    "uptime": "0s"
+  }
+]

@@ -204,7 +204,7 @@
       "id": "TASK-018",
       "name": "Golden Test Fixtures for Read Commands",
       "priority": 18,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-018.md",
       "dependencies": [
         "TASK-011",

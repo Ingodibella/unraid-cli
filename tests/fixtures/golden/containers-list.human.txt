@@ -1,0 +1,20 @@
+#1
+name: nginx
+image: nginx:1.27
+status: running
+ports: 8080->80/tcp
+uptime: 1d 2h
+
+#2
+name: redis
+image: redis:7
+status: paused
+ports: 6379->6379/tcp
+uptime: 2d 5h
+
+#3
+name: postgres
+image: postgres:16
+status: stopped
+ports: none
+uptime: 0s
