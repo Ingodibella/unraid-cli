@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { formatUserError, getExitCode } from '../core/errors/user-errors.js';
 import { createArrayCommand } from '../commands/array/index.js';
+import { createDisksCommand } from '../commands/disks/index.js';
 import { createSystemCommand } from '../commands/system/index.js';
 import { DEFAULTS, OUTPUT_FORMATS } from './globals.js';
 
@@ -104,6 +105,7 @@ export function createProgram(): Command {
 
   program.addCommand(createSystemCommand());
   program.addCommand(createArrayCommand());
+  program.addCommand(createDisksCommand());
 
   return program;
 }

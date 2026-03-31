@@ -1,0 +1,31 @@
+[TASK-013] Implement disks command group
+
+Changed files:
+- src/cli/index.ts
+- src/commands/disks/index.ts
+- src/commands/disks/shared.ts
+- src/commands/disks/list.ts
+- src/commands/disks/get.ts
+- src/commands/disks/status.ts
+- src/commands/disks/smart.ts
+- src/commands/disks/usage.ts
+- src/commands/disks/temp.ts
+- src/commands/disks/assignable.ts
+- src/generated/disks.ts
+- tests/fixtures/disks-response.json
+- tests/unit/commands/disks.test.ts
+- .agent/tasks.json
+
+Implementation:
+- added disks command group with list, get, status, smart, usage, temp, assignable list
+- added GraphQL query/types for disks, disk(name), assignableDisks
+- added shared helpers for auth, rendering, pagination, size and temperature formatting
+- added fixture-backed unit coverage for output modes and list behaviors
+
+Validation:
+- npm run typecheck && npx vitest run tests/unit/commands/disks.test.ts
+- npm test
+
+Result:
+- targeted disks tests green: 8/8
+- full suite green: 289/289

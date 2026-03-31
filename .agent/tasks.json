@@ -140,7 +140,7 @@
       "id": "TASK-013",
       "name": "Command: disks list|get|status|smart|usage|temp",
       "priority": 13,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-013.md",
       "dependencies": [
         "TASK-004",

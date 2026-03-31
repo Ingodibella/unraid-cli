@@ -1,0 +1,170 @@
+{
+  "disks": [
+    {
+      "name": "disk1",
+      "device": "/dev/sdb",
+      "size": 4000787030016,
+      "used": 2000393515008,
+      "free": 2000393515008,
+      "status": "healthy",
+      "temperature": 34,
+      "type": "data",
+      "filesystem": "xfs",
+      "serial": "SER123",
+      "model": "Seagate Exos X18",
+      "smartStatus": "passed",
+      "smartAttributes": [
+        {
+          "id": 5,
+          "name": "Reallocated_Sector_Ct",
+          "value": 100,
+          "worst": 100,
+          "threshold": 10,
+          "raw": "0",
+          "status": "ok"
+        },
+        {
+          "id": 194,
+          "name": "Temperature_Celsius",
+          "value": 66,
+          "worst": 55,
+          "threshold": 0,
+          "raw": "34",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "name": "disk2",
+      "device": "/dev/sdc",
+      "size": 4000787030016,
+      "used": 3000590272512,
+      "free": 1000196757504,
+      "status": "warning",
+      "temperature": 45,
+      "type": "data",
+      "filesystem": "xfs",
+      "serial": "SER124",
+      "model": "WD Red Pro",
+      "smartStatus": "warning",
+      "smartAttributes": [
+        {
+          "id": 5,
+          "name": "Reallocated_Sector_Ct",
+          "value": 98,
+          "worst": 98,
+          "threshold": 10,
+          "raw": "12",
+          "status": "warning"
+        }
+      ]
+    },
+    {
+      "name": "cache",
+      "device": "/dev/nvme0n1",
+      "size": 1000204886016,
+      "used": 250051221504,
+      "free": 750153664512,
+      "status": "healthy",
+      "temperature": 55,
+      "type": "cache",
+      "filesystem": "btrfs",
+      "serial": "SER125",
+      "model": "Samsung 990 PRO",
+      "smartStatus": "passed",
+      "smartAttributes": [
+        {
+          "id": 194,
+          "name": "Temperature_Celsius",
+          "value": 45,
+          "worst": 40,
+          "threshold": 0,
+          "raw": "55",
+          "status": "critical"
+        }
+      ]
+    },
+    {
+      "name": "parity",
+      "device": "/dev/sdd",
+      "size": 4000787030016,
+      "used": 0,
+      "free": 4000787030016,
+      "status": "healthy",
+      "temperature": 37,
+      "type": "parity",
+      "filesystem": null,
+      "serial": "SER126",
+      "model": "Toshiba MG08",
+      "smartStatus": "passed",
+      "smartAttributes": []
+    },
+    {
+      "name": "flash",
+      "device": "/dev/sde1",
+      "size": 64424509440,
+      "used": 21474836480,
+      "free": 42949672960,
+      "status": "healthy",
+      "temperature": null,
+      "type": "flash",
+      "filesystem": "vfat",
+      "serial": "SER127",
+      "model": "SanDisk Ultra Fit",
+      "smartStatus": "unknown",
+      "smartAttributes": []
+    }
+  ],
+  "disk": {
+    "name": "disk1",
+    "device": "/dev/sdb",
+    "size": 4000787030016,
+    "used": 2000393515008,
+    "free": 2000393515008,
+    "status": "healthy",
+    "temperature": 34,
+    "type": "data",
+    "filesystem": "xfs",
+    "serial": "SER123",
+    "model": "Seagate Exos X18",
+    "smartStatus": "passed",
+    "smartAttributes": [
+      {
+        "id": 5,
+        "name": "Reallocated_Sector_Ct",
+        "value": 100,
+        "worst": 100,
+        "threshold": 10,
+        "raw": "0",
+        "status": "ok"
+      },
+      {
+        "id": 194,
+        "name": "Temperature_Celsius",
+        "value": 66,
+        "worst": 55,
+        "threshold": 0,
+        "raw": "34",
+        "status": "ok"
+      }
+    ]
+  },
+  "assignableDisks": [
+    {
+      "name": "disk5",
+      "device": "/dev/sdf",
+      "size": 8001563222016,
+      "status": "clear",
+      "type": "data",
+      "filesystem": null
+    },
+    {
+      "name": "cache2",
+      "device": "/dev/nvme1n1",
+      "size": 2000409260032,
+      "status": "clear",
+      "type": "cache",
+      "filesystem": null
+    }
+  ]
+}
