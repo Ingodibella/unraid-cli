@@ -1,60 +1,118 @@
 {
   "array": {
-    "state": "Started",
-    "capacity": 10995116277760,
-    "used": 4398046511104,
-    "free": 6597069766656,
-    "diskCount": 4,
-    "disks": [
-      {
-        "name": "disk1",
-        "size": 4000787030016,
-        "status": "healthy",
-        "temperature": 34,
-        "filesystem": "xfs"
+    "state": "STARTED",
+    "capacity": {
+      "kilobytes": {
+        "free": "6442450944",
+        "used": "4294967296",
+        "total": "10737418240"
       },
+      "disks": {
+        "free": "6442450944",
+        "used": "4294967296",
+        "total": "10737418240"
+      }
+    },
+    "boot": {
+      "name": "flash",
+      "device": "sda",
+      "size": 131072,
+      "status": "DISK_OK",
+      "temp": 31
+    },
+    "parities": [
       {
-        "name": "disk2",
-        "size": 4000787030016,
-        "status": "healthy",
-        "temperature": 36,
-        "filesystem": "xfs"
-      },
-      {
-        "name": "disk3",
-        "size": 2000398934016,
-        "status": "standby",
-        "temperature": null,
-        "filesystem": "xfs"
-      },
-      {
+        "idx": 0,
         "name": "parity",
-        "size": 4000787030016,
-        "status": "healthy",
-        "temperature": 37,
-        "filesystem": null
+        "device": "sdb",
+        "size": 4194304,
+        "status": "DISK_OK",
+        "temp": 37,
+        "numErrors": 0
       }
     ],
-    "parity": {
+    "parityCheckStatus": {
       "status": "idle",
       "progress": 100,
-      "speed": 0,
-      "errors": 0
-    }
+      "errors": 0,
+      "running": false,
+      "paused": false,
+      "correcting": false
+    },
+    "disks": [
+      {
+        "idx": 1,
+        "name": "disk1",
+        "device": "sdc",
+        "size": 4194304,
+        "status": "DISK_OK",
+        "rotational": true,
+        "temp": 34,
+        "numReads": 100,
+        "numWrites": 200,
+        "numErrors": 0
+      },
+      {
+        "idx": 2,
+        "name": "disk2",
+        "device": "sdd",
+        "size": 4194304,
+        "status": "DISK_OK",
+        "rotational": true,
+        "temp": 36,
+        "numReads": 110,
+        "numWrites": 210,
+        "numErrors": 0
+      },
+      {
+        "idx": 3,
+        "name": "disk3",
+        "device": "sde",
+        "size": 2097152,
+        "status": "DISK_NP",
+        "rotational": true,
+        "temp": null,
+        "numReads": 0,
+        "numWrites": 0,
+        "numErrors": 0
+      },
+      {
+        "idx": 4,
+        "name": "disk4",
+        "device": "sdf",
+        "size": 2097152,
+        "status": "DISK_OK",
+        "rotational": false,
+        "temp": 30,
+        "numReads": 50,
+        "numWrites": 75,
+        "numErrors": 0
+      }
+    ],
+    "caches": [
+      {
+        "idx": 0,
+        "name": "cache",
+        "device": "nvme0n1",
+        "size": 1048576,
+        "status": "DISK_OK",
+        "temp": 40
+      }
+    ]
   },
   "parityHistory": [
     {
       "date": "2026-03-01T02:00:00Z",
       "duration": 14400,
       "errors": 0,
-      "speed": 120,
+      "speed": "120 MB/s",
       "status": "ok"
     },
     {
       "date": "2026-02-01T02:00:00Z",
       "duration": 14600,
       "errors": 2,
-      "speed": 118,
+      "speed": "118 MB/s",
       "status": "errors"
     }
   ]

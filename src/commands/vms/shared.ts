@@ -7,7 +7,7 @@ import { paginate } from '../../core/filters/index.js';
 import { createClient, type UcliGraphQLClient } from '../../core/graphql/client.js';
 import { renderOutput } from '../../core/output/renderer.js';
 import { assertSafety } from '../../core/safety/index.js';
-import { VM_QUERY, VMS_QUERY, type VmQuery, type VmQueryVariables, type VmRecord, type VmsQuery } from '../../generated/vms.js';
+import { VM_QUERY, VMS_QUERY, type VmRecord, type VmsQuery } from '../../generated/vms.js';
 
 export interface VmsCommandDependencies {
   createGraphQLClient: typeof createClient;
@@ -42,23 +42,28 @@ function createVmsClient(
   });
 }
 
+export function extractVmList(data: VmsQuery): VmRecord[] {
+  return data.vms.domains ?? [];
+}
+
 export async function fetchVms(
   options: GlobalOptions,
   dependencies: VmsCommandDependencies = defaultVmsCommandDependencies,
-): Promise<VmsQuery> {
-  return createVmsClient(options, dependencies).execute<VmsQuery>(VMS_QUERY);
+): Promise<VmRecord[]> {
+  const data = await createVmsClient(options, dependencies).execute<VmsQuery>(VMS_QUERY);
+  return extractVmList(data);
 }
 
 export async function fetchVm(
-  name: string,
+  idOrName: string,
   options: GlobalOptions,
   dependencies: VmsCommandDependencies = defaultVmsCommandDependencies,
 ): Promise<VmRecord> {
-  const data = await createVmsClient(options, dependencies).execute<VmQuery, VmQueryVariables>(VM_QUERY, { name });
-  const vm = data.vm;
+  const data = await createVmsClient(options, dependencies).execute<VmsQuery>(VM_QUERY);
+  const vm = extractVmList(data).find((entry) => entry.id === idOrName || entry.name === idOrName) ?? null;
 
   if (vm == null) {
-    throw new NotFoundError(`VM not found: ${name}`);
+    throw new NotFoundError(`VM not found: ${idOrName}`);
   }
 
   return vm;
@@ -68,15 +73,15 @@ export interface VmWriteActionInput {
   action: 'start' | 'stop' | 'pause' | 'resume' | 'reboot' | 'reset' | 'force-stop';
   commandPath: string;
   mutation: string;
-  name: string;
+  idOrName: string;
   options: GlobalOptions;
   dependencies?: VmsCommandDependencies;
 }
 
 export interface VmWriteActionOutput {
   action: string;
-  name: string;
-  status: string | null;
+  id: string;
+  name: string | null;
   state: string | null;
 }
 
@@ -84,15 +89,15 @@ export async function executeVmWriteAction(input: VmWriteActionInput): Promise<V
   const dependencies = input.dependencies ?? defaultVmsCommandDependencies;
   await assertSafety(input.commandPath, { yes: input.options.yes, force: input.options.force }, { stdout: process.stdout });
 
-  await createVmsClient(input.options, dependencies).execute(input.mutation, { name: input.name });
-
-  const vm = await fetchVm(input.name, input.options, dependencies);
+  const vm = await fetchVm(input.idOrName, input.options, dependencies);
+  await createVmsClient(input.options, dependencies).execute(input.mutation, { id: vm.id });
+  const updated = await fetchVm(vm.id, input.options, dependencies);
 
   return {
     action: input.action,
-    name: vm.name ?? input.name,
-    status: vm.status,
-    state: vm.state,
+    id: updated.id,
+    name: updated.name ?? vm.name ?? input.idOrName,
+    state: updated.state,
   };
 }
 
@@ -129,7 +134,7 @@ export function applyVmsCommandOptions(command: Command): Command {
 
 export function applyVmsListOptions(command: Command): Command {
   return applyVmsCommandOptions(command)
-    .option('--filter <expr>', 'Filter expression (e.g. status=running)')
+    .option('--filter <expr>', 'Filter expression (e.g. state=RUNNING)')
     .option('--sort <expr>', 'Sort expression (e.g. name:asc)')
     .option('--page <number>', 'Page number for paginated results', Number.parseInt)
     .option('--page-size <number>', 'Items per page', Number.parseInt)
@@ -148,21 +153,4 @@ export function paginateItems<T>(items: readonly T[], options: GlobalOptions): T
     pageSize: options.pageSize,
     all: options.all,
   }).items;
-}
-
-export function formatBytes(bytes: number | null | undefined): string {
-  if (bytes == null || !Number.isFinite(bytes) || bytes < 0) {
-    return 'unknown';
-  }
-
-  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-  let value = bytes;
-  let unitIndex = 0;
-
-  while (value >= 1024 && unitIndex < units.length - 1) {
-    value /= 1024;
-    unitIndex += 1;
-  }
-
-  return `${value.toFixed(unitIndex > 0 ? 2 : 0)} ${units[unitIndex]}`;
 }

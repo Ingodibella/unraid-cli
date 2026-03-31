@@ -4,7 +4,7 @@ import {
   applyContainersCommandOptions,
   defaultContainersCommandDependencies,
   fetchContainer,
-  formatBytes,
+  formatContainerNames,
   formatPorts,
   normalizeContainerName,
   resolveContainersOptions,
@@ -12,49 +12,39 @@ import {
 } from './shared.js';
 
 export interface ContainerDetailRecord {
-  id: string | null;
+  id: string;
   name: string | null;
-  image: string | null;
-  status: string | null;
-  state: string | null;
-  command: string | null;
-  createdAt: string | null;
-  startedAt: string | null;
-  uptime: string | null;
+  names: string;
+  image: string;
+  imageId: string;
+  state: string;
+  status: string;
+  created: number;
+  autoStart: boolean;
   ports: string;
-  cpuPercent: number | null;
-  memoryUsage: string;
-  memoryLimit: string;
-  memoryPercent: number | null;
-  pids: number | null;
 }
 
 export function createContainersGetCommand(
   dependencies: ContainersCommandDependencies = defaultContainersCommandDependencies,
 ): Command {
   return applyContainersCommandOptions(new Command('get'))
-    .argument('<name>', 'Container name')
-    .description('Show detailed information for a single container')
-    .action(async function handleContainersGet(name: string) {
+    .argument('<container>', 'Container ID or name')
+    .description('Show details for a single container')
+    .action(async function handleContainersGet(containerArg: string) {
       const options = resolveContainersOptions(this);
-      const container = await fetchContainer(name, options, dependencies);
+      const container = await fetchContainer(containerArg, options, dependencies);
 
       writeRenderedOutput({
         id: container.id,
-        name: normalizeContainerName(container.name),
+        name: normalizeContainerName(container.names),
+        names: formatContainerNames(container.names),
         image: container.image,
-        status: container.status,
+        imageId: container.imageId,
         state: container.state,
-        command: container.command,
-        createdAt: container.createdAt,
-        startedAt: container.startedAt,
-        uptime: container.uptime,
+        status: container.status,
+        created: container.created,
+        autoStart: container.autoStart,
         ports: formatPorts(container.ports),
-        cpuPercent: container.stats?.cpuPercent ?? null,
-        memoryUsage: formatBytes(container.stats?.memoryUsage),
-        memoryLimit: formatBytes(container.stats?.memoryLimit),
-        memoryPercent: container.stats?.memoryPercent ?? null,
-        pids: container.stats?.pids ?? null,
       } satisfies ContainerDetailRecord, options, dependencies);
     });
 }

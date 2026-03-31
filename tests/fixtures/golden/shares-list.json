@@ -1,26 +1,26 @@
 [
   {
-    "allocation": "high-water",
+    "cache": true,
+    "floor": "0",
     "free": "180.00 GB",
     "name": "appdata",
     "size": "500.00 GB",
-    "type": "user",
     "used": "320.00 GB"
   },
   {
-    "allocation": "most-free",
+    "cache": false,
+    "floor": "0",
     "free": "512.00 GB",
     "name": "media",
     "size": "2.00 TB",
-    "type": "user",
     "used": "1.50 TB"
   },
   {
-    "allocation": "fill-up",
+    "cache": true,
+    "floor": "0",
     "free": "128.00 GB",
     "name": "system",
     "size": "256.00 GB",
-    "type": "cache",
     "used": "128.00 GB"
   }
 ]

@@ -62,11 +62,11 @@ describe('shares command group', () => {
     expect(parsed).toHaveLength(3);
     expect(parsed[0]).toMatchObject({
       name: 'appdata',
-      type: 'user',
       size: '500.00 GB',
       used: '320.00 GB',
       free: '180.00 GB',
-      allocation: 'high-water',
+      cache: true,
+      floor: '0',
     });
   });
 
@@ -82,14 +82,14 @@ describe('shares command group', () => {
 
     const parsed = JSON.parse(stdout) as Record<string, unknown>;
     expect(parsed).toMatchObject({
+      id: 'share:media',
       name: 'media',
-      type: 'user',
       size: '2.00 TB',
       used: '1.50 TB',
       free: '512.00 GB',
       usedPercent: 75,
       freePercent: 25,
-      allocation: 'most-free',
+      cache: false,
     });
   });
 
@@ -139,7 +139,7 @@ describe('shares command group', () => {
       '--output',
       'json',
       '--filter',
-      'type=user',
+      'cache=true',
       '--sort',
       'name:desc',
       '--page',
@@ -147,11 +147,11 @@ describe('shares command group', () => {
       '--page-size',
       '1',
       '--fields',
-      'name,type',
+      'name,cache',
     ]);
 
     expect(JSON.parse(stdout)).toEqual([
-      { name: 'media', type: 'user' },
+      { name: 'system', cache: true },
     ]);
 
     for (const format of ['yaml', 'table']) {

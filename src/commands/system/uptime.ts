@@ -4,20 +4,21 @@ import {
   applySystemCommandOptions,
   defaultSystemCommandDependencies,
   fetchSystemSnapshot,
-  formatUptime,
   resolveSystemOptions,
   writeRenderedOutput,
 } from './shared.js';
 
 export interface SystemUptimeRecord {
-  seconds: number | null;
-  human: string;
+  available: false;
+  message: string;
+  serverTime: string;
 }
 
 export function mapSystemUptime(snapshot: Awaited<ReturnType<typeof fetchSystemSnapshot>>): SystemUptimeRecord {
   return {
-    seconds: snapshot.info.uptime,
-    human: formatUptime(snapshot.info.uptime),
+    available: false,
+    message: 'Uptime is not available from the current API schema.',
+    serverTime: snapshot.info.time,
   };
 }
 

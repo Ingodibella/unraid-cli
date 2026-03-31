@@ -31,7 +31,7 @@ vi.mock('../../../src/core/graphql/client.js', async (importOriginal) => {
 describe('network command group', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    executeMock.mockResolvedValue({ network: fixture.network });
+    executeMock.mockResolvedValue({ network: fixture.network, info: fixture.info });
 
     process.env.UCLI_HOST = 'http://tower.local:7777';
     process.env.UCLI_API_KEY = 'test-api-key';
@@ -66,9 +66,8 @@ describe('network command group', () => {
 
     const parsed = JSON.parse(stdout) as Record<string, unknown>;
     expect(parsed).toEqual({
-      hostname: 'tower',
-      gateway: '192.168.1.1',
-      dns: ['1.1.1.1', '8.8.8.8'],
+      id: 'network:1',
+      accessUrls: [{ ipv4: '192.168.1.10', ipv6: null, type: 'LAN', name: 'tower' }],
       interfaces: 3,
     });
   });
@@ -88,7 +87,7 @@ describe('network command group', () => {
     expect(parsed[0]).toMatchObject({
       name: 'eth0',
       status: 'up',
-      ipv4: '192.168.1.10/24',
+      ipAddress: '192.168.1.10/24',
     });
   });
 
@@ -106,8 +105,8 @@ describe('network command group', () => {
     expect(parsed).toMatchObject({
       name: 'wg0',
       status: 'down',
-      ipv4: '10.253.0.1/24',
-      mtu: 1420,
+      ipAddress: '10.253.0.1/24',
+      netmask: '255.255.255.0',
     });
   });
 });

@@ -5,37 +5,26 @@ import {
   applyVmsListOptions,
   defaultVmsCommandDependencies,
   fetchVms,
-  formatBytes,
   paginateItems,
   resolveVmsOptions,
   writeRenderedOutput,
 } from './shared.js';
 
-export interface VmListRecord {
-  name: string | null;
-  status: string | null;
-  vcpus: number | null;
-  memory: string;
-  diskSize: string;
-}
-
 export function createVmsListCommand(
   dependencies: VmsCommandDependencies = defaultVmsCommandDependencies,
 ): Command {
   return applyVmsListOptions(new Command('list'))
-    .description('List all VMs with status, vCPUs, memory, and disk size')
+    .description('List all VMs')
     .action(async function handleVmsList() {
       const options = resolveVmsOptions(this);
       const localOptions = this.opts<{ filter?: string; sort?: string }>();
-      const snapshot = await fetchVms(options, dependencies);
+      const vms = await fetchVms(options, dependencies);
 
-      let rows = snapshot.vms.map((vm) => ({
+      let rows = vms.map((vm) => ({
+        id: vm.id,
         name: vm.name,
-        status: vm.status,
-        vcpus: vm.vcpus,
-        memory: formatBytes(vm.memory),
-        diskSize: formatBytes(vm.diskSize),
-      } satisfies VmListRecord));
+        state: vm.state,
+      }));
 
       if (localOptions.filter) {
         rows = applyFilters(rows, localOptions.filter);

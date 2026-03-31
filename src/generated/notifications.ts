@@ -1,43 +1,67 @@
 import { gql } from '../core/graphql/client.js';
 
+export type NotificationType = 'UNREAD' | 'ARCHIVE';
+export type NotificationImportance = 'ALERT' | 'INFO' | 'WARNING';
+
 export interface NotificationRecord {
   id: string;
   title: string;
   subject: string;
   description: string;
-  importance: 'ALERT' | 'INFO' | 'WARNING';
+  importance: NotificationImportance;
   link: string | null;
-  type: 'UNREAD' | 'ARCHIVE';
+  type: NotificationType;
   timestamp: string | null;
+}
+
+export interface NotificationOverviewCounters {
+  info: number;
+  warning: number;
+  alert: number;
+  total: number;
 }
 
 export interface NotificationsSnapshotQuery {
   notifications: {
     overview: {
-      unread: { info: number; warning: number; alert: number; total: number };
-      archive: { info: number; warning: number; alert: number; total: number };
+      unread: NotificationOverviewCounters;
+      archive: NotificationOverviewCounters;
     };
     list: NotificationRecord[];
   };
 }
 
-export interface NotificationIdVariables { id: string; type?: 'UNREAD' | 'ARCHIVE'; }
+export interface NotificationsSnapshotVariables {
+  filter: {
+    importance?: NotificationImportance;
+    type: NotificationType;
+    offset: number;
+    limit: number;
+  };
+}
+
+export interface NotificationIdVariables {
+  id: string;
+}
+
+export interface DeleteNotificationVariables {
+  id: string;
+  type: NotificationType;
+}
+
 export interface CreateNotificationVariables {
   input: {
     title: string;
     subject: string;
     description: string;
-    importance: 'ALERT' | 'INFO' | 'WARNING';
+    importance: NotificationImportance;
     link?: string;
   };
 }
 
 export interface ArchiveNotificationMutation { archiveNotification: NotificationRecord; }
-export interface ArchiveAllNotificationsMutation { archiveAll: NotificationsSnapshotQuery['notifications']['overview']; }
-export interface UnarchiveNotificationMutation { unarchiveNotifications: NotificationsSnapshotQuery['notifications']['overview']; }
 export interface UnreadNotificationMutation { unreadNotification: NotificationRecord; }
-export interface DeleteNotificationMutation { deleteNotification: NotificationsSnapshotQuery['notifications']['overview']; }
-export interface DeleteArchivedNotificationsMutation { deleteArchivedNotifications: NotificationsSnapshotQuery['notifications']['overview']; }
+export interface DeleteNotificationMutation { deleteNotification: { unread: NotificationOverviewCounters; archive: NotificationOverviewCounters }; }
 export interface CreateNotificationMutation { createNotification: NotificationRecord; }
 
 export const NOTIFICATIONS_SNAPSHOT_QUERY = gql`
@@ -86,44 +110,6 @@ export const ARCHIVE_NOTIFICATION_MUTATION = gql`
   }
 `;
 
-export const ARCHIVE_ALL_NOTIFICATIONS_MUTATION = gql`
-  mutation ArchiveAllNotifications {
-    archiveAll {
-      unread {
-        info
-        warning
-        alert
-        total
-      }
-      archive {
-        info
-        warning
-        alert
-        total
-      }
-    }
-  }
-`;
-
-export const UNARCHIVE_NOTIFICATION_MUTATION = gql`
-  mutation UnarchiveNotification($id: PrefixedID!) {
-    unarchiveNotifications(ids: [$id]) {
-      unread {
-        info
-        warning
-        alert
-        total
-      }
-      archive {
-        info
-        warning
-        alert
-        total
-      }
-    }
-  }
-`;
-
 export const UNREAD_NOTIFICATION_MUTATION = gql`
   mutation UnreadNotification($id: PrefixedID!) {
     unreadNotification(id: $id) {
@@ -142,25 +128,6 @@ export const UNREAD_NOTIFICATION_MUTATION = gql`
 export const DELETE_NOTIFICATION_MUTATION = gql`
   mutation DeleteNotification($id: PrefixedID!, $type: NotificationType!) {
     deleteNotification(id: $id, type: $type) {
-      unread {
-        info
-        warning
-        alert
-        total
-      }
-      archive {
-        info
-        warning
-        alert
-        total
-      }
-    }
-  }
-`;
-
-export const DELETE_ARCHIVED_NOTIFICATIONS_MUTATION = gql`
-  mutation DeleteArchivedNotifications {
-    deleteArchivedNotifications {
       unread {
         info
         warning

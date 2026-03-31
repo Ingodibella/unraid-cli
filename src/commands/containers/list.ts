@@ -5,37 +5,39 @@ import {
   applyContainersListOptions,
   defaultContainersCommandDependencies,
   fetchDockerSnapshot,
+  formatContainerNames,
   formatPorts,
-  normalizeContainerName,
   paginateItems,
   resolveContainersOptions,
   writeRenderedOutput,
 } from './shared.js';
 
 export interface ContainerListRecord {
-  name: string | null;
-  image: string | null;
-  status: string | null;
+  id: string;
+  names: string;
+  image: string;
+  state: string;
+  status: string;
   ports: string;
-  uptime: string | null;
 }
 
 export function createContainersListCommand(
   dependencies: ContainersCommandDependencies = defaultContainersCommandDependencies,
 ): Command {
   return applyContainersListOptions(new Command('list'))
-    .description('List all containers with image, status, ports, and uptime')
+    .description('List all containers with image and current runtime state')
     .action(async function handleContainersList() {
       const options = resolveContainersOptions(this);
       const localOptions = this.opts<{ filter?: string; sort?: string }>();
       const snapshot = await fetchDockerSnapshot(options, dependencies);
 
       let rows = snapshot.docker.containers.map((container) => ({
-        name: normalizeContainerName(container.name),
+        id: container.id,
+        names: formatContainerNames(container.names),
         image: container.image,
+        state: container.state,
         status: container.status,
         ports: formatPorts(container.ports),
-        uptime: container.uptime,
       } satisfies ContainerListRecord));
 
       if (localOptions.filter) {

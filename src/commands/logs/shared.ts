@@ -6,14 +6,7 @@ import { NotFoundError } from '../../core/errors/index.js';
 import { paginate } from '../../core/filters/index.js';
 import { createClient, type UcliGraphQLClient } from '../../core/graphql/client.js';
 import { renderOutput } from '../../core/output/renderer.js';
-import {
-  LOG_FILE_QUERY,
-  LOGS_SNAPSHOT_QUERY,
-  type LogFileQuery,
-  type LogFileQueryVariables,
-  type LogFileRecord,
-  type LogsSnapshotQuery,
-} from '../../generated/logs.js';
+import { LOG_FILE_QUERY, LOGS_SNAPSHOT_QUERY, type LogFileContentRecord, type LogFileQuery, type LogFileQueryVariables, type LogFileRecord, type LogsSnapshotQuery } from '../../generated/logs.js';
 
 export interface LogsCommandDependencies {
   createGraphQLClient: typeof createClient;
@@ -29,10 +22,7 @@ function toGraphQLEndpoint(host: string): string {
   return host.endsWith('/graphql') ? host : `${host.replace(/\/$/, '')}/graphql`;
 }
 
-function createLogsClient(
-  options: GlobalOptions,
-  dependencies: LogsCommandDependencies = defaultLogsCommandDependencies,
-): UcliGraphQLClient {
+function createLogsClient(options: GlobalOptions, dependencies: LogsCommandDependencies = defaultLogsCommandDependencies): UcliGraphQLClient {
   const resolvedConfig = resolveConfig(options);
   const auth = resolveAuth({
     host: options.host ?? resolvedConfig.host,
@@ -48,42 +38,43 @@ function createLogsClient(
   });
 }
 
-export async function fetchLogsSnapshot(
-  options: GlobalOptions,
-  dependencies: LogsCommandDependencies = defaultLogsCommandDependencies,
-): Promise<LogsSnapshotQuery> {
+export async function fetchLogsSnapshot(options: GlobalOptions, dependencies: LogsCommandDependencies = defaultLogsCommandDependencies): Promise<LogsSnapshotQuery> {
   return createLogsClient(options, dependencies).execute<LogsSnapshotQuery>(LOGS_SNAPSHOT_QUERY);
 }
 
-export async function fetchLogFile(
-  name: string,
-  options: GlobalOptions,
-  dependencies: LogsCommandDependencies = defaultLogsCommandDependencies,
-): Promise<LogFileRecord> {
-  const data = await createLogsClient(options, dependencies).execute<LogFileQuery, LogFileQueryVariables>(LOG_FILE_QUERY, { name });
-
-  if (data.logs.logFile == null) {
-    throw new NotFoundError(`Log file not found: ${name}`);
-  }
-
-  return data.logs.logFile;
+export async function resolveLogPath(nameOrPath: string, options: GlobalOptions, dependencies: LogsCommandDependencies): Promise<string> {
+  if (nameOrPath.includes('/')) return nameOrPath;
+  const snapshot = await fetchLogsSnapshot(options, dependencies);
+  const match = snapshot.logFiles.find((item) => item.name === nameOrPath) ?? null;
+  if (match == null) throw new NotFoundError(`Log file not found: ${nameOrPath}`);
+  return match.path;
 }
 
-export function writeRenderedOutput(
-  data: unknown,
+export async function fetchLogFile(
+  nameOrPath: string,
   options: GlobalOptions,
   dependencies: LogsCommandDependencies = defaultLogsCommandDependencies,
-): void {
-  dependencies.stdoutWrite(
-    renderOutput(data, {
-      format: options.output,
-      fields: options.fields,
-      noColor: options.noColor,
-      quiet: options.quiet,
-      verbose: options.verbose,
-      stdoutIsTTY: process.stdout.isTTY,
-    }),
-  );
+  lines?: number,
+): Promise<LogFileRecord & LogFileContentRecord> {
+  const path = await resolveLogPath(nameOrPath, options, dependencies);
+  const list = await fetchLogsSnapshot(options, dependencies);
+  const meta = list.logFiles.find((item) => item.path === path) ?? null;
+  if (meta == null) throw new NotFoundError(`Log file not found: ${nameOrPath}`);
+
+  const data = await createLogsClient(options, dependencies).execute<LogFileQuery, LogFileQueryVariables>(LOG_FILE_QUERY, { path, lines });
+  if (data.logFile == null) throw new NotFoundError(`Log file not found: ${nameOrPath}`);
+  return { ...meta, ...data.logFile };
+}
+
+export function writeRenderedOutput(data: unknown, options: GlobalOptions, dependencies: LogsCommandDependencies = defaultLogsCommandDependencies): void {
+  dependencies.stdoutWrite(renderOutput(data, {
+    format: options.output,
+    fields: options.fields,
+    noColor: options.noColor,
+    quiet: options.quiet,
+    verbose: options.verbose,
+    stdoutIsTTY: process.stdout.isTTY,
+  }));
 }
 
 export function applyLogsCommandOptions(command: Command): Command {
@@ -116,17 +107,10 @@ export function resolveLogsOptions(command: Command): GlobalOptions {
 }
 
 export function paginateItems<T>(items: readonly T[], options: GlobalOptions): T[] {
-  return paginate(items, {
-    page: options.page,
-    pageSize: options.pageSize,
-    all: options.all,
-  }).items;
+  return paginate(items, { page: options.page, pageSize: options.pageSize, all: options.all }).items;
 }
 
 export function tailLines(content: string | null | undefined, lines: number): string {
-  if (content == null || content.length === 0) {
-    return '';
-  }
-
+  if (content == null || content.length === 0) return '';
   return content.split(/\r?\n/).slice(-Math.max(lines, 0)).join('\n');
 }

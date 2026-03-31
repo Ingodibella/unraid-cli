@@ -1,44 +1,53 @@
 {
   "info": {
-    "osPlatform": "Linux",
-    "distro": "Unraid",
-    "release": "6.12.10",
-    "hostname": "tower",
-    "uptime": 93784
+    "time": "2026-03-31T12:00:00Z",
+    "os": {
+      "platform": "Linux",
+      "distro": "Unraid",
+      "release": "6.12.10",
+      "hostname": "tower",
+      "kernel": "6.1.74-Unraid",
+      "arch": "x64"
+    },
+    "cpu": {
+      "manufacturer": "Intel",
+      "brand": "Core i7-12700",
+      "cores": 12,
+      "threads": 20,
+      "speed": 3.6
+    },
+    "memory": {
+      "layout": [
+        {
+          "size": 17179869184,
+          "type": "DDR4"
+        },
+        {
+          "size": 17179869184,
+          "type": "DDR4"
+        }
+      ]
+    },
+    "versions": {
+      "core": {
+        "unraid": "6.12.10",
+        "api": "1.4.0"
+      }
+    }
   },
   "server": {
-    "state": "started",
-    "dockerRunning": true,
-    "vmRunning": false,
-    "cpuUsage": 23.5,
-    "memoryUsage": 12884901888,
-    "memoryTotal": 34359738368,
-    "storageUsed": 4398046511104,
-    "storageTotal": 8796093022208,
-    "cacheUsage": 61.2,
-    "parityStatus": "healthy",
-    "parityProgress": 100,
-    "temps": {
-      "cpu": 46,
-      "motherboard": 39,
-      "array": 33
-    },
-    "disks": [
-      {
-        "name": "disk1",
-        "status": "healthy",
-        "temperature": 34
-      },
-      {
-        "name": "disk2",
-        "status": "healthy",
-        "temperature": 36
-      },
-      {
-        "name": "parity",
-        "status": "healthy",
-        "temperature": 37
-      }
-    ]
+    "name": "tower",
+    "status": "ONLINE",
+    "lanip": "192.168.2.19",
+    "wanip": "203.0.113.10"
+  },
+  "array": {
+    "state": "STARTED",
+    "parityCheckStatus": {
+      "status": "COMPLETED",
+      "progress": 100,
+      "running": false,
+      "paused": false
+    }
   }
 }

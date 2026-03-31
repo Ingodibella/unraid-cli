@@ -13,15 +13,15 @@ export function createVmsRebootCommand(
   dependencies: VmsCommandDependencies = defaultVmsCommandDependencies,
 ): Command {
   return applyVmsCommandOptions(new Command('reboot'))
-    .argument('<name>', 'VM name')
+    .argument('<id-or-name>', 'VM id or name')
     .description('Reboot a VM')
-    .action(async function handleVmsReboot(name: string) {
+    .action(async function handleVmsReboot(idOrName: string) {
       const options = resolveVmsOptions(this);
       const result = await executeVmWriteAction({
         action: 'reboot',
         commandPath: 'vms.reboot',
         mutation: VM_REBOOT_MUTATION,
-        name,
+        idOrName,
         options,
         dependencies,
       });

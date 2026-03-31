@@ -11,7 +11,7 @@ export function createContainersStartCommand(
     description: 'Start a stopped container',
     safetyPath: 'containers.start',
     mutation: DOCKER_START_MUTATION,
-    expectedState: 'running',
+    expectedState: 'RUNNING',
     extractResult: (result) => (result as DockerStartMutation).docker.start,
   }, dependencies);
 }

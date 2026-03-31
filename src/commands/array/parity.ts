@@ -14,24 +14,28 @@ import {
 export interface ParityStatusRecord {
   status: string | null;
   progress: number | null;
-  speed: number | null;
   errors: number | null;
+  running: boolean | null;
+  paused: boolean | null;
+  correcting: boolean | null;
 }
 
 export interface ParityHistoryRecord {
   date: string | null;
   duration: string;
   errors: number | null;
-  speed: number | null;
+  speed: string | null;
   status: string | null;
 }
 
 export function mapParityStatus(snapshot: Awaited<ReturnType<typeof fetchArray>>): ParityStatusRecord {
   return {
-    status: snapshot.array.parity?.status ?? null,
-    progress: snapshot.array.parity?.progress ?? null,
-    speed: snapshot.array.parity?.speed ?? null,
-    errors: snapshot.array.parity?.errors ?? null,
+    status: snapshot.array.parityCheckStatus?.status ?? null,
+    progress: snapshot.array.parityCheckStatus?.progress ?? null,
+    errors: snapshot.array.parityCheckStatus?.errors ?? null,
+    running: snapshot.array.parityCheckStatus?.running ?? null,
+    paused: snapshot.array.parityCheckStatus?.paused ?? null,
+    correcting: snapshot.array.parityCheckStatus?.correcting ?? null,
   };
 }
 
@@ -54,7 +58,7 @@ export function createParityCommand(
 
   parity.addCommand(
     applyArrayCommandOptions(new Command('status'))
-      .description('Show parity check status (running/idle, progress, speed, errors)')
+      .description('Show parity check status')
       .action(async function handleParityStatus() {
         const options = resolveArrayOptions(this);
         const snapshot = await fetchArray(options, dependencies);

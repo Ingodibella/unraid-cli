@@ -1,28 +1,25 @@
 {
   "services": [
     {
+      "id": "service:docker",
       "name": "docker",
-      "status": "running",
-      "enabled": true,
-      "pid": 1024,
-      "uptime": "1d 3h",
-      "description": "Docker daemon"
+      "online": true,
+      "version": "25.0.3",
+      "uptime": { "timestamp": "2026-03-31T10:00:00.000Z" }
     },
     {
+      "id": "service:smbd",
       "name": "smbd",
-      "status": "running",
-      "enabled": true,
-      "pid": 2048,
-      "uptime": "5h 12m",
-      "description": "Samba file sharing"
+      "online": true,
+      "version": "4.20.0",
+      "uptime": { "timestamp": "2026-03-31T11:00:00.000Z" }
     },
     {
+      "id": "service:nfsd",
       "name": "nfsd",
-      "status": "stopped",
-      "enabled": false,
-      "pid": null,
-      "uptime": null,
-      "description": "NFS server"
+      "online": false,
+      "version": null,
+      "uptime": null
     }
   ]
 }

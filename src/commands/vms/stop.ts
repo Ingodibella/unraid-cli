@@ -13,15 +13,15 @@ export function createVmsStopCommand(
   dependencies: VmsCommandDependencies = defaultVmsCommandDependencies,
 ): Command {
   return applyVmsCommandOptions(new Command('stop'))
-    .argument('<name>', 'VM name')
+    .argument('<id-or-name>', 'VM id or name')
     .description('Gracefully stop a VM')
-    .action(async function handleVmsStop(name: string) {
+    .action(async function handleVmsStop(idOrName: string) {
       const options = resolveVmsOptions(this);
       const result = await executeVmWriteAction({
         action: 'stop',
         commandPath: 'vms.stop',
         mutation: VM_STOP_MUTATION,
-        name,
+        idOrName,
         options,
         dependencies,
       });

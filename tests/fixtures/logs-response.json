@@ -1,34 +1,42 @@
 {
-  "logs": {
-    "logFiles": [
-      {
-        "name": "syslog",
-        "path": "/var/log/syslog",
-        "size": 23456,
-        "updatedAt": "2026-03-31T11:25:00.000Z",
-        "content": "Mar 31 11:20:00 kernel: boot complete\nMar 31 11:21:00 docker: service started\nMar 31 11:22:00 nginx: ready"
-      },
-      {
-        "name": "docker.log",
-        "path": "/var/log/docker.log",
-        "size": 6789,
-        "updatedAt": "2026-03-31T11:26:00.000Z",
-        "content": "container nginx started\ncontainer redis paused\ncontainer redis resumed"
-      },
-      {
-        "name": "app.log",
-        "path": "/boot/logs/app.log",
-        "size": 1024,
-        "updatedAt": "2026-03-31T11:27:00.000Z",
-        "content": "INFO app initialized\nWARN disk nearly full\nERROR backup failed"
-      }
-    ],
-    "system": {
+  "logFiles": [
+    {
       "name": "syslog",
       "path": "/var/log/syslog",
       "size": 23456,
-      "updatedAt": "2026-03-31T11:25:00.000Z",
-      "content": "Mar 31 11:20:00 kernel: boot complete\nMar 31 11:21:00 docker: service started\nMar 31 11:22:00 nginx: ready"
+      "modifiedAt": "2026-03-31T11:25:00.000Z"
+    },
+    {
+      "name": "docker.log",
+      "path": "/var/log/docker.log",
+      "size": 6789,
+      "modifiedAt": "2026-03-31T11:26:00.000Z"
+    },
+    {
+      "name": "app.log",
+      "path": "/boot/logs/app.log",
+      "size": 1024,
+      "modifiedAt": "2026-03-31T11:27:00.000Z"
+    }
+  ],
+  "contents": {
+    "/var/log/syslog": {
+      "path": "/var/log/syslog",
+      "content": "Mar 31 11:20:00 kernel: boot complete\nMar 31 11:21:00 docker: service started\nMar 31 11:22:00 nginx: ready",
+      "totalLines": 3,
+      "startLine": null
+    },
+    "/var/log/docker.log": {
+      "path": "/var/log/docker.log",
+      "content": "container nginx started\ncontainer redis paused\ncontainer redis resumed",
+      "totalLines": 3,
+      "startLine": null
+    },
+    "/boot/logs/app.log": {
+      "path": "/boot/logs/app.log",
+      "content": "INFO app initialized\nWARN disk nearly full\nERROR backup failed",
+      "totalLines": 3,
+      "startLine": null
     }
   }
 }

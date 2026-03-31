@@ -32,7 +32,7 @@ export interface GraphQLClientOptions {
 
 /** Typed ucli GraphQL client */
 export interface UcliGraphQLClient {
-  execute<TData, TVariables extends Record<string, unknown> = Record<string, unknown>>(
+  execute<TData, TVariables extends object = object>(
     document: DocumentNode | TypedDocumentNode<TData, TVariables> | string,
     variables?: TVariables
   ): Promise<TData>;
@@ -72,7 +72,7 @@ export function createClient(options: GraphQLClientOptions): UcliGraphQLClient {
 
   async function execute<
     TData,
-    TVariables extends Record<string, unknown> = Record<string, unknown>,
+    TVariables extends object = object,
   >(
     document: DocumentNode | TypedDocumentNode<TData, TVariables> | string,
     variables?: TVariables

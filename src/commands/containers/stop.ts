@@ -11,7 +11,7 @@ export function createContainersStopCommand(
     description: 'Stop a running container',
     safetyPath: 'containers.stop',
     mutation: DOCKER_STOP_MUTATION,
-    expectedState: 'stopped',
+    expectedState: 'EXITED',
     extractResult: (result) => (result as DockerStopMutation).docker.stop,
   }, dependencies);
 }

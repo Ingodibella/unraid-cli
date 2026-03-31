@@ -8,7 +8,6 @@ import {
   normalizeContainerName,
   paginateItems,
   resolveContainersOptions,
-  toStatsRecord,
   writeRenderedOutput,
 } from './shared.js';
 
@@ -16,15 +15,21 @@ export function createContainersStatsCommand(
   dependencies: ContainersCommandDependencies = defaultContainersCommandDependencies,
 ): Command {
   return applyContainersListOptions(new Command('stats'))
-    .description('Show CPU and memory usage for all containers')
+    .description('Show stats availability for all containers')
     .action(async function handleContainersStats() {
       const options = resolveContainersOptions(this);
       const localOptions = this.opts<{ filter?: string; sort?: string }>();
       const snapshot = await fetchDockerSnapshot(options, dependencies);
 
-      let rows = snapshot.docker.containers.map((container) => (
-        toStatsRecord(normalizeContainerName(container.name), container.image, container.stats)
-      ));
+      let rows = snapshot.docker.containers.map((container) => ({
+        id: container.id,
+        name: normalizeContainerName(container.names),
+        image: container.image,
+        state: container.state,
+        cpuPercent: null,
+        memoryUsage: null,
+        memoryPercent: null,
+      }));
 
       if (localOptions.filter) {
         rows = applyFilters(rows, localOptions.filter);

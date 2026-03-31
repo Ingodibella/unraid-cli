@@ -13,15 +13,15 @@ export function createVmsStartCommand(
   dependencies: VmsCommandDependencies = defaultVmsCommandDependencies,
 ): Command {
   return applyVmsCommandOptions(new Command('start'))
-    .argument('<name>', 'VM name')
+    .argument('<id-or-name>', 'VM id or name')
     .description('Start a VM')
-    .action(async function handleVmsStart(name: string) {
+    .action(async function handleVmsStart(idOrName: string) {
       const options = resolveVmsOptions(this);
       const result = await executeVmWriteAction({
         action: 'start',
         commandPath: 'vms.start',
         mutation: VM_START_MUTATION,
-        name,
+        idOrName,
         options,
         dependencies,
       });

@@ -4,7 +4,7 @@ import type { ArrayCommandDependencies } from './shared.js';
 import {
   applyArrayCommandOptions,
   defaultArrayCommandDependencies,
-  executeArraySetStateMutation,
+  executeArrayStartMutation,
   resolveArrayOptions,
   writeRenderedOutput,
 } from './shared.js';
@@ -12,8 +12,6 @@ import {
 export interface ArrayStartResult {
   action: 'start';
   state: string | null;
-  success: boolean;
-  message: string | null;
 }
 
 export function createArrayStartCommand(
@@ -25,15 +23,12 @@ export function createArrayStartCommand(
       const options = resolveArrayOptions(this);
       await assertSafety('array.start', { yes: options.yes, force: options.force });
 
-      const mutation = await executeArraySetStateMutation('START', options, dependencies);
-      const payload = mutation.array.setState;
+      const mutation = await executeArrayStartMutation(options, dependencies);
 
       writeRenderedOutput(
         {
           action: 'start',
-          state: payload?.state ?? 'STARTED',
-          success: payload?.success ?? true,
-          message: payload?.message ?? null,
+          state: mutation.array.startArray ?? 'STARTED',
         } satisfies ArrayStartResult,
         options,
         dependencies,

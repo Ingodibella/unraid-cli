@@ -4,32 +4,26 @@ import {
   applySystemCommandOptions,
   defaultSystemCommandDependencies,
   fetchSystemSnapshot,
-  percent,
   resolveSystemOptions,
   writeRenderedOutput,
 } from './shared.js';
 
 export interface SystemResourcesRecord {
-  cpuUsage: number | null;
-  memoryUsed: number | null;
-  memoryTotal: number | null;
-  memoryUsagePercent: number | null;
-  storageUsed: number | null;
-  storageTotal: number | null;
-  storageUsagePercent: number | null;
-  cacheUsagePercent: number | null;
+  memoryModules: number;
+  memoryTotalBytes: number;
+  cpuCores: number | null;
+  cpuThreads: number | null;
+  cpuSpeedGHz: number | null;
 }
 
 export function mapSystemResources(snapshot: Awaited<ReturnType<typeof fetchSystemSnapshot>>): SystemResourcesRecord {
+  const modules = snapshot.info.memory.layout;
   return {
-    cpuUsage: snapshot.server.cpuUsage,
-    memoryUsed: snapshot.server.memoryUsage,
-    memoryTotal: snapshot.server.memoryTotal,
-    memoryUsagePercent: percent(snapshot.server.memoryUsage, snapshot.server.memoryTotal),
-    storageUsed: snapshot.server.storageUsed,
-    storageTotal: snapshot.server.storageTotal,
-    storageUsagePercent: percent(snapshot.server.storageUsed, snapshot.server.storageTotal),
-    cacheUsagePercent: snapshot.server.cacheUsage,
+    memoryModules: modules.length,
+    memoryTotalBytes: modules.reduce((total, module) => total + (module.size ?? 0), 0),
+    cpuCores: snapshot.info.cpu.cores,
+    cpuThreads: snapshot.info.cpu.threads,
+    cpuSpeedGHz: snapshot.info.cpu.speed,
   };
 }
 

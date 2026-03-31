@@ -5,7 +5,10 @@ import { createProgram } from '../../../src/cli/index.js';
 
 const fixture = JSON.parse(
   readFileSync(resolve(process.cwd(), 'tests/fixtures/logs-response.json'), 'utf8'),
-) as Record<string, unknown>;
+) as {
+  logFiles: Array<Record<string, unknown>>;
+  contents: Record<string, Record<string, unknown>>;
+};
 
 const { executeMock, createClientMock } = vi.hoisted(() => {
   const execute = vi.fn();
@@ -31,22 +34,13 @@ vi.mock('../../../src/core/graphql/client.js', async (importOriginal) => {
 describe('logs command group', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    executeMock.mockImplementation((document: string, variables?: { name?: string }) => {
-      if (document.includes('logFile(name: $name)')) {
-        const name = variables?.name ?? 'syslog';
-        const logFiles = (fixture.logs as { logFiles: Array<Record<string, unknown>> }).logFiles;
-        const match = logFiles.find((item) => item['name'] === name) ?? null;
-
-        return Promise.resolve({
-          logs: {
-            logFile: match,
-          },
-        });
+    executeMock.mockImplementation((document: string, variables?: { path?: string }) => {
+      if (document.includes('query LogFile')) {
+        const path = variables?.path ?? '/var/log/syslog';
+        return Promise.resolve({ logFile: fixture.contents[path] ?? null });
       }
 
-      return Promise.resolve({
-        logs: fixture.logs,
-      });
+      return Promise.resolve({ logFiles: fixture.logFiles });
     });
 
     process.env.UCLI_HOST = 'http://tower.local:7777';
@@ -83,6 +77,7 @@ describe('logs command group', () => {
       name: 'syslog',
       path: '/var/log/syslog',
       size: 23456,
+      modifiedAt: '2026-03-31T11:25:00.000Z',
     });
   });
 

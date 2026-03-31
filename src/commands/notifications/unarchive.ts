@@ -14,19 +14,14 @@ export function createNotificationsUnarchiveCommand(
 ): Command {
   return applyNotificationsCommandOptions(new Command('unarchive'))
     .argument('<id>', 'Notification ID')
-    .description('Unarchive one notification')
+    .description('Move one notification back to unread')
     .action(async function handleNotificationsUnarchive(id: string) {
       const options = resolveNotificationsOptions(this);
       const localOptions = this.opts<{ yes?: boolean; force?: boolean }>();
 
       await assertSafety('notifications.unarchive', { yes: localOptions.yes, force: localOptions.force });
-      const mutation = await unarchiveNotification(id, options, dependencies);
+      await unarchiveNotification(id, options, dependencies);
 
-      writeRenderedOutput({
-        action: 'unarchive',
-        target: id,
-        success: mutation.unarchiveNotification?.success ?? true,
-        message: mutation.unarchiveNotification?.message ?? null,
-      }, options, dependencies);
+      writeRenderedOutput({ action: 'unarchive', target: id, success: true }, options, dependencies);
     });
 }

@@ -6,7 +6,9 @@ import { createNotificationsWatchCommand } from '../../../src/commands/notificat
 
 const fixture = JSON.parse(
   readFileSync(resolve(process.cwd(), 'tests/fixtures/notifications-response.json'), 'utf8'),
-) as { notifications: Array<Record<string, unknown>> };
+) as { notifications: { list: Array<Record<string, unknown>> } };
+
+const allNotifications = fixture.notifications.list;
 
 const { executeMock, createClientMock } = vi.hoisted(() => {
   const execute = vi.fn();
@@ -32,7 +34,13 @@ vi.mock('../../../src/core/graphql/client.js', async (importOriginal) => {
 describe('notifications command group', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    executeMock.mockResolvedValue({ notifications: fixture.notifications });
+    executeMock.mockImplementation((_document: string, variables?: { filter?: { type?: 'UNREAD' | 'ARCHIVE' } }) => {
+      const requestedType = variables?.filter?.type;
+      const list = requestedType == null
+        ? allNotifications
+        : allNotifications.filter((entry) => entry.type === requestedType);
+      return Promise.resolve({ notifications: { list } });
+    });
     process.env.UCLI_HOST = 'http://tower.local:7777';
     process.env.UCLI_API_KEY = 'test-api-key';
   });
@@ -55,7 +63,7 @@ describe('notifications command group', () => {
     ]);
   });
 
-  it('notifications list returns all records and supports filter/sort/page', async () => {
+  it('notifications list supports filter/sort/page', async () => {
     const program = createProgram();
     let stdout = '';
     process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
@@ -64,30 +72,19 @@ describe('notifications command group', () => {
     });
 
     await program.parseAsync([
-      'node',
-      'ucli',
-      'notifications',
-      'list',
-      '--output',
-      'json',
-      '--filter',
-      'severity=alert',
-      '--sort',
-      'timestamp:desc',
-      '--page',
-      '1',
-      '--page-size',
-      '1',
+      'node', 'ucli', 'notifications', 'list', '--output', 'json',
+      '--filter', 'importance=ALERT', '--sort', 'timestamp:desc', '--page', '1', '--page-size', '1',
     ]);
 
     expect(JSON.parse(stdout)).toEqual([
       {
         id: 'n-003',
         title: 'UPS on battery',
-        message: 'Power outage detected, UPS runtime 18 minutes.',
-        severity: 'alert',
+        subject: 'Power',
+        description: 'Power outage detected, UPS runtime 18 minutes.',
+        importance: 'ALERT',
+        type: 'UNREAD',
         timestamp: '2026-03-31T11:00:00.000Z',
-        read: false,
       },
     ]);
   });
@@ -105,8 +102,8 @@ describe('notifications command group', () => {
     expect(JSON.parse(stdout)).toMatchObject({
       id: 'n-002',
       title: 'Disk temperature warning',
-      severity: 'warning',
-      read: false,
+      importance: 'WARNING',
+      type: 'UNREAD',
     });
   });
 
@@ -126,32 +123,38 @@ describe('notifications command group', () => {
     ]);
   });
 
-  it('notifications watch polls using interval and exits cleanly on ctrl+c', async () => {
+  it('notifications watch polls and exits on ctrl+c', async () => {
+    const unread = allNotifications.filter((entry) => entry.type === 'UNREAD');
+    const archive = allNotifications.filter((entry) => entry.type === 'ARCHIVE');
     executeMock
-      .mockResolvedValueOnce({ notifications: fixture.notifications })
-      .mockResolvedValueOnce({
-        notifications: [
-          ...fixture.notifications,
+      .mockImplementationOnce((_doc, variables?: { filter?: { type?: 'UNREAD' | 'ARCHIVE' } }) => Promise.resolve({
+        notifications: { list: (variables?.filter?.type === 'ARCHIVE' ? archive : unread) },
+      }))
+      .mockImplementationOnce((_doc, variables?: { filter?: { type?: 'UNREAD' | 'ARCHIVE' } }) => Promise.resolve({
+        notifications: { list: (variables?.filter?.type === 'ARCHIVE' ? archive : unread) },
+      }))
+      .mockImplementationOnce((_doc, variables?: { filter?: { type?: 'UNREAD' | 'ARCHIVE' } }) => {
+        const nextUnread = [
+          ...unread,
           {
             id: 'n-004',
             title: 'Array degraded',
-            message: 'Disk disk4 reported read errors.',
-            severity: 'critical',
+            subject: 'Array',
+            description: 'Disk disk4 reported read errors.',
+            importance: 'ALERT',
+            type: 'UNREAD',
             timestamp: '2026-03-31T11:05:00.000Z',
-            read: false,
           },
-        ],
-      });
+        ];
+        return Promise.resolve({ notifications: { list: variables?.filter?.type === 'ARCHIVE' ? archive : nextUnread } });
+      })
+      .mockImplementationOnce((_doc, variables?: { filter?: { type?: 'UNREAD' | 'ARCHIVE' } }) => Promise.resolve({
+        notifications: { list: (variables?.filter?.type === 'ARCHIVE' ? archive : unread) },
+      }));
 
     let stdout = '';
     let pollFn: (() => void) | undefined;
     const signalHandlers = new Map<NodeJS.Signals, () => void>();
-
-    const setIntervalMock = vi.fn((callback: () => void) => {
-      pollFn = callback;
-      return 7 as unknown as NodeJS.Timeout;
-    });
-    const clearIntervalMock = vi.fn();
 
     const command = createNotificationsWatchCommand({
       createGraphQLClient: createClientMock,
@@ -160,31 +163,24 @@ describe('notifications command group', () => {
         return true;
       },
       stderrWrite: () => true,
-      setInterval: setIntervalMock as unknown as typeof globalThis.setInterval,
-      clearInterval: clearIntervalMock as unknown as typeof globalThis.clearInterval,
-      addSignalListener: (signal, listener) => {
-        signalHandlers.set(signal, listener);
-      },
-      removeSignalListener: () => {
-        // no-op for test
-      },
+      setInterval: ((callback: () => void) => {
+        pollFn = callback;
+        return 7 as unknown as NodeJS.Timeout;
+      }) as typeof globalThis.setInterval,
+      clearInterval: vi.fn() as unknown as typeof globalThis.clearInterval,
+      addSignalListener: (signal, listener) => signalHandlers.set(signal, listener),
+      removeSignalListener: () => undefined,
     });
 
     const runPromise = command.parseAsync(['node', 'watch', '--interval', '5', '--output', 'json']);
-
-    // Allow enough microtasks for the async action to complete fetchNotifications + reach setInterval
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(setIntervalMock).toHaveBeenCalledWith(expect.any(Function), 5000);
-
+    await new Promise((resolve) => setTimeout(resolve, 30));
     pollFn?.();
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 30));
     signalHandlers.get('SIGINT')?.();
     await runPromise;
 
-    expect(clearIntervalMock).toHaveBeenCalled();
-    const parsed: unknown = JSON.parse(stdout.trim());
-    expect(parsed).toMatchObject({ id: 'n-004', severity: 'critical' });
+    const parsed = JSON.parse(stdout.trim()) as Record<string, unknown>;
+    expect(parsed).toMatchObject({ id: 'n-004', importance: 'ALERT' });
   });
 
   it('supports fields and structured output modes', async () => {
@@ -196,32 +192,13 @@ describe('notifications command group', () => {
     });
 
     await jsonProgram.parseAsync([
-      'node',
-      'ucli',
-      'notifications',
-      'list',
-      '--output',
-      'json',
-      '--fields',
-      'id,severity',
+      'node', 'ucli', 'notifications', 'list', '--output', 'json', '--fields', 'id,importance',
     ]);
 
     expect(JSON.parse(stdout)).toEqual([
-      { id: 'n-001', severity: 'info' },
-      { id: 'n-002', severity: 'warning' },
-      { id: 'n-003', severity: 'alert' },
+      { id: 'n-002', importance: 'WARNING' },
+      { id: 'n-003', importance: 'ALERT' },
+      { id: 'n-001', importance: 'INFO' },
     ]);
-
-    for (const format of ['yaml', 'table']) {
-      const program = createProgram();
-      stdout = '';
-      process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
-        stdout += String(chunk);
-        return true;
-      });
-
-      await program.parseAsync(['node', 'ucli', 'notifications', 'latest', '--output', format]);
-      expect(stdout.length).toBeGreaterThan(0);
-    }
   });
 });

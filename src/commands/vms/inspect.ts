@@ -12,11 +12,11 @@ export function createVmsInspectCommand(
   dependencies: VmsCommandDependencies = defaultVmsCommandDependencies,
 ): Command {
   return applyVmsCommandOptions(new Command('inspect'))
-    .argument('<name>', 'VM name')
-    .description('Show the raw inspect payload for a single VM')
-    .action(async function handleVmsInspect(name: string) {
+    .argument('<id-or-name>', 'VM id or name')
+    .description('Show VM object as returned by API')
+    .action(async function handleVmsInspect(idOrName: string) {
       const options = resolveVmsOptions(this);
-      const vm = await fetchVm(name, options, dependencies);
-      writeRenderedOutput(vm.inspect ?? {}, options, dependencies);
+      const vm = await fetchVm(idOrName, options, dependencies);
+      writeRenderedOutput(vm, options, dependencies);
     });
 }

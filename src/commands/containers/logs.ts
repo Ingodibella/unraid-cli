@@ -13,14 +13,16 @@ export function createContainersLogsCommand(
   dependencies: ContainersCommandDependencies = defaultContainersCommandDependencies,
 ): Command {
   return applyContainersCommandOptions(new Command('logs'))
-    .argument('<name>', 'Container name')
-    .description('Show logs for a single container, when the API exposes them')
-    .action(async function handleContainersLogs(name: string) {
+    .argument('<container>', 'Container ID or name')
+    .description('Show logs availability for a container')
+    .action(async function handleContainersLogs(containerArg: string) {
       const options = resolveContainersOptions(this);
-      const container = await fetchContainer(name, options, dependencies);
+      const container = await fetchContainer(containerArg, options, dependencies);
       writeRenderedOutput({
-        name: normalizeContainerName(container.name),
-        logs: container.logs ?? '',
+        id: container.id,
+        name: normalizeContainerName(container.names),
+        logs: null,
+        message: 'Logs sind im aktuellen containers Schema nicht enthalten.',
       }, options, dependencies);
     });
 }

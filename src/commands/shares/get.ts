@@ -11,14 +11,19 @@ import {
 } from './shared.js';
 
 export interface ShareDetailRecord {
+  id: string;
   name: string | null;
-  type: string | null;
   size: string;
   used: string;
   free: string;
   usedPercent: number | null;
   freePercent: number | null;
-  allocation: string | null;
+  include: string[] | null;
+  exclude: string[] | null;
+  cache: boolean | null;
+  nameOrig: string | null;
+  comment: string | null;
+  floor: string | null;
 }
 
 export function createSharesGetCommand(
@@ -32,14 +37,19 @@ export function createSharesGetCommand(
       const share = await fetchShare(name, options, dependencies);
 
       writeRenderedOutput({
+        id: share.id,
         name: share.name,
-        type: share.type,
         size: formatBytes(share.size),
         used: formatBytes(share.used),
         free: formatBytes(share.free),
         usedPercent: toPercent(share.used, share.size),
         freePercent: toPercent(share.free, share.size),
-        allocation: share.allocation,
+        include: share.include,
+        exclude: share.exclude,
+        cache: share.cache,
+        nameOrig: share.nameOrig,
+        comment: share.comment,
+        floor: share.floor,
       } satisfies ShareDetailRecord, options, dependencies);
     });
 }

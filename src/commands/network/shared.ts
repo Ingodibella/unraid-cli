@@ -22,10 +22,7 @@ function toGraphQLEndpoint(host: string): string {
   return host.endsWith('/graphql') ? host : `${host.replace(/\/$/, '')}/graphql`;
 }
 
-function createNetworkClient(
-  options: GlobalOptions,
-  dependencies: NetworkCommandDependencies = defaultNetworkCommandDependencies,
-): UcliGraphQLClient {
+function createNetworkClient(options: GlobalOptions, dependencies: NetworkCommandDependencies = defaultNetworkCommandDependencies): UcliGraphQLClient {
   const resolvedConfig = resolveConfig(options);
   const auth = resolveAuth({
     host: options.host ?? resolvedConfig.host,
@@ -54,30 +51,21 @@ export async function fetchInterfaceByName(
   dependencies: NetworkCommandDependencies = defaultNetworkCommandDependencies,
 ): Promise<NetworkInterfaceRecord> {
   const snapshot = await fetchNetwork(options, dependencies);
-  const match = snapshot.network.interfaces.find((iface) => iface.name === name);
+  const match = snapshot.info.networkInterfaces.find((iface) => iface.name === name);
 
-  if (match == null) {
-    throw new NotFoundError(`Network interface not found: ${name}`);
-  }
-
+  if (match == null) throw new NotFoundError(`Network interface not found: ${name}`);
   return match;
 }
 
-export function writeRenderedOutput(
-  data: unknown,
-  options: GlobalOptions,
-  dependencies: NetworkCommandDependencies = defaultNetworkCommandDependencies,
-): void {
-  dependencies.stdoutWrite(
-    renderOutput(data, {
-      format: options.output,
-      fields: options.fields,
-      noColor: options.noColor,
-      quiet: options.quiet,
-      verbose: options.verbose,
-      stdoutIsTTY: process.stdout.isTTY,
-    }),
-  );
+export function writeRenderedOutput(data: unknown, options: GlobalOptions, dependencies: NetworkCommandDependencies = defaultNetworkCommandDependencies): void {
+  dependencies.stdoutWrite(renderOutput(data, {
+    format: options.output,
+    fields: options.fields,
+    noColor: options.noColor,
+    quiet: options.quiet,
+    verbose: options.verbose,
+    stdoutIsTTY: process.stdout.isTTY,
+  }));
 }
 
 export function applyNetworkCommandOptions(command: Command): Command {
@@ -110,9 +98,5 @@ export function resolveNetworkOptions(command: Command): GlobalOptions {
 }
 
 export function paginateItems<T>(items: readonly T[], options: GlobalOptions): T[] {
-  return paginate(items, {
-    page: options.page,
-    pageSize: options.pageSize,
-    all: options.all,
-  }).items;
+  return paginate(items, { page: options.page, pageSize: options.pageSize, all: options.all }).items;
 }

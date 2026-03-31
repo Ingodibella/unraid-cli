@@ -1,23 +1,17 @@
 [
   {
-    "diskSize": "64.00 GB",
-    "memory": "8.00 GB",
+    "id": "vm-101",
     "name": "ubuntu-dev",
-    "status": "running",
-    "vcpus": 4
+    "state": "RUNNING"
   },
   {
-    "diskSize": "128.00 GB",
-    "memory": "16.00 GB",
+    "id": "vm-102",
     "name": "win11",
-    "status": "stopped",
-    "vcpus": 6
+    "state": "SHUTOFF"
   },
   {
-    "diskSize": "32.00 GB",
-    "memory": "4.00 GB",
+    "id": "vm-103",
     "name": "haos",
-    "status": "paused",
-    "vcpus": 2
+    "state": "PAUSED"
   }
 ]

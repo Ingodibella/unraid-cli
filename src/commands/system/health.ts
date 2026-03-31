@@ -9,30 +9,20 @@ import {
 } from './shared.js';
 
 export interface SystemHealthRecord {
-  parityStatus: string | null;
+  parityStatus: string;
   parityProgress: number | null;
-  cpuTemp: number | null;
-  motherboardTemp: number | null;
-  arrayTemp: number | null;
-  disks: Array<{
-    name: string | null;
-    status: string | null;
-    temperature: number | null;
-  }>;
+  parityRunning: boolean | null;
+  parityPaused: boolean | null;
+  serverStatus: string | null;
 }
 
 export function mapSystemHealth(snapshot: Awaited<ReturnType<typeof fetchSystemSnapshot>>): SystemHealthRecord {
   return {
-    parityStatus: snapshot.server.parityStatus,
-    parityProgress: snapshot.server.parityProgress,
-    cpuTemp: snapshot.server.temps?.cpu ?? null,
-    motherboardTemp: snapshot.server.temps?.motherboard ?? null,
-    arrayTemp: snapshot.server.temps?.array ?? null,
-    disks: snapshot.server.disks.map((disk) => ({
-      name: disk.name,
-      status: disk.status,
-      temperature: disk.temperature,
-    })),
+    parityStatus: snapshot.array.parityCheckStatus.status,
+    parityProgress: snapshot.array.parityCheckStatus.progress,
+    parityRunning: snapshot.array.parityCheckStatus.running,
+    parityPaused: snapshot.array.parityCheckStatus.paused,
+    serverStatus: snapshot.server?.status ?? null,
   };
 }
 

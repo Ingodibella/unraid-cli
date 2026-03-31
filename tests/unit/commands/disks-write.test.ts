@@ -27,13 +27,13 @@ describe('disks write commands', () => {
     vi.clearAllMocks();
     executeMock.mockImplementation((document: string) => {
       if (document.includes('mutation DiskMount')) {
-        return Promise.resolve({ arrayMutations: { mountArrayDisk: { success: true, message: 'mounted' } } });
+        return Promise.resolve({ array: { mountArrayDisk: 'mounted' } });
       }
       if (document.includes('mutation DiskUnmount')) {
-        return Promise.resolve({ arrayMutations: { unmountArrayDisk: { success: true, message: 'unmounted' } } });
+        return Promise.resolve({ array: { unmountArrayDisk: 'unmounted' } });
       }
       if (document.includes('mutation DiskClearStats')) {
-        return Promise.resolve({ arrayMutations: { clearArrayDiskStatistics: { success: true, message: 'cleared' } } });
+        return Promise.resolve({ array: { clearArrayDiskStatistics: true } });
       }
 
       return Promise.resolve({ disks: [] });
@@ -51,24 +51,24 @@ describe('disks write commands', () => {
       return true;
     });
 
-    await program.parseAsync(['node', 'ucli', 'disks', 'mount', 'disk1', '--yes', '--output', 'json']);
+    await program.parseAsync(['node', 'ucli', 'disks', 'mount', '1', '--yes', '--output', 'json']);
 
-    expect(JSON.parse(stdout)).toMatchObject({ action: 'mount', name: 'disk1', success: true });
-    expect(executeMock).toHaveBeenCalledWith(expect.stringContaining('mutation DiskMount'), { name: 'disk1' });
+    expect(JSON.parse(stdout)).toMatchObject({ action: 'mount', idx: 1, success: true });
+    expect(executeMock).toHaveBeenCalledWith(expect.stringContaining('mutation DiskMount'), { idx: 1 });
   });
 
   it('requires --yes for unmount and clear-stats (S2)', async () => {
     const program = createProgram();
 
     await expect(
-      program.parseAsync(['node', 'ucli', 'disks', 'unmount', 'disk1', '--output', 'json']),
+      program.parseAsync(['node', 'ucli', 'disks', 'unmount', '1', '--output', 'json']),
     ).rejects.toMatchObject({
       exitCode: 10,
       message: 'Critical action disks.unmount requires --yes.',
     });
 
     await expect(
-      program.parseAsync(['node', 'ucli', 'disks', 'clear-stats', 'disk1', '--output', 'json']),
+      program.parseAsync(['node', 'ucli', 'disks', 'clear-stats', '1', '--output', 'json']),
     ).rejects.toMatchObject({
       exitCode: 10,
       message: 'Critical action disks.clear-stats requires --yes.',
@@ -83,11 +83,11 @@ describe('disks write commands', () => {
       return true;
     });
 
-    await program.parseAsync(['node', 'ucli', 'disks', 'unmount', 'disk1', '--yes', '--output', 'json']);
-    expect(JSON.parse(stdout)).toMatchObject({ action: 'unmount', name: 'disk1', success: true });
+    await program.parseAsync(['node', 'ucli', 'disks', 'unmount', '1', '--yes', '--output', 'json']);
+    expect(JSON.parse(stdout)).toMatchObject({ action: 'unmount', idx: 1, success: true });
 
     stdout = '';
-    await program.parseAsync(['node', 'ucli', 'disks', 'clear-stats', 'disk1', '--yes', '--output', 'json']);
-    expect(JSON.parse(stdout)).toMatchObject({ action: 'clear-stats', name: 'disk1', success: true });
+    await program.parseAsync(['node', 'ucli', 'disks', 'clear-stats', '1', '--yes', '--output', 'json']);
+    expect(JSON.parse(stdout)).toMatchObject({ action: 'clear-stats', idx: 1, success: true });
   });
 });

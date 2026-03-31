@@ -14,7 +14,6 @@ import {
 
 export interface ShareUsageRecord {
   name: string | null;
-  type: string | null;
   used: string;
   free: string;
   usedPercent: number | null;
@@ -33,7 +32,6 @@ export function createSharesUsageCommand(
 
       let rows = shares.map((share) => ({
         name: share.name,
-        type: share.type,
         used: formatBytes(share.used),
         free: formatBytes(share.free),
         usedPercent: toPercent(share.used, share.size),

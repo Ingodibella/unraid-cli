@@ -6,15 +6,16 @@ import { createClient, type UcliGraphQLClient } from '../../core/graphql/client.
 import { renderOutput } from '../../core/output/renderer.js';
 import {
   ARRAY_QUERY,
-  ARRAY_SET_STATE_MUTATION,
+  ARRAY_START_MUTATION,
+  ARRAY_STOP_MUTATION,
   PARITY_CHECK_CANCEL_MUTATION,
   PARITY_CHECK_PAUSE_MUTATION,
   PARITY_CHECK_RESUME_MUTATION,
   PARITY_CHECK_START_MUTATION,
   PARITY_HISTORY_QUERY,
   type ArrayQuery,
-  type ArraySetStateMutation,
-  type ArraySetStateMutationVariables,
+  type ArrayStartMutation,
+  type ArrayStopMutation,
   type ParityCheckControlMutation,
   type ParityHistoryQuery,
 } from '../../generated/array.js';
@@ -76,15 +77,20 @@ export async function executeParityHistoryQuery(client: UcliGraphQLClient): Prom
   return client.execute<ParityHistoryQuery>(PARITY_HISTORY_QUERY);
 }
 
-export async function executeArraySetStateMutation(
-  state: string,
+export async function executeArrayStartMutation(
   options: GlobalOptions,
   dependencies: ArrayCommandDependencies = defaultArrayCommandDependencies,
-): Promise<ArraySetStateMutation> {
+): Promise<ArrayStartMutation> {
   const client = createArrayClient(options, dependencies);
-  return client.execute<ArraySetStateMutation, ArraySetStateMutationVariables>(ARRAY_SET_STATE_MUTATION, {
-    state,
-  });
+  return client.execute<ArrayStartMutation>(ARRAY_START_MUTATION);
+}
+
+export async function executeArrayStopMutation(
+  options: GlobalOptions,
+  dependencies: ArrayCommandDependencies = defaultArrayCommandDependencies,
+): Promise<ArrayStopMutation> {
+  const client = createArrayClient(options, dependencies);
+  return client.execute<ArrayStopMutation>(ARRAY_STOP_MUTATION);
 }
 
 export async function executeParityCheckStartMutation(
@@ -154,7 +160,7 @@ export function applyArrayCommandOptions(command: Command): Command {
 
 export function applyArrayDevicesOptions(command: Command): Command {
   return applyArrayCommandOptions(command)
-    .option('--filter <expr>', 'Filter expression (e.g. status=healthy)')
+    .option('--filter <expr>', 'Filter expression (e.g. status=DISK_OK)')
     .option('--sort <expr>', 'Sort expression (e.g. name:asc)');
 }
 
@@ -162,6 +168,18 @@ export function resolveArrayOptions(command: Command): GlobalOptions {
   const parentOptions = command.parent?.optsWithGlobals() ?? {};
   const localOptions = command.opts();
   return resolveGlobalOptions({ ...parentOptions, ...localOptions });
+}
+
+export function formatState(state: string | null | undefined): string {
+  if (!state) {
+    return 'Unknown';
+  }
+
+  return state
+    .toLowerCase()
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
 }
 
 export function formatBytes(bytes: number | null | undefined): string {
@@ -179,6 +197,19 @@ export function formatBytes(bytes: number | null | undefined): string {
   }
 
   return `${value.toFixed(unitIndex > 0 ? 2 : 0)} ${units[unitIndex]}`;
+}
+
+export function formatKilobytes(kilobytes: string | null | undefined): string {
+  if (kilobytes == null || kilobytes === '') {
+    return 'unknown';
+  }
+
+  const parsed = Number(kilobytes);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return 'unknown';
+  }
+
+  return formatBytes(parsed * 1024);
 }
 
 export function formatDuration(seconds: number | null | undefined): string {

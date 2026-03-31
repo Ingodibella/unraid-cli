@@ -1,4 +1,4 @@
-import { DOCKER_START_MUTATION, DOCKER_STOP_MUTATION, type DockerStartMutation, type DockerStopMutation } from '../../generated/containers.js';
+import { DOCKER_START_MUTATION, DOCKER_STOP_MUTATION } from '../../generated/containers.js';
 import { assertSafety } from '../../core/safety/index.js';
 import type { ContainersCommandDependencies } from './shared.js';
 import {
@@ -22,8 +22,8 @@ export function createContainersRestartCommand(
 ): Command {
   return applyContainersCommandOptions(new Command('restart'))
     .description('Restart a container by stopping then starting it')
-    .argument('<name>', 'Container name')
-    .action(async function handleContainersRestart(name: string) {
+    .argument('<container>', 'Container ID or name')
+    .action(async function handleContainersRestart(containerArg: string) {
       const options = resolveContainersOptions(this);
       const localOptions = this.opts<RestartOptions>();
 
@@ -32,15 +32,16 @@ export function createContainersRestartCommand(
         force: localOptions.force,
       });
 
-      const stopResult = await executeDockerMutation<DockerStopMutation>(DOCKER_STOP_MUTATION, name, options, dependencies);
-      const startResult = await executeDockerMutation<DockerStartMutation>(DOCKER_START_MUTATION, name, options, dependencies);
-      const container = await fetchContainer(name, options, dependencies);
+      const target = await fetchContainer(containerArg, options, dependencies);
+      await executeDockerMutation(DOCKER_STOP_MUTATION, target.id, options, dependencies);
+      await executeDockerMutation(DOCKER_START_MUTATION, target.id, options, dependencies);
+      const container = await fetchContainer(target.id, options, dependencies);
 
       writeRenderedOutput({
-        name: normalizeContainerName(container.name) ?? name,
-        state: container.state ?? container.status ?? 'running',
-        success: (stopResult.docker.stop?.success ?? true) && (startResult.docker.start?.success ?? true),
-        message: startResult.docker.start?.message ?? stopResult.docker.stop?.message ?? null,
+        id: target.id,
+        name: normalizeContainerName(container.names) ?? containerArg,
+        state: container.state,
+        success: true,
       }, options, dependencies);
     });
 }

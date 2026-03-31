@@ -51,7 +51,7 @@ describe('array write commands', () => {
 
   it('executes array start mutation with --yes', async () => {
     executeMock.mockResolvedValue({
-      array: { setState: { state: 'STARTED', success: true, message: 'array started' } },
+      array: { startArray: 'STARTED' },
     });
 
     const program = createProgram();
@@ -63,11 +63,10 @@ describe('array write commands', () => {
 
     await program.parseAsync(['node', 'ucli', 'array', 'start', '--yes', '--output', 'json']);
 
-    expect(executeMock).toHaveBeenCalledWith(expect.stringContaining('mutation ArraySetState'), { state: 'START' });
+    expect(executeMock).toHaveBeenCalledWith(expect.stringContaining('mutation ArrayStart'));
     const parsed = JSON.parse(stdout) as Record<string, unknown>;
     expect(parsed.action).toBe('start');
     expect(parsed.state).toBe('STARTED');
-    expect(parsed.success).toBe(true);
   });
 
   it('requires --yes for array stop (S2)', async () => {
@@ -85,9 +84,9 @@ describe('array write commands', () => {
 
   it('executes parity check start, pause, resume with --yes', async () => {
     executeMock
-      .mockResolvedValueOnce({ parityCheck: { start: { status: 'running', success: true, message: null } } })
-      .mockResolvedValueOnce({ parityCheck: { pause: { status: 'paused', success: true, message: null } } })
-      .mockResolvedValueOnce({ parityCheck: { resume: { status: 'running', success: true, message: null } } });
+      .mockResolvedValueOnce({ parityCheck: { start: { status: 'running', progress: 0, errors: 0, running: true, paused: false, correcting: false } } })
+      .mockResolvedValueOnce({ parityCheck: { pause: { status: 'paused', progress: 10, errors: 0, running: false, paused: true, correcting: false } } })
+      .mockResolvedValueOnce({ parityCheck: { resume: { status: 'running', progress: 10, errors: 0, running: true, paused: false, correcting: false } } });
 
     const program = createProgram();
 
@@ -123,7 +122,9 @@ describe('array write commands', () => {
     });
 
     executeMock.mockResolvedValueOnce({
-      parityCheck: { cancel: { status: 'cancelled', success: true, message: 'cancelled by user' } },
+      parityCheck: {
+        cancel: { status: 'cancelled', progress: 11, errors: 0, running: false, paused: false, correcting: false },
+      },
     });
 
     let stdout = '';

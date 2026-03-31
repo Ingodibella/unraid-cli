@@ -11,7 +11,7 @@ export function createContainersPauseCommand(
     description: 'Pause a running container',
     safetyPath: 'containers.pause',
     mutation: DOCKER_PAUSE_MUTATION,
-    expectedState: 'paused',
+    expectedState: 'PAUSED',
     extractResult: (result) => (result as DockerPauseMutation).docker.pause,
   }, dependencies);
 }

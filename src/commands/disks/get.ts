@@ -8,25 +8,27 @@ import {
   formatTemperature,
   getTemperatureSeverity,
   resolveDisksOptions,
-  usagePercent,
   writeRenderedOutput,
 } from './shared.js';
 
 export interface DiskDetailRecord {
+  id: string;
   name: string | null;
   device: string | null;
   size: string;
-  used: string;
-  free: string;
-  usagePercent: number | null;
-  status: string | null;
+  vendor: string | null;
+  type: string | null;
+  bytesPerSector: number | null;
+  totalSectors: number | null;
+  totalHeads: number | null;
+  totalCylinders: number | null;
+  firmwareRevision: string | null;
+  serialNum: string | null;
+  interfaceType: string | null;
+  smartStatus: string | null;
   temp: string;
   tempSeverity: string;
-  type: string | null;
-  filesystem: string | null;
-  serial: string | null;
-  model: string | null;
-  smartStatus: string | null;
+  partitions: Array<{ name: string; size: number; type?: string | null; fsType: string }>;
 }
 
 export function createDisksGetCommand(
@@ -40,20 +42,23 @@ export function createDisksGetCommand(
       const disk = await fetchDisk(name, options, dependencies);
 
       writeRenderedOutput({
+        id: disk.id,
         name: disk.name,
         device: disk.device,
         size: formatBytes(disk.size),
-        used: formatBytes(disk.used),
-        free: formatBytes(disk.free),
-        usagePercent: usagePercent(disk.used, disk.size),
-        status: disk.status,
+        vendor: disk.vendor,
+        type: disk.type,
+        bytesPerSector: disk.bytesPerSector,
+        totalSectors: disk.totalSectors,
+        totalHeads: disk.totalHeads,
+        totalCylinders: disk.totalCylinders,
+        firmwareRevision: disk.firmwareRevision,
+        serialNum: disk.serialNum,
+        interfaceType: disk.interfaceType,
+        smartStatus: disk.smartStatus,
         temp: formatTemperature(disk.temperature),
         tempSeverity: getTemperatureSeverity(disk.temperature),
-        type: disk.type,
-        filesystem: disk.filesystem,
-        serial: disk.serial,
-        model: disk.model,
-        smartStatus: disk.smartStatus,
+        partitions: disk.partitions,
       } satisfies DiskDetailRecord, options, dependencies);
     });
 }

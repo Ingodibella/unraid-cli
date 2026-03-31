@@ -4,7 +4,6 @@ import {
   applySystemCommandOptions,
   defaultSystemCommandDependencies,
   fetchSystemSnapshot,
-  formatUptime,
   resolveSystemOptions,
   writeRenderedOutput,
 } from './shared.js';

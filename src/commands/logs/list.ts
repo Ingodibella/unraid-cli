@@ -20,20 +20,15 @@ export function createLogsListCommand(
       const localOptions = this.opts<{ filter?: string; sort?: string }>();
       const snapshot = await fetchLogsSnapshot(options, dependencies);
 
-      let rows = snapshot.logs.logFiles.map((logFile) => ({
+      let rows = snapshot.logFiles.map((logFile) => ({
         name: logFile.name,
         path: logFile.path,
         size: logFile.size,
-        updatedAt: logFile.updatedAt,
+        modifiedAt: logFile.modifiedAt,
       }));
 
-      if (localOptions.filter) {
-        rows = applyFilters(rows, localOptions.filter);
-      }
-
-      if (localOptions.sort) {
-        rows = applySort(rows, localOptions.sort);
-      }
+      if (localOptions.filter) rows = applyFilters(rows, localOptions.filter);
+      if (localOptions.sort) rows = applySort(rows, localOptions.sort);
 
       writeRenderedOutput(paginateItems(rows, options), options, dependencies);
     });

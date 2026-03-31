@@ -1,28 +1,43 @@
 {
   "shares": [
     {
+      "id": "share:appdata",
       "name": "appdata",
-      "type": "user",
-      "size": 536870912000,
-      "used": 343597383680,
       "free": 193273528320,
-      "allocation": "high-water"
+      "used": 343597383680,
+      "size": 536870912000,
+      "include": ["disk1", "disk2"],
+      "exclude": ["disk3"],
+      "cache": true,
+      "nameOrig": "appdata",
+      "comment": "App data",
+      "floor": "0"
     },
     {
+      "id": "share:media",
       "name": "media",
-      "type": "user",
-      "size": 2199023255552,
-      "used": 1649267441664,
       "free": 549755813888,
-      "allocation": "most-free"
+      "used": 1649267441664,
+      "size": 2199023255552,
+      "include": ["disk1", "disk2", "disk3"],
+      "exclude": null,
+      "cache": false,
+      "nameOrig": "media",
+      "comment": "Media share",
+      "floor": "0"
     },
     {
+      "id": "share:system",
       "name": "system",
-      "type": "cache",
-      "size": 274877906944,
-      "used": 137438953472,
       "free": 137438953472,
-      "allocation": "fill-up"
+      "used": 137438953472,
+      "size": 274877906944,
+      "include": null,
+      "exclude": null,
+      "cache": true,
+      "nameOrig": "system",
+      "comment": "System share",
+      "floor": "0"
     }
   ]
 }

@@ -7,13 +7,9 @@ import { paginate } from '../../core/filters/index.js';
 import { createClient, type UcliGraphQLClient } from '../../core/graphql/client.js';
 import { renderOutput } from '../../core/output/renderer.js';
 import {
-  DOCKER_CONTAINER_QUERY,
   DOCKER_SNAPSHOT_QUERY,
-  type DockerContainerQuery,
-  type DockerContainerQueryVariables,
   type DockerContainerRecord,
   type DockerSnapshotQuery,
-  type DockerStatsRecord,
   type DockerWriteMutationVariables,
 } from '../../generated/containers.js';
 
@@ -58,18 +54,20 @@ export async function fetchDockerSnapshot(
 }
 
 export async function fetchContainer(
-  name: string,
+  identifier: string,
   options: GlobalOptions,
   dependencies: ContainersCommandDependencies = defaultContainersCommandDependencies,
 ): Promise<DockerContainerRecord> {
-  const data = await createContainersClient(options, dependencies).execute<DockerContainerQuery, DockerContainerQueryVariables>(
-    DOCKER_CONTAINER_QUERY,
-    { name },
-  );
+  const snapshot = await fetchDockerSnapshot(options, dependencies);
+  const normalizedIdentifier = normalizeContainerToken(identifier);
+  const container = snapshot.docker.containers.find((entry) => (
+    entry.id === identifier
+    || entry.id === normalizedIdentifier
+    || entry.names.some((name) => normalizeContainerToken(name) === normalizedIdentifier)
+  ));
 
-  const container = data.docker.container;
   if (container == null) {
-    throw new NotFoundError(`Container not found: ${name}`);
+    throw new NotFoundError(`Container not found: ${identifier}`);
   }
 
   return container;
@@ -77,11 +75,11 @@ export async function fetchContainer(
 
 export async function executeDockerMutation<TMutation>(
   query: string,
-  name: string,
+  id: string,
   options: GlobalOptions,
   dependencies: ContainersCommandDependencies = defaultContainersCommandDependencies,
 ): Promise<TMutation> {
-  return createContainersClient(options, dependencies).execute<TMutation, DockerWriteMutationVariables>(query, { name });
+  return createContainersClient(options, dependencies).execute<TMutation, DockerWriteMutationVariables>(query, { id });
 }
 
 export function writeRenderedOutput(
@@ -119,7 +117,7 @@ export function applyContainersCommandOptions(command: Command): Command {
 
 export function applyContainersListOptions(command: Command): Command {
   return applyContainersCommandOptions(command)
-    .option('--filter <expr>', 'Filter expression (e.g. status=running)')
+    .option('--filter <expr>', 'Filter expression (e.g. state=RUNNING)')
     .option('--sort <expr>', 'Sort expression (e.g. name:asc)')
     .option('--page <number>', 'Page number for paginated results', Number.parseInt)
     .option('--page-size <number>', 'Items per page', Number.parseInt)
@@ -140,12 +138,28 @@ export function paginateItems<T>(items: readonly T[], options: GlobalOptions): T
   }).items;
 }
 
-export function normalizeContainerName(name: string | null | undefined): string | null {
-  if (name == null) {
-    return null;
+export function normalizeContainerToken(name: string | null | undefined): string {
+  return (name ?? '').replace(/^\/+/, '').trim();
+}
+
+export function normalizeContainerName(names: string[] | string | null | undefined): string | null {
+  if (Array.isArray(names)) {
+    const normalized = names.map((name) => normalizeContainerToken(name)).filter((name) => name.length > 0);
+    if (normalized.length === 0) {
+      return null;
+    }
+    return normalized[0] ?? null;
   }
 
-  return name.replace(/^\/+/, '');
+  const normalized = normalizeContainerToken(names);
+  return normalized.length > 0 ? normalized : null;
+}
+
+export function formatContainerNames(names: string[] | null | undefined): string {
+  const normalized = (names ?? [])
+    .map((name) => normalizeContainerToken(name))
+    .filter((name) => name.length > 0);
+  return normalized.length > 0 ? normalized.join(', ') : 'unknown';
 }
 
 export function formatPorts(ports: DockerContainerRecord['ports']): string {
@@ -156,39 +170,6 @@ export function formatPorts(ports: DockerContainerRecord['ports']): string {
   return ports.map((port) => {
     const target = port.privatePort == null ? 'unknown' : String(port.privatePort);
     const published = port.publicPort == null ? target : `${port.publicPort}->${target}`;
-    return port.type == null ? published : `${published}/${port.type}`;
+    return `${published}/${port.type}`;
   }).join(', ');
-}
-
-export function formatBytes(bytes: number | null | undefined): string {
-  if (bytes == null || !Number.isFinite(bytes) || bytes < 0) {
-    return 'unknown';
-  }
-
-  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-  let value = bytes;
-  let unitIndex = 0;
-
-  while (value >= 1024 && unitIndex < units.length - 1) {
-    value /= 1024;
-    unitIndex++;
-  }
-
-  return `${value.toFixed(unitIndex > 0 ? 2 : 0)} ${units[unitIndex]}`;
-}
-
-export function toStatsRecord(name: string | null, image: string | null, stats: DockerStatsRecord | null): Record<string, unknown> {
-  return {
-    name,
-    image,
-    cpuPercent: stats?.cpuPercent ?? null,
-    memoryUsage: formatBytes(stats?.memoryUsage),
-    memoryLimit: formatBytes(stats?.memoryLimit),
-    memoryPercent: stats?.memoryPercent ?? null,
-    networkRx: formatBytes(stats?.networkRx),
-    networkTx: formatBytes(stats?.networkTx),
-    blockRead: formatBytes(stats?.blockRead),
-    blockWrite: formatBytes(stats?.blockWrite),
-    pids: stats?.pids ?? null,
-  };
 }

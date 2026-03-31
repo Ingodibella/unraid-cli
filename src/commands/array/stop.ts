@@ -4,7 +4,7 @@ import type { ArrayCommandDependencies } from './shared.js';
 import {
   applyArrayCommandOptions,
   defaultArrayCommandDependencies,
-  executeArraySetStateMutation,
+  executeArrayStopMutation,
   resolveArrayOptions,
   writeRenderedOutput,
 } from './shared.js';
@@ -12,8 +12,6 @@ import {
 export interface ArrayStopResult {
   action: 'stop';
   state: string | null;
-  success: boolean;
-  message: string | null;
   warning: string;
 }
 
@@ -28,15 +26,12 @@ export function createArrayStopCommand(
       const options = resolveArrayOptions(this);
       await assertSafety('array.stop', { yes: options.yes, force: options.force });
 
-      const mutation = await executeArraySetStateMutation('STOP', options, dependencies);
-      const payload = mutation.array.setState;
+      const mutation = await executeArrayStopMutation(options, dependencies);
 
       writeRenderedOutput(
         {
           action: 'stop',
-          state: payload?.state ?? 'STOPPED',
-          success: payload?.success ?? true,
-          message: payload?.message ?? null,
+          state: mutation.array.stopArray ?? 'STOPPED',
           warning: STOP_WARNING,
         } satisfies ArrayStopResult,
         options,

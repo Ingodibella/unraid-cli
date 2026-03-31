@@ -1,35 +1,38 @@
 {
   "network": {
-    "hostname": "tower",
-    "gateway": "192.168.1.1",
-    "dns": ["1.1.1.1", "8.8.8.8"],
-    "interfaces": [
+    "id": "network:1",
+    "accessUrls": [
+      { "ipv4": "192.168.1.10", "ipv6": null, "type": "LAN", "name": "tower" }
+    ]
+  },
+  "info": {
+    "networkInterfaces": [
       {
         "name": "eth0",
+        "description": "Main ethernet",
+        "macAddress": "52:54:00:12:34:56",
         "status": "up",
-        "mac": "52:54:00:12:34:56",
-        "ipv4": "192.168.1.10/24",
-        "ipv6": "fe80::5054:ff:fe12:3456/64",
-        "mtu": 1500,
-        "speed": 1000
+        "protocol": "dhcp",
+        "ipAddress": "192.168.1.10/24",
+        "netmask": "255.255.255.0"
       },
       {
         "name": "br0",
+        "description": "Bridge",
+        "macAddress": "52:54:00:65:43:21",
         "status": "up",
-        "mac": "52:54:00:65:43:21",
-        "ipv4": "192.168.1.11/24",
-        "ipv6": null,
-        "mtu": 1500,
-        "speed": 1000
+        "protocol": "static",
+        "ipAddress": "192.168.1.11/24",
+        "netmask": "255.255.255.0"
       },
       {
         "name": "wg0",
+        "description": "Wireguard",
+        "macAddress": null,
         "status": "down",
-        "mac": null,
-        "ipv4": "10.253.0.1/24",
-        "ipv6": null,
-        "mtu": 1420,
-        "speed": null
+        "protocol": "static",
+        "ipAddress": "10.253.0.1/24",
+        "netmask": "255.255.255.0"
       }
     ]
   }

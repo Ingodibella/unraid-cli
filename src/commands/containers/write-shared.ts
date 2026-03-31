@@ -1,6 +1,5 @@
 import { Command } from 'commander';
 import { assertSafety } from '../../core/safety/index.js';
-import type { DockerContainerRecord, DockerMutationResult } from '../../generated/containers.js';
 import type { ContainersCommandDependencies } from './shared.js';
 import {
   applyContainersCommandOptions,
@@ -24,7 +23,7 @@ interface CreateContainerWriteCommandInput {
   mutation: string;
   expectedState: string;
   readStateFromContainer?: boolean;
-  extractResult: (result: unknown) => DockerMutationResult | null;
+  extractResult?: (result: unknown) => unknown;
 }
 
 export function createContainerWriteCommand(
@@ -33,8 +32,8 @@ export function createContainerWriteCommand(
 ): Command {
   return applyContainersCommandOptions(new Command(input.name))
     .description(input.description)
-    .argument('<name>', 'Container name')
-    .action(async function handleContainerWrite(name: string) {
+    .argument('<container>', 'Container ID or name')
+    .action(async function handleContainerWrite(containerArg: string) {
       const options = resolveContainersOptions(this);
       const localOptions = this.opts<WriteCommandOptions>();
 
@@ -43,25 +42,24 @@ export function createContainerWriteCommand(
         force: localOptions.force,
       });
 
-      const mutationData = await executeDockerMutation<unknown>(input.mutation, name, options, dependencies);
-      const mutationResult = input.extractResult(mutationData);
-      const container = await fetchContainer(name, options, dependencies).catch(() => null);
+      const target = await fetchContainer(containerArg, options, dependencies);
+      await executeDockerMutation<unknown>(input.mutation, target.id, options, dependencies);
+      const container = await fetchContainer(target.id, options, dependencies).catch(() => null);
 
-      const normalizedName = normalizeContainerName(container?.name ?? name) ?? name;
+      const normalizedName = normalizeContainerName(container?.names ?? target.names) ?? containerArg;
       const nextState = input.readStateFromContainer === false
         ? input.expectedState
-        : normalizeState(container, input.expectedState);
+        : normalizeState(container?.state, input.expectedState);
 
       writeRenderedOutput({
+        id: target.id,
         name: normalizedName,
         state: nextState,
-        success: mutationResult?.success ?? true,
-        message: mutationResult?.message ?? null,
+        success: true,
       }, options, dependencies);
     });
 }
 
-function normalizeState(container: DockerContainerRecord | null, fallback: string): string {
-  const state = container?.state ?? container?.status;
+function normalizeState(state: string | null | undefined, fallback: string): string {
   return typeof state === 'string' && state.length > 0 ? state : fallback;
 }

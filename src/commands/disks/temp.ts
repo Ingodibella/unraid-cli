@@ -4,7 +4,7 @@ import type { DisksCommandDependencies } from './shared.js';
 import {
   applyDisksListOptions,
   defaultDisksCommandDependencies,
-  fetchDisks,
+  fetchArrayDiskTemps,
   getTemperatureSeverity,
   paginateItems,
   resolveDisksOptions,
@@ -12,7 +12,9 @@ import {
 } from './shared.js';
 
 export interface DiskTempRecord {
+  idx: number | null;
   name: string | null;
+  status: string | null;
   temp: number | null;
   severity: string;
 }
@@ -21,16 +23,18 @@ export function createDisksTempCommand(
   dependencies: DisksCommandDependencies = defaultDisksCommandDependencies,
 ): Command {
   return applyDisksListOptions(new Command('temp'))
-    .description('Show disk temperatures and threshold severity')
+    .description('Show array disk temperatures and threshold severity')
     .action(async function handleDisksTemp() {
       const options = resolveDisksOptions(this);
       const localOptions = this.opts<{ filter?: string; sort?: string }>();
-      const snapshot = await fetchDisks(options, dependencies);
+      const snapshot = await fetchArrayDiskTemps(options, dependencies);
 
-      let rows = snapshot.disks.map((disk) => ({
+      let rows = snapshot.array.disks.map((disk) => ({
+        idx: disk.idx,
         name: disk.name,
-        temp: disk.temperature,
-        severity: getTemperatureSeverity(disk.temperature),
+        status: disk.status,
+        temp: disk.temp,
+        severity: getTemperatureSeverity(disk.temp),
       } satisfies DiskTempRecord));
 
       if (localOptions.filter) {

@@ -5,6 +5,7 @@ import {
   applyDisksCommandOptions,
   clearDiskStats,
   defaultDisksCommandDependencies,
+  parseDiskIdx,
   resolveDisksOptions,
   writeRenderedOutput,
 } from './shared.js';
@@ -13,20 +14,21 @@ export function createDisksClearStatsCommand(
   dependencies: DisksCommandDependencies = defaultDisksCommandDependencies,
 ): Command {
   return applyDisksCommandOptions(new Command('clear-stats'))
-    .argument('<disk>', 'Disk name')
-    .description('Clear disk statistics')
-    .action(async function handleDisksClearStats(name: string) {
+    .argument('<idx>', 'Disk idx')
+    .description('Clear disk statistics by idx')
+    .action(async function handleDisksClearStats(idxArg: string) {
       const options = resolveDisksOptions(this);
       const localOptions = this.opts<{ yes?: boolean; force?: boolean }>();
+      const idx = parseDiskIdx(idxArg);
 
       await assertSafety('disks.clear-stats', { yes: localOptions.yes, force: localOptions.force });
-      const mutation = await clearDiskStats(name, options, dependencies);
+      const mutation = await clearDiskStats(idx, options, dependencies);
 
       writeRenderedOutput({
         action: 'clear-stats',
-        name,
-        success: mutation.arrayMutations.clearArrayDiskStatistics?.success ?? true,
-        message: mutation.arrayMutations.clearArrayDiskStatistics?.message ?? null,
+        idx,
+        success: mutation.array.clearArrayDiskStatistics ?? false,
+        message: null,
       }, options, dependencies);
     });
 }

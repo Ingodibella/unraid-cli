@@ -25,39 +25,60 @@ vi.mock('../../../src/core/graphql/client.js', async (importOriginal) => {
 describe('notifications write commands', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    executeMock.mockImplementation((document: string) => {
+    executeMock.mockImplementation((document: string, variables?: { filter?: { type?: 'UNREAD' | 'ARCHIVE' } }) => {
       if (document.includes('mutation ArchiveNotification')) {
-        return Promise.resolve({ archiveNotification: { success: true, message: null } });
-      }
-      if (document.includes('mutation ArchiveAllNotifications')) {
-        return Promise.resolve({ archiveAllNotifications: { success: true, message: 'archived all' } });
-      }
-      if (document.includes('mutation UnarchiveNotification')) {
-        return Promise.resolve({ unarchiveNotification: { success: true, message: null } });
+        return Promise.resolve({
+          archiveNotification: {
+            id: 'n-1', title: 'x', subject: 'x', description: 'x', importance: 'INFO', link: null, type: 'ARCHIVE', timestamp: null,
+          },
+        });
       }
       if (document.includes('mutation UnreadNotification')) {
-        return Promise.resolve({ unreadNotification: { success: true, message: null } });
+        return Promise.resolve({
+          unreadNotification: {
+            id: 'n-1', title: 'x', subject: 'x', description: 'x', importance: 'INFO', link: null, type: 'UNREAD', timestamp: null,
+          },
+        });
       }
       if (document.includes('mutation DeleteNotification')) {
-        return Promise.resolve({ deleteNotification: { success: true, message: 'deleted' } });
-      }
-      if (document.includes('mutation DeleteArchivedNotifications')) {
-        return Promise.resolve({ deleteArchivedNotifications: { success: true, message: 'deleted all archived' } });
+        return Promise.resolve({
+          deleteNotification: {
+            unread: { info: 0, warning: 0, alert: 0, total: 0 },
+            archive: { info: 0, warning: 0, alert: 0, total: 0 },
+          },
+        });
       }
       if (document.includes('mutation CreateNotification')) {
         return Promise.resolve({
           createNotification: {
             id: 'n-100',
             title: 'Build done',
-            message: 'Task completed',
-            severity: 'info',
+            subject: 'Pipeline',
+            description: 'Task completed',
+            importance: 'INFO',
+            link: null,
+            type: 'UNREAD',
             timestamp: '2026-03-31T12:00:00.000Z',
-            read: false,
           },
         });
       }
 
-      return Promise.resolve({ notifications: [] });
+      const list = variables?.filter?.type === 'ARCHIVE'
+        ? []
+        : [
+          {
+            id: 'n-2',
+            title: 'Disk warning',
+            subject: 'Disks',
+            description: 'Disk disk3 is at 55C.',
+            importance: 'WARNING',
+            link: null,
+            type: 'UNREAD',
+            timestamp: '2026-03-31T10:00:00.000Z',
+          },
+        ];
+
+      return Promise.resolve({ notifications: { list } });
     });
 
     process.env.UCLI_HOST = 'http://tower.local:7777';
@@ -80,16 +101,6 @@ describe('notifications write commands', () => {
     expect(JSON.parse(stdout)).toMatchObject({ action: 'unarchive', target: 'n-1', success: true });
   });
 
-  it('requires --yes for archive --all (S2)', async () => {
-    const program = createProgram();
-    await expect(
-      program.parseAsync(['node', 'ucli', 'notifications', 'archive', '--all', '--output', 'json']),
-    ).rejects.toMatchObject({
-      exitCode: 10,
-      message: 'Critical action notifications.archive-all requires --yes.',
-    });
-  });
-
   it('marks unread and deletes single with --yes', async () => {
     const program = createProgram();
     let stdout = '';
@@ -104,37 +115,6 @@ describe('notifications write commands', () => {
     stdout = '';
     await program.parseAsync(['node', 'ucli', 'notifications', 'delete', 'n-2', '--yes', '--output', 'json']);
     expect(JSON.parse(stdout)).toMatchObject({ action: 'delete', target: 'n-2', success: true });
-  });
-
-  it('requires --yes --force for delete --all (S3)', async () => {
-    const program = createProgram();
-
-    await expect(
-      program.parseAsync(['node', 'ucli', 'notifications', 'delete', '--all', '--yes', '--output', 'json']),
-    ).rejects.toMatchObject({
-      exitCode: 10,
-      message: 'Destructive action notifications.delete requires both --yes and --force.',
-    });
-
-    let stdout = '';
-    process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
-      stdout += String(chunk);
-      return true;
-    });
-
-    await program.parseAsync([
-      'node',
-      'ucli',
-      'notifications',
-      'delete',
-      '--all',
-      '--yes',
-      '--force',
-      '--output',
-      'json',
-    ]);
-
-    expect(JSON.parse(stdout)).toMatchObject({ action: 'delete', target: 'all-archived', success: true });
   });
 
   it('creates notification with required fields and --yes', async () => {
@@ -152,9 +132,11 @@ describe('notifications write commands', () => {
       'create',
       '--title',
       'Build done',
-      '--message',
+      '--subject',
+      'Pipeline',
+      '--description',
       'Task completed',
-      '--severity',
+      '--importance',
       'info',
       '--yes',
       '--output',
@@ -163,6 +145,6 @@ describe('notifications write commands', () => {
 
     const parsed = JSON.parse(stdout) as Record<string, unknown>;
     expect(parsed.action).toBe('create');
-    expect(parsed.notification).toMatchObject({ id: 'n-100', severity: 'info' });
+    expect(parsed.notification).toMatchObject({ id: 'n-100', importance: 'INFO' });
   });
 });

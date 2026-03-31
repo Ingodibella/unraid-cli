@@ -13,15 +13,15 @@ export function createVmsResumeCommand(
   dependencies: VmsCommandDependencies = defaultVmsCommandDependencies,
 ): Command {
   return applyVmsCommandOptions(new Command('resume'))
-    .argument('<name>', 'VM name')
+    .argument('<id-or-name>', 'VM id or name')
     .description('Resume a paused VM')
-    .action(async function handleVmsResume(name: string) {
+    .action(async function handleVmsResume(idOrName: string) {
       const options = resolveVmsOptions(this);
       const result = await executeVmWriteAction({
         action: 'resume',
         commandPath: 'vms.resume',
         mutation: VM_RESUME_MUTATION,
-        name,
+        idOrName,
         options,
         dependencies,
       });

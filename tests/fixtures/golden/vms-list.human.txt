@@ -1,20 +1,14 @@
 #1
+id: vm-101
 name: ubuntu-dev
-status: running
-vcpus: 4
-memory: 8.00 GB
-diskSize: 64.00 GB
+state: RUNNING
 
 #2
+id: vm-102
 name: win11
-status: stopped
-vcpus: 6
-memory: 16.00 GB
-diskSize: 128.00 GB
+state: SHUTOFF
 
 #3
+id: vm-103
 name: haos
-status: paused
-vcpus: 2
-memory: 4.00 GB
-diskSize: 32.00 GB
+state: PAUSED

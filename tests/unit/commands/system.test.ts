@@ -61,9 +61,10 @@ describe('system command group', () => {
 
     await program.parseAsync(['node', 'ucli', 'system', 'info', '--output', 'human']);
 
-    expect(stdout).toContain('osPlatform: Linux');
+    expect(stdout).toContain('platform: Linux');
     expect(stdout).toContain('hostname: tower');
-    expect(stdout).toContain('uptimeHuman: 1 day, 2 hours, 3 minutes, 4 seconds');
+    expect(stdout).toContain('unraidVersion: 6.12.10');
+    expect(stdout).toContain('serverStatus: ONLINE');
     expect(createClientMock).toHaveBeenCalledWith(expect.objectContaining({
       endpoint: 'http://tower.local:7777/graphql',
       apiKey: 'test-api-key',
@@ -81,9 +82,9 @@ describe('system command group', () => {
     await program.parseAsync(['node', 'ucli', 'system', 'status', '--output', 'table']);
 
     expect(stdout).toContain('arrayState');
-    expect(stdout).toContain('dockerStatus');
-    expect(stdout).toContain('storageUsagePercent');
-    expect(stdout).toContain('50');
+    expect(stdout).toContain('serverStatus');
+    expect(stdout).toContain('parityCheckStatus');
+    expect(stdout).toContain('STARTED');
   });
 
   it('renders all structured output modes', async () => {
@@ -102,11 +103,11 @@ describe('system command group', () => {
     }
 
     expect(JSON.parse(outputs[0].stdout)).toMatchObject({
-      cpuUsage: 23.5,
-      memoryUsagePercent: 37.5,
+      cpuCores: 12,
+      memoryModules: 2,
     });
-    expect(outputs[1].stdout).toContain('cpuUsage: 23.5');
-    expect(outputs[2].stdout).toContain('memoryUsagePercent');
+    expect(outputs[1].stdout).toContain('cpuCores: 12');
+    expect(outputs[2].stdout).toContain('memoryModules');
   });
 
   it('supports field selection', async () => {
@@ -125,18 +126,16 @@ describe('system command group', () => {
       '--output',
       'json',
       '--fields',
-      'parityStatus,disks.name',
+      'parityStatus,serverStatus',
     ]);
 
     expect(JSON.parse(stdout)).toEqual({
-      parityStatus: 'healthy',
-      disks: {
-        name: ['disk1', 'disk2', 'parity'],
-      },
+      parityStatus: 'COMPLETED',
+      serverStatus: 'ONLINE',
     });
   });
 
-  it('renders uptime in human readable form', async () => {
+  it('renders uptime in fallback form', async () => {
     const program = createProgram();
     let stdout = '';
     process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
@@ -147,8 +146,9 @@ describe('system command group', () => {
     await program.parseAsync(['node', 'ucli', 'system', 'uptime', '--output', 'json']);
 
     expect(JSON.parse(stdout)).toEqual({
-      seconds: 93784,
-      human: '1 day, 2 hours, 3 minutes, 4 seconds',
+      available: false,
+      message: 'Uptime is not available from the current API schema.',
+      serverTime: '2026-03-31T12:00:00Z',
     });
   });
 

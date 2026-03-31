@@ -25,34 +25,27 @@ export interface DockerSnapshotQuery {
   };
 }
 
-export interface DockerContainerQuery {
-  docker: {
-    containers: DockerContainerRecord[];
-  };
-}
-
-export interface DockerContainerQueryVariables {
+export interface DockerWriteMutationVariables extends Record<string, unknown> {
   id: string;
 }
 
 export interface DockerStartMutation {
-  docker: { start: DockerContainerRecord };
+  docker: { start: DockerContainerRecord | null };
 }
 export interface DockerStopMutation {
-  docker: { stop: DockerContainerRecord };
+  docker: { stop: DockerContainerRecord | null };
+}
+export interface DockerRestartMutation {
+  docker: { restart: DockerContainerRecord | null };
 }
 export interface DockerPauseMutation {
-  docker: { pause: DockerContainerRecord };
+  docker: { pause: DockerContainerRecord | null };
 }
 export interface DockerUnpauseMutation {
-  docker: { unpause: DockerContainerRecord };
+  docker: { unpause: DockerContainerRecord | null };
 }
 export interface DockerRemoveMutation {
-  docker: { removeContainer: boolean };
-}
-
-export interface DockerWriteMutationVariables {
-  id: string;
+  docker: { remove: boolean };
 }
 
 export const DOCKER_SNAPSHOT_QUERY = gql`
@@ -77,8 +70,6 @@ export const DOCKER_SNAPSHOT_QUERY = gql`
     }
   }
 `;
-
-export const DOCKER_CONTAINER_QUERY = DOCKER_SNAPSHOT_QUERY;
 
 export const DOCKER_START_MUTATION = gql`
   mutation DockerStart($id: PrefixedID!) {
@@ -131,6 +122,12 @@ export const DOCKER_PAUSE_MUTATION = gql`
     docker {
       pause(id: $id) {
         id
+        names
+        image
+        imageId
+        state
+        status
+        created
       }
     }
   }
@@ -141,15 +138,21 @@ export const DOCKER_UNPAUSE_MUTATION = gql`
     docker {
       unpause(id: $id) {
         id
+        names
+        image
+        imageId
+        state
+        status
+        created
       }
     }
   }
 `;
 
 export const DOCKER_REMOVE_MUTATION = gql`
-  mutation DockerRemoveContainer($id: PrefixedID!) {
+  mutation DockerRemove($id: PrefixedID!) {
     docker {
-      removeContainer(id: $id)
+      remove(id: $id)
     }
   }
 `;

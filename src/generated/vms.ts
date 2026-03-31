@@ -4,19 +4,10 @@ export interface VmRecord {
   id: string;
   name: string | null;
   state: string;
-  uuid?: string | null;
 }
 
 export interface VmsQuery {
-  vms: { domains: VmRecord[] | null; domain: VmRecord[] | null };
-}
-
-export interface VmQuery {
-  vms: { domains: VmRecord[] | null; domain: VmRecord[] | null };
-}
-
-export interface VmQueryVariables {
-  id: string;
+  vms: { domains: VmRecord[] | null; domain: VmRecord | null };
 }
 
 export const VMS_QUERY = gql`
@@ -31,7 +22,6 @@ export const VMS_QUERY = gql`
         id
         name
         state
-        uuid
       }
     }
   }

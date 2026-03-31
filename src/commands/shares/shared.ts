@@ -102,7 +102,7 @@ export function applySharesCommandOptions(command: Command): Command {
 
 export function applySharesListOptions(command: Command): Command {
   return applySharesCommandOptions(command)
-    .option('--filter <expr>', 'Filter expression (e.g. type=user)')
+    .option('--filter <expr>', 'Filter expression (e.g. cache=true)')
     .option('--sort <expr>', 'Sort expression (e.g. name:asc)')
     .option('--page <number>', 'Page number for paginated results', Number.parseInt)
     .option('--page-size <number>', 'Items per page', Number.parseInt)

@@ -20,13 +20,8 @@ export function createNotificationsUnreadCommand(
       const localOptions = this.opts<{ yes?: boolean; force?: boolean }>();
 
       await assertSafety('notifications.unread', { yes: localOptions.yes, force: localOptions.force });
-      const mutation = await unreadNotification(id, options, dependencies);
+      await unreadNotification(id, options, dependencies);
 
-      writeRenderedOutput({
-        action: 'unread',
-        target: id,
-        success: mutation.unreadNotification?.success ?? true,
-        message: mutation.unreadNotification?.message ?? null,
-      }, options, dependencies);
+      writeRenderedOutput({ action: 'unread', target: id, success: true }, options, dependencies);
     });
 }

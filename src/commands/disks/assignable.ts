@@ -15,9 +15,7 @@ export interface AssignableDiskListRecord {
   name: string | null;
   device: string | null;
   size: string;
-  status: string | null;
   type: string | null;
-  filesystem: string | null;
 }
 
 export function createDisksAssignableCommand(
@@ -37,9 +35,7 @@ export function createDisksAssignableCommand(
           name: disk.name,
           device: disk.device,
           size: formatBytes(disk.size),
-          status: disk.status,
           type: disk.type,
-          filesystem: disk.filesystem,
         } satisfies AssignableDiskListRecord));
 
         if (localOptions.filter) {

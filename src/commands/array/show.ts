@@ -4,7 +4,8 @@ import {
   applyArrayCommandOptions,
   defaultArrayCommandDependencies,
   fetchArray,
-  formatBytes,
+  formatKilobytes,
+  formatState,
   resolveArrayOptions,
   writeRenderedOutput,
 } from './shared.js';
@@ -14,16 +15,16 @@ export interface ArrayShowRecord {
   capacity: string;
   used: string;
   free: string;
-  diskCount: number | null;
+  diskCount: number;
 }
 
 export function mapArrayShow(snapshot: Awaited<ReturnType<typeof fetchArray>>): ArrayShowRecord {
   return {
-    state: snapshot.array.state,
-    capacity: formatBytes(snapshot.array.capacity),
-    used: formatBytes(snapshot.array.used),
-    free: formatBytes(snapshot.array.free),
-    diskCount: snapshot.array.diskCount,
+    state: formatState(snapshot.array.state),
+    capacity: formatKilobytes(snapshot.array.capacity?.kilobytes?.total),
+    used: formatKilobytes(snapshot.array.capacity?.kilobytes?.used),
+    free: formatKilobytes(snapshot.array.capacity?.kilobytes?.free),
+    diskCount: snapshot.array.disks.length,
   };
 }
 

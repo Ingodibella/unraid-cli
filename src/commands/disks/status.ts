@@ -12,7 +12,7 @@ import {
 
 export interface DiskStatusRecord {
   name: string | null;
-  status: string | null;
+  type: string | null;
   smartStatus: string | null;
   temp: number | null;
 }
@@ -21,7 +21,7 @@ export function createDisksStatusCommand(
   dependencies: DisksCommandDependencies = defaultDisksCommandDependencies,
 ): Command {
   return applyDisksListOptions(new Command('status'))
-    .description('Show health status overview for all disks')
+    .description('Show SMART status overview for all disks')
     .action(async function handleDisksStatus() {
       const options = resolveDisksOptions(this);
       const localOptions = this.opts<{ filter?: string; sort?: string }>();
@@ -29,7 +29,7 @@ export function createDisksStatusCommand(
 
       let rows = snapshot.disks.map((disk) => ({
         name: disk.name,
-        status: disk.status,
+        type: disk.type,
         smartStatus: disk.smartStatus,
         temp: disk.temperature,
       } satisfies DiskStatusRecord));

@@ -1,8 +1,16 @@
 {
+  "apiVersion": "1.4.0",
+  "arch": "x64",
+  "cpu": "Intel Core i7-12700",
+  "cpuCores": 12,
+  "cpuSpeed": 3.6,
   "distro": "Unraid",
   "hostname": "tower",
-  "osPlatform": "Linux",
+  "kernel": "6.1.74-Unraid",
+  "platform": "Linux",
   "release": "6.12.10",
-  "uptime": 93784,
-  "uptimeHuman": "1 day, 2 hours, 3 minutes, 4 seconds"
+  "serverName": "tower",
+  "serverStatus": "ONLINE",
+  "time": "2026-03-31T12:00:00Z",
+  "unraidVersion": "6.12.10"
 }

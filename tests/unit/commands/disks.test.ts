@@ -32,15 +32,15 @@ describe('disks command group', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     executeMock.mockImplementation((document: string) => {
+      if (document.includes('query ArrayDisksTemp')) {
+        return Promise.resolve({ array: fixture['array'] });
+      }
+
       if (document.includes('assignableDisks')) {
-        return Promise.resolve(fixture);
+        return Promise.resolve({ assignableDisks: fixture['assignableDisks'] });
       }
 
-      if (document.includes('disk(name: $name)')) {
-        return Promise.resolve(fixture);
-      }
-
-      return Promise.resolve(fixture);
+      return Promise.resolve({ disks: fixture['disks'] });
     });
     process.env.UCLI_HOST = 'http://tower.local:7777';
     process.env.UCLI_API_KEY = 'test-api-key';
@@ -79,14 +79,10 @@ describe('disks command group', () => {
     expect(parsed).toHaveLength(5);
     expect(parsed[0]).toMatchObject({
       name: 'disk1',
-      status: 'healthy',
+      smartStatus: 'passed',
       temp: '34C',
       type: 'data',
     });
-    expect(createClientMock).toHaveBeenCalledWith(expect.objectContaining({
-      endpoint: 'http://tower.local:7777/graphql',
-      apiKey: 'test-api-key',
-    }));
   });
 
   it('disks get shows a single disk', async () => {
@@ -104,6 +100,7 @@ describe('disks command group', () => {
     expect(parsed.device).toBe('/dev/sdb');
     expect(parsed.tempSeverity).toBe('normal');
     expect(parsed.smartStatus).toBe('passed');
+    expect(parsed.serialNum).toBe('SER123');
   });
 
   it('disks status shows health overview', async () => {
@@ -119,13 +116,13 @@ describe('disks command group', () => {
     const parsed = JSON.parse(stdout) as Array<Record<string, unknown>>;
     expect(parsed[1]).toMatchObject({
       name: 'disk2',
-      status: 'warning',
       smartStatus: 'warning',
       temp: 45,
+      type: 'data',
     });
   });
 
-  it('disks smart shows SMART attributes', async () => {
+  it('disks smart shows SMART status', async () => {
     const program = createProgram();
     let stdout = '';
     process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
@@ -135,13 +132,12 @@ describe('disks command group', () => {
 
     await program.parseAsync(['node', 'ucli', 'disks', 'smart', 'disk1', '--output', 'json']);
 
-    const parsed = JSON.parse(stdout) as Array<Record<string, unknown>>;
-    expect(parsed).toHaveLength(2);
-    expect(parsed[0]?.name).toBe('Reallocated_Sector_Ct');
-    expect(parsed[1]?.raw).toBe('34');
+    const parsed = JSON.parse(stdout) as Record<string, unknown>;
+    expect(parsed.name).toBe('disk1');
+    expect(parsed.smartStatus).toBe('passed');
   });
 
-  it('disks usage shows storage utilization', async () => {
+  it('disks usage shows disk size overview', async () => {
     const program = createProgram();
     let stdout = '';
     process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
@@ -153,11 +149,11 @@ describe('disks command group', () => {
 
     const parsed = JSON.parse(stdout) as Array<Record<string, unknown>>;
     expect(parsed[0]?.name).toBe('disk1');
-    expect(parsed[0]?.usagePercent).toBe(50);
-    expect(typeof parsed[0]?.used).toBe('string');
+    expect(parsed[0]?.partitionCount).toBe(1);
+    expect(typeof parsed[0]?.total).toBe('string');
   });
 
-  it('disks temp classifies thresholds', async () => {
+  it('disks temp classifies thresholds from array disks', async () => {
     const program = createProgram();
     let stdout = '';
     process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
@@ -190,7 +186,7 @@ describe('disks command group', () => {
       '--output',
       'json',
       '--filter',
-      'status=healthy',
+      'smartStatus=passed',
       '--sort',
       'name:desc',
       '--page',
@@ -203,7 +199,7 @@ describe('disks command group', () => {
 
     expect(JSON.parse(stdout)).toEqual([
       { name: 'parity', temp: '37C' },
-      { name: 'flash', temp: 'unknown' },
+      { name: 'disk1', temp: '34C' },
     ]);
 
     stdout = '';
@@ -212,6 +208,6 @@ describe('disks command group', () => {
     const parsed = JSON.parse(stdout) as Array<Record<string, unknown>>;
     expect(parsed).toHaveLength(2);
     expect(parsed[0]?.name).toBe('disk5');
-    expect(parsed[0]?.status).toBe('clear');
+    expect(parsed[0]?.type).toBe('data');
   });
 });

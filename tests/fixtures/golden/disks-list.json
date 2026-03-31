@@ -2,35 +2,35 @@
   {
     "name": "disk1",
     "size": "3.64 TB",
-    "status": "healthy",
+    "smartStatus": "passed",
     "temp": "34C",
     "type": "data"
   },
   {
     "name": "disk2",
     "size": "3.64 TB",
-    "status": "warning",
+    "smartStatus": "warning",
     "temp": "45C",
     "type": "data"
   },
   {
     "name": "cache",
     "size": "931.51 GB",
-    "status": "healthy",
+    "smartStatus": "passed",
     "temp": "55C",
     "type": "cache"
   },
   {
     "name": "parity",
     "size": "3.64 TB",
-    "status": "healthy",
+    "smartStatus": "passed",
     "temp": "37C",
     "type": "parity"
   },
   {
     "name": "flash",
     "size": "60.00 GB",
-    "status": "healthy",
+    "smartStatus": "unknown",
     "temp": "unknown",
     "type": "flash"
   }

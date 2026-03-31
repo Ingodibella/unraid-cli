@@ -1,23 +1,26 @@
 [
   {
+    "id": "docker:abc123",
     "image": "nginx:1.27",
-    "name": "nginx",
+    "names": "nginx",
     "ports": "8080->80/tcp",
-    "status": "running",
-    "uptime": "1d 2h"
+    "state": "RUNNING",
+    "status": "Up 1 day"
   },
   {
+    "id": "docker:def456",
     "image": "redis:7",
-    "name": "redis",
+    "names": "redis",
     "ports": "6379->6379/tcp",
-    "status": "paused",
-    "uptime": "2d 5h"
+    "state": "PAUSED",
+    "status": "Up 2 days (Paused)"
   },
   {
+    "id": "docker:ghi789",
     "image": "postgres:16",
-    "name": "postgres",
+    "names": "postgres",
     "ports": "none",
-    "status": "stopped",
-    "uptime": "0s"
+    "state": "EXITED",
+    "status": "Exited (0) 5 hours ago"
   }
 ]

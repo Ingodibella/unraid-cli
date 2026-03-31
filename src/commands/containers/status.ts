@@ -12,25 +12,27 @@ import {
 } from './shared.js';
 
 export interface ContainerStatusRecord {
+  id: string;
   name: string | null;
-  status: string | null;
-  state: string | null;
+  state: string;
+  status: string;
 }
 
 export function createContainersStatusCommand(
   dependencies: ContainersCommandDependencies = defaultContainersCommandDependencies,
 ): Command {
   return applyContainersListOptions(new Command('status'))
-    .description('Show running, stopped, and paused container status overview')
+    .description('Show container state overview')
     .action(async function handleContainersStatus() {
       const options = resolveContainersOptions(this);
       const localOptions = this.opts<{ filter?: string; sort?: string }>();
       const snapshot = await fetchDockerSnapshot(options, dependencies);
 
       let containers = snapshot.docker.containers.map((container) => ({
-        name: normalizeContainerName(container.name),
-        status: container.status,
+        id: container.id,
+        name: normalizeContainerName(container.names),
         state: container.state,
+        status: container.status,
       } satisfies ContainerStatusRecord));
 
       if (localOptions.filter) {
@@ -42,18 +44,18 @@ export function createContainersStatusCommand(
       }
 
       const summary = snapshot.docker.containers.reduce((counts, container) => {
-        const normalized = (container.state ?? container.status ?? 'unknown').toLowerCase();
-        if (normalized.includes('run')) {
+        const normalized = String(container.state).toUpperCase();
+        if (normalized === 'RUNNING') {
           counts.running += 1;
-        } else if (normalized.includes('pause')) {
+        } else if (normalized === 'PAUSED') {
           counts.paused += 1;
-        } else if (normalized.includes('stop') || normalized.includes('exit')) {
-          counts.stopped += 1;
+        } else if (normalized === 'EXITED') {
+          counts.exited += 1;
         } else {
           counts.other += 1;
         }
         return counts;
-      }, { running: 0, stopped: 0, paused: 0, other: 0 });
+      }, { running: 0, paused: 0, exited: 0, other: 0 });
 
       writeRenderedOutput({
         summary,

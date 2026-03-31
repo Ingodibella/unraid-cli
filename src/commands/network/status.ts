@@ -18,10 +18,9 @@ export function createNetworkStatusCommand(
       const snapshot = await fetchNetwork(options, dependencies);
 
       writeRenderedOutput({
-        hostname: snapshot.network.hostname,
-        gateway: snapshot.network.gateway,
-        dns: snapshot.network.dns,
-        interfaces: snapshot.network.interfaces.length,
+        id: snapshot.network.id,
+        accessUrls: snapshot.network.accessUrls ?? [],
+        interfaces: snapshot.info.networkInterfaces.length,
       }, options, dependencies);
     });
 }

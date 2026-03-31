@@ -4,28 +4,21 @@ import {
   applySystemCommandOptions,
   defaultSystemCommandDependencies,
   fetchSystemSnapshot,
-  percent,
   resolveSystemOptions,
   writeRenderedOutput,
 } from './shared.js';
 
 export interface SystemStatusRecord {
-  arrayState: string | null;
-  dockerStatus: string;
-  vmStatus: string;
-  cpuUsage: number | null;
-  memoryUsagePercent: number | null;
-  storageUsagePercent: number | null;
+  serverStatus: string | null;
+  arrayState: string;
+  parityCheckStatus: string;
 }
 
 export function mapSystemStatus(snapshot: Awaited<ReturnType<typeof fetchSystemSnapshot>>): SystemStatusRecord {
   return {
-    arrayState: snapshot.server.state,
-    dockerStatus: snapshot.server.dockerRunning ? 'running' : 'stopped',
-    vmStatus: snapshot.server.vmRunning ? 'running' : 'stopped',
-    cpuUsage: snapshot.server.cpuUsage,
-    memoryUsagePercent: percent(snapshot.server.memoryUsage, snapshot.server.memoryTotal),
-    storageUsagePercent: percent(snapshot.server.storageUsed, snapshot.server.storageTotal),
+    serverStatus: snapshot.server?.status ?? null,
+    arrayState: snapshot.array.state,
+    parityCheckStatus: snapshot.array.parityCheckStatus.status,
   };
 }
 

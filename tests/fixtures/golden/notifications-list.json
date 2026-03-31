@@ -1,26 +1,56 @@
 [
   {
+    "description": "Monthly parity check finished without errors.",
     "id": "n-001",
-    "message": "Monthly parity check finished without errors.",
-    "read": true,
-    "severity": "info",
+    "importance": "INFO",
+    "subject": "Array",
     "timestamp": "2026-03-31T09:00:00.000Z",
-    "title": "Parity check completed"
+    "title": "Parity check completed",
+    "type": "ARCHIVE"
   },
   {
+    "description": "Disk disk3 is at 55C.",
     "id": "n-002",
-    "message": "Disk disk3 is at 55C.",
-    "read": false,
-    "severity": "warning",
+    "importance": "WARNING",
+    "subject": "Disks",
     "timestamp": "2026-03-31T10:00:00.000Z",
-    "title": "Disk temperature warning"
+    "title": "Disk temperature warning",
+    "type": "UNREAD"
   },
   {
+    "description": "Power outage detected, UPS runtime 18 minutes.",
     "id": "n-003",
-    "message": "Power outage detected, UPS runtime 18 minutes.",
-    "read": false,
-    "severity": "alert",
+    "importance": "ALERT",
+    "subject": "Power",
     "timestamp": "2026-03-31T11:00:00.000Z",
-    "title": "UPS on battery"
+    "title": "UPS on battery",
+    "type": "UNREAD"
+  },
+  {
+    "description": "Monthly parity check finished without errors.",
+    "id": "n-001",
+    "importance": "INFO",
+    "subject": "Array",
+    "timestamp": "2026-03-31T09:00:00.000Z",
+    "title": "Parity check completed",
+    "type": "ARCHIVE"
+  },
+  {
+    "description": "Disk disk3 is at 55C.",
+    "id": "n-002",
+    "importance": "WARNING",
+    "subject": "Disks",
+    "timestamp": "2026-03-31T10:00:00.000Z",
+    "title": "Disk temperature warning",
+    "type": "UNREAD"
+  },
+  {
+    "description": "Power outage detected, UPS runtime 18 minutes.",
+    "id": "n-003",
+    "importance": "ALERT",
+    "subject": "Power",
+    "timestamp": "2026-03-31T11:00:00.000Z",
+    "title": "UPS on battery",
+    "type": "UNREAD"
   }
 ]

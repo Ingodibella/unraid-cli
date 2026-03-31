@@ -13,15 +13,15 @@ export function createVmsResetCommand(
   dependencies: VmsCommandDependencies = defaultVmsCommandDependencies,
 ): Command {
   return applyVmsCommandOptions(new Command('reset'))
-    .argument('<name>', 'VM name')
+    .argument('<id-or-name>', 'VM id or name')
     .description('Hard-reset a VM')
-    .action(async function handleVmsReset(name: string) {
+    .action(async function handleVmsReset(idOrName: string) {
       const options = resolveVmsOptions(this);
       const result = await executeVmWriteAction({
         action: 'reset',
         commandPath: 'vms.reset',
         mutation: VM_RESET_MUTATION,
-        name,
+        idOrName,
         options,
         dependencies,
       });

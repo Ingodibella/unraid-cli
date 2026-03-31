@@ -8,23 +8,20 @@ import {
   formatBytes,
   paginateItems,
   resolveDisksOptions,
-  usagePercent,
   writeRenderedOutput,
 } from './shared.js';
 
 export interface DiskUsageRecord {
   name: string | null;
-  used: string;
-  free: string;
   total: string;
-  usagePercent: number | null;
+  partitionCount: number;
 }
 
 export function createDisksUsageCommand(
   dependencies: DisksCommandDependencies = defaultDisksCommandDependencies,
 ): Command {
   return applyDisksListOptions(new Command('usage'))
-    .description('Show storage utilization per disk')
+    .description('Show disk size overview')
     .action(async function handleDisksUsage() {
       const options = resolveDisksOptions(this);
       const localOptions = this.opts<{ filter?: string; sort?: string }>();
@@ -32,10 +29,8 @@ export function createDisksUsageCommand(
 
       let rows = snapshot.disks.map((disk) => ({
         name: disk.name,
-        used: formatBytes(disk.used),
-        free: formatBytes(disk.free),
         total: formatBytes(disk.size),
-        usagePercent: usagePercent(disk.used, disk.size),
+        partitionCount: disk.partitions.length,
       } satisfies DiskUsageRecord));
 
       if (localOptions.filter) {

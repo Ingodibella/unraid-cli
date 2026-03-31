@@ -7,24 +7,20 @@ import { paginate } from '../../core/filters/index.js';
 import { createClient, type UcliGraphQLClient } from '../../core/graphql/client.js';
 import { renderOutput } from '../../core/output/renderer.js';
 import {
-  ARCHIVE_ALL_NOTIFICATIONS_MUTATION,
   ARCHIVE_NOTIFICATION_MUTATION,
   CREATE_NOTIFICATION_MUTATION,
-  DELETE_ARCHIVED_NOTIFICATIONS_MUTATION,
   DELETE_NOTIFICATION_MUTATION,
   NOTIFICATIONS_SNAPSHOT_QUERY,
-  UNARCHIVE_NOTIFICATION_MUTATION,
   UNREAD_NOTIFICATION_MUTATION,
-  type ArchiveAllNotificationsMutation,
   type ArchiveNotificationMutation,
   type CreateNotificationMutation,
   type CreateNotificationVariables,
-  type DeleteArchivedNotificationsMutation,
   type DeleteNotificationMutation,
+  type DeleteNotificationVariables,
   type NotificationIdVariables,
   type NotificationRecord,
   type NotificationsSnapshotQuery,
-  type UnarchiveNotificationMutation,
+  type NotificationsSnapshotVariables,
   type UnreadNotificationMutation,
 } from '../../generated/notifications.js';
 
@@ -71,15 +67,26 @@ function createNotificationsClient(
   });
 }
 
+async function fetchNotificationsByType(
+  type: 'UNREAD' | 'ARCHIVE',
+  options: GlobalOptions,
+  dependencies: NotificationsCommandDependencies,
+): Promise<NotificationsSnapshotQuery> {
+  return createNotificationsClient(options, dependencies).execute<NotificationsSnapshotQuery, NotificationsSnapshotVariables>(
+    NOTIFICATIONS_SNAPSHOT_QUERY,
+    { filter: { type, offset: 0, limit: 200 } },
+  );
+}
+
 export async function fetchNotifications(
   options: GlobalOptions,
   dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
 ): Promise<NotificationRecord[]> {
-  const data = await createNotificationsClient(options, dependencies).execute<NotificationsSnapshotQuery>(
-    NOTIFICATIONS_SNAPSHOT_QUERY,
-  );
-
-  return data.notifications;
+  const [unread, archive] = await Promise.all([
+    fetchNotificationsByType('UNREAD', options, dependencies),
+    fetchNotificationsByType('ARCHIVE', options, dependencies),
+  ]);
+  return [...unread.notifications.list, ...archive.notifications.list];
 }
 
 export async function fetchNotification(
@@ -89,10 +96,7 @@ export async function fetchNotification(
 ): Promise<NotificationRecord> {
   const notifications = await fetchNotifications(options, dependencies);
   const notification = notifications.find((entry) => entry.id === id) ?? null;
-  if (notification == null) {
-    throw new NotFoundError(`Notification not found: ${id}`);
-  }
-
+  if (notification == null) throw new NotFoundError(`Notification not found: ${id}`);
   return notification;
 }
 
@@ -107,22 +111,13 @@ export async function archiveNotification(
   );
 }
 
-export async function archiveAllNotifications(
-  options: GlobalOptions,
-  dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
-): Promise<ArchiveAllNotificationsMutation> {
-  return createNotificationsClient(options, dependencies).execute<ArchiveAllNotificationsMutation>(
-    ARCHIVE_ALL_NOTIFICATIONS_MUTATION,
-  );
-}
-
 export async function unarchiveNotification(
   id: string,
   options: GlobalOptions,
   dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
-): Promise<UnarchiveNotificationMutation> {
-  return createNotificationsClient(options, dependencies).execute<UnarchiveNotificationMutation, NotificationIdVariables>(
-    UNARCHIVE_NOTIFICATION_MUTATION,
+): Promise<UnreadNotificationMutation> {
+  return createNotificationsClient(options, dependencies).execute<UnreadNotificationMutation, NotificationIdVariables>(
+    UNREAD_NOTIFICATION_MUTATION,
     { id },
   );
 }
@@ -140,21 +135,13 @@ export async function unreadNotification(
 
 export async function deleteNotification(
   id: string,
+  type: 'UNREAD' | 'ARCHIVE',
   options: GlobalOptions,
   dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
 ): Promise<DeleteNotificationMutation> {
-  return createNotificationsClient(options, dependencies).execute<DeleteNotificationMutation, NotificationIdVariables>(
+  return createNotificationsClient(options, dependencies).execute<DeleteNotificationMutation, DeleteNotificationVariables>(
     DELETE_NOTIFICATION_MUTATION,
-    { id },
-  );
-}
-
-export async function deleteArchivedNotifications(
-  options: GlobalOptions,
-  dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
-): Promise<DeleteArchivedNotificationsMutation> {
-  return createNotificationsClient(options, dependencies).execute<DeleteArchivedNotificationsMutation>(
-    DELETE_ARCHIVED_NOTIFICATIONS_MUTATION,
+    { id, type },
   );
 }
 
@@ -169,11 +156,7 @@ export async function createNotification(
   );
 }
 
-export function writeRenderedOutput(
-  data: unknown,
-  options: GlobalOptions,
-  dependencies: NotificationsCommandDependencies = defaultNotificationsCommandDependencies,
-): void {
+export function writeRenderedOutput(data: unknown, options: GlobalOptions, dependencies = defaultNotificationsCommandDependencies): void {
   dependencies.stdoutWrite(
     renderOutput(data, {
       format: options.output,
@@ -204,7 +187,7 @@ export function applyNotificationsCommandOptions(command: Command): Command {
 
 export function applyNotificationsListOptions(command: Command): Command {
   return applyNotificationsCommandOptions(command)
-    .option('--filter <expr>', 'Filter expression (e.g. severity=alert)')
+    .option('--filter <expr>', 'Filter expression (e.g. importance=ALERT)')
     .option('--sort <expr>', 'Sort expression (e.g. timestamp:desc)')
     .option('--page <number>', 'Page number for paginated results', Number.parseInt)
     .option('--page-size <number>', 'Items per page', Number.parseInt)
@@ -212,13 +195,11 @@ export function applyNotificationsListOptions(command: Command): Command {
 }
 
 export function applyNotificationsLatestOptions(command: Command): Command {
-  return applyNotificationsCommandOptions(command)
-    .option('--limit <number>', 'Number of notifications to return', Number.parseInt, 10);
+  return applyNotificationsCommandOptions(command).option('--limit <number>', 'Number of notifications to return', Number.parseInt, 10);
 }
 
 export function applyNotificationsWatchOptions(command: Command): Command {
-  return applyNotificationsCommandOptions(command)
-    .option('--interval <seconds>', 'Polling interval in seconds', Number.parseInt, 10);
+  return applyNotificationsCommandOptions(command).option('--interval <seconds>', 'Polling interval in seconds', Number.parseInt, 10);
 }
 
 export function resolveNotificationsOptions(command: Command): GlobalOptions {
@@ -228,33 +209,23 @@ export function resolveNotificationsOptions(command: Command): GlobalOptions {
 }
 
 export function paginateItems<T>(items: readonly T[], options: GlobalOptions): T[] {
-  return paginate(items, {
-    page: options.page,
-    pageSize: options.pageSize,
-    all: options.all,
-  }).items;
+  return paginate(items, { page: options.page, pageSize: options.pageSize, all: options.all }).items;
 }
 
 export function toNotificationListRecord(notification: NotificationRecord): Record<string, unknown> {
   return {
     id: notification.id,
     title: notification.title,
-    message: notification.message,
-    severity: normalizeSeverity(notification.severity),
+    subject: notification.subject,
+    description: notification.description,
+    importance: notification.importance,
+    type: notification.type,
     timestamp: notification.timestamp,
-    read: notification.read,
   };
 }
 
-export function normalizeSeverity(severity: string | null): string | null {
-  return severity?.trim().toLowerCase() ?? null;
-}
-
 export function timestampToMillis(timestamp: string | null): number {
-  if (timestamp == null) {
-    return 0;
-  }
-
+  if (timestamp == null) return 0;
   const value = Date.parse(timestamp);
   return Number.isFinite(value) ? value : 0;
 }

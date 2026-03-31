@@ -31,25 +31,8 @@ vi.mock('../../../src/core/graphql/client.js', async (importOriginal) => {
 describe('containers command group', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    executeMock.mockImplementation((document: string, variables?: { name?: string }) => {
-      if (document.includes('container(name: $name)')) {
-        const name = variables?.name ?? 'nginx';
-        const containers = ((fixture.docker as { containers: Array<Record<string, unknown>> }).containers);
-        const match = containers.find((container) => {
-          const rawName = String(container['name'] ?? '');
-          return rawName.replace(/^\/+/, '') === name;
-        }) ?? null;
-
-        return Promise.resolve({
-          docker: {
-            container: match,
-          },
-        });
-      }
-
-      return Promise.resolve({
-        docker: (fixture.docker as Record<string, unknown>),
-      });
+    executeMock.mockResolvedValue({
+      docker: (fixture.docker as Record<string, unknown>),
     });
     process.env.UCLI_HOST = 'http://tower.local:7777';
     process.env.UCLI_API_KEY = 'test-api-key';
@@ -89,11 +72,12 @@ describe('containers command group', () => {
     const parsed = JSON.parse(stdout) as Array<Record<string, unknown>>;
     expect(parsed).toHaveLength(3);
     expect(parsed[0]).toMatchObject({
-      name: 'nginx',
+      id: 'docker:abc123',
+      names: 'nginx',
       image: 'nginx:1.27',
-      status: 'running',
+      state: 'RUNNING',
+      status: 'Up 1 day',
       ports: '8080->80/tcp',
-      uptime: '1d 2h',
     });
     expect(createClientMock).toHaveBeenCalledWith(expect.objectContaining({
       endpoint: 'http://tower.local:7777/graphql',
@@ -101,7 +85,7 @@ describe('containers command group', () => {
     }));
   });
 
-  it('containers get shows detailed container info', async () => {
+  it('containers get shows details by name', async () => {
     const program = createProgram();
     let stdout = '';
     process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
@@ -113,16 +97,16 @@ describe('containers command group', () => {
 
     const parsed = JSON.parse(stdout) as Record<string, unknown>;
     expect(parsed).toMatchObject({
-      id: 'abc123',
+      id: 'docker:abc123',
       name: 'nginx',
-      status: 'running',
-      cpuPercent: 3.4,
-      memoryPercent: 25,
+      image: 'nginx:1.27',
+      state: 'RUNNING',
+      status: 'Up 1 day',
+      autoStart: true,
     });
-    expect(parsed['memoryUsage']).toBe('64.00 MB');
   });
 
-  it('containers status shows summary counts and per-container status', async () => {
+  it('containers status shows summary counts and per-container state', async () => {
     const program = createProgram();
     let stdout = '';
     process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
@@ -136,11 +120,11 @@ describe('containers command group', () => {
       summary: Record<string, number>;
       containers: Array<Record<string, unknown>>;
     };
-    expect(parsed.summary).toEqual({ running: 1, stopped: 1, paused: 1, other: 0 });
-    expect(parsed.containers[1]).toMatchObject({ name: 'redis', status: 'paused', state: 'paused' });
+    expect(parsed.summary).toEqual({ running: 1, paused: 1, exited: 1, other: 0 });
+    expect(parsed.containers[1]).toMatchObject({ name: 'redis', status: 'Up 2 days (Paused)', state: 'PAUSED' });
   });
 
-  it('containers inspect shows raw inspect payload', async () => {
+  it('containers inspect shows raw container payload', async () => {
     const program = createProgram();
     let stdout = '';
     process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
@@ -151,18 +135,14 @@ describe('containers command group', () => {
     await program.parseAsync(['node', 'ucli', 'containers', 'inspect', 'nginx', '--output', 'json']);
 
     const parsed = JSON.parse(stdout) as Record<string, unknown>;
-    expect(parsed).toEqual({
-      config: {
-        hostname: 'nginx',
-      },
-      state: {
-        running: true,
-        status: 'running',
-      },
+    expect(parsed).toMatchObject({
+      id: 'docker:abc123',
+      names: ['/nginx'],
+      state: 'RUNNING',
     });
   });
 
-  it('containers logs shows container logs', async () => {
+  it('containers logs reports unsupported logs field in schema', async () => {
     const program = createProgram();
     let stdout = '';
     process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
@@ -173,13 +153,14 @@ describe('containers command group', () => {
     await program.parseAsync(['node', 'ucli', 'containers', 'logs', 'nginx', '--output', 'json']);
 
     const parsed = JSON.parse(stdout) as Record<string, unknown>;
-    expect(parsed).toEqual({
+    expect(parsed).toMatchObject({
+      id: 'docker:abc123',
       name: 'nginx',
-      logs: 'nginx started\nready',
+      logs: null,
     });
   });
 
-  it('containers stats shows resource usage per container', async () => {
+  it('containers stats shows availability output', async () => {
     const program = createProgram();
     let stdout = '';
     process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
@@ -187,15 +168,14 @@ describe('containers command group', () => {
       return true;
     });
 
-    await program.parseAsync(['node', 'ucli', 'containers', 'stats', '--output', 'json', '--sort', 'cpuPercent:desc']);
+    await program.parseAsync(['node', 'ucli', 'containers', 'stats', '--output', 'json', '--sort', 'name:asc']);
 
     const parsed = JSON.parse(stdout) as Array<Record<string, unknown>>;
     expect(parsed[0]).toMatchObject({
       name: 'nginx',
-      cpuPercent: 3.4,
-      memoryPercent: 25,
+      cpuPercent: null,
+      memoryPercent: null,
     });
-    expect(parsed[0]?.['memoryUsage']).toBe('64.00 MB');
   });
 
   it('supports filter, sort, page, fields, and structured output modes', async () => {
@@ -214,19 +194,19 @@ describe('containers command group', () => {
       '--output',
       'json',
       '--filter',
-      'status=running',
+      'state=RUNNING',
       '--sort',
-      'name:desc',
+      'names:desc',
       '--page',
       '1',
       '--page-size',
       '1',
       '--fields',
-      'name,status',
+      'names,state',
     ]);
 
     expect(JSON.parse(stdout)).toEqual([
-      { name: 'nginx', status: 'running' },
+      { names: 'nginx', state: 'RUNNING' },
     ]);
 
     for (const format of ['yaml', 'table']) {

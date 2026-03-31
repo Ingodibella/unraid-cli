@@ -11,7 +11,7 @@ export function createContainersUnpauseCommand(
     description: 'Unpause a paused container',
     safetyPath: 'containers.unpause',
     mutation: DOCKER_UNPAUSE_MUTATION,
-    expectedState: 'running',
+    expectedState: 'RUNNING',
     extractResult: (result) => (result as DockerUnpauseMutation).docker.unpause,
   }, dependencies);
 }

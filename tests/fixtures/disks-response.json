@@ -1,170 +1,168 @@
 {
   "disks": [
     {
+      "id": "disk-1",
       "name": "disk1",
       "device": "/dev/sdb",
-      "size": 4000787030016,
-      "used": 2000393515008,
-      "free": 2000393515008,
-      "status": "healthy",
-      "temperature": 34,
       "type": "data",
-      "filesystem": "xfs",
-      "serial": "SER123",
-      "model": "Seagate Exos X18",
+      "vendor": "Seagate",
+      "size": 4000787030016,
+      "bytesPerSector": 512,
+      "totalSectors": 7814037168,
+      "totalHeads": 255,
+      "totalCylinders": 486401,
+      "firmwareRevision": "SN04",
+      "serialNum": "SER123",
+      "interfaceType": "SATA",
       "smartStatus": "passed",
-      "smartAttributes": [
+      "temperature": 34,
+      "partitions": [
         {
-          "id": 5,
-          "name": "Reallocated_Sector_Ct",
-          "value": 100,
-          "worst": 100,
-          "threshold": 10,
-          "raw": "0",
-          "status": "ok"
-        },
-        {
-          "id": 194,
-          "name": "Temperature_Celsius",
-          "value": 66,
-          "worst": 55,
-          "threshold": 0,
-          "raw": "34",
-          "status": "ok"
+          "name": "disk1p1",
+          "size": 4000787030016,
+          "type": "primary",
+          "fsType": "xfs"
         }
       ]
     },
     {
+      "id": "disk-2",
       "name": "disk2",
       "device": "/dev/sdc",
-      "size": 4000787030016,
-      "used": 3000590272512,
-      "free": 1000196757504,
-      "status": "warning",
-      "temperature": 45,
       "type": "data",
-      "filesystem": "xfs",
-      "serial": "SER124",
-      "model": "WD Red Pro",
+      "vendor": "WD",
+      "size": 4000787030016,
+      "bytesPerSector": 512,
+      "totalSectors": 7814037168,
+      "totalHeads": 255,
+      "totalCylinders": 486401,
+      "firmwareRevision": "83.00A83",
+      "serialNum": "SER124",
+      "interfaceType": "SATA",
       "smartStatus": "warning",
-      "smartAttributes": [
+      "temperature": 45,
+      "partitions": [
         {
-          "id": 5,
-          "name": "Reallocated_Sector_Ct",
-          "value": 98,
-          "worst": 98,
-          "threshold": 10,
-          "raw": "12",
-          "status": "warning"
+          "name": "disk2p1",
+          "size": 4000787030016,
+          "type": "primary",
+          "fsType": "xfs"
         }
       ]
     },
     {
+      "id": "cache-1",
       "name": "cache",
       "device": "/dev/nvme0n1",
-      "size": 1000204886016,
-      "used": 250051221504,
-      "free": 750153664512,
-      "status": "healthy",
-      "temperature": 55,
       "type": "cache",
-      "filesystem": "btrfs",
-      "serial": "SER125",
-      "model": "Samsung 990 PRO",
+      "vendor": "Samsung",
+      "size": 1000204886016,
+      "bytesPerSector": 512,
+      "totalSectors": 1953525168,
+      "totalHeads": 255,
+      "totalCylinders": 121601,
+      "firmwareRevision": "5B2QGXA7",
+      "serialNum": "SER125",
+      "interfaceType": "NVMe",
       "smartStatus": "passed",
-      "smartAttributes": [
+      "temperature": 55,
+      "partitions": [
         {
-          "id": 194,
-          "name": "Temperature_Celsius",
-          "value": 45,
-          "worst": 40,
-          "threshold": 0,
-          "raw": "55",
-          "status": "critical"
+          "name": "cachep1",
+          "size": 1000204886016,
+          "type": "primary",
+          "fsType": "btrfs"
         }
       ]
     },
     {
+      "id": "parity-1",
       "name": "parity",
       "device": "/dev/sdd",
-      "size": 4000787030016,
-      "used": 0,
-      "free": 4000787030016,
-      "status": "healthy",
-      "temperature": 37,
       "type": "parity",
-      "filesystem": null,
-      "serial": "SER126",
-      "model": "Toshiba MG08",
+      "vendor": "Toshiba",
+      "size": 4000787030016,
+      "bytesPerSector": 512,
+      "totalSectors": 7814037168,
+      "totalHeads": 255,
+      "totalCylinders": 486401,
+      "firmwareRevision": "0103",
+      "serialNum": "SER126",
+      "interfaceType": "SATA",
       "smartStatus": "passed",
-      "smartAttributes": []
+      "temperature": 37,
+      "partitions": []
     },
     {
+      "id": "flash-1",
       "name": "flash",
       "device": "/dev/sde1",
-      "size": 64424509440,
-      "used": 21474836480,
-      "free": 42949672960,
-      "status": "healthy",
-      "temperature": null,
       "type": "flash",
-      "filesystem": "vfat",
-      "serial": "SER127",
-      "model": "SanDisk Ultra Fit",
+      "vendor": "SanDisk",
+      "size": 64424509440,
+      "bytesPerSector": 512,
+      "totalSectors": 125829120,
+      "totalHeads": 255,
+      "totalCylinders": 7833,
+      "firmwareRevision": "1.0",
+      "serialNum": "SER127",
+      "interfaceType": "USB",
       "smartStatus": "unknown",
-      "smartAttributes": []
+      "temperature": null,
+      "partitions": [
+        {
+          "name": "flashp1",
+          "size": 64424509440,
+          "type": "primary",
+          "fsType": "vfat"
+        }
+      ]
     }
   ],
-  "disk": {
-    "name": "disk1",
-    "device": "/dev/sdb",
-    "size": 4000787030016,
-    "used": 2000393515008,
-    "free": 2000393515008,
-    "status": "healthy",
-    "temperature": 34,
-    "type": "data",
-    "filesystem": "xfs",
-    "serial": "SER123",
-    "model": "Seagate Exos X18",
-    "smartStatus": "passed",
-    "smartAttributes": [
-      {
-        "id": 5,
-        "name": "Reallocated_Sector_Ct",
-        "value": 100,
-        "worst": 100,
-        "threshold": 10,
-        "raw": "0",
-        "status": "ok"
-      },
-      {
-        "id": 194,
-        "name": "Temperature_Celsius",
-        "value": 66,
-        "worst": 55,
-        "threshold": 0,
-        "raw": "34",
-        "status": "ok"
-      }
-    ]
-  },
   "assignableDisks": [
     {
+      "id": "disk-5",
       "name": "disk5",
       "device": "/dev/sdf",
-      "size": 8001563222016,
-      "status": "clear",
       "type": "data",
-      "filesystem": null
+      "vendor": "Seagate",
+      "size": 8001563222016,
+      "bytesPerSector": 512,
+      "totalSectors": 15628053168,
+      "totalHeads": 255,
+      "totalCylinders": 972801,
+      "firmwareRevision": "SN05",
+      "serialNum": "SER200",
+      "interfaceType": "SATA",
+      "smartStatus": "passed",
+      "temperature": null,
+      "partitions": []
     },
     {
+      "id": "cache-2",
       "name": "cache2",
       "device": "/dev/nvme1n1",
-      "size": 2000409260032,
-      "status": "clear",
       "type": "cache",
-      "filesystem": null
+      "vendor": "Samsung",
+      "size": 2000409260032,
+      "bytesPerSector": 512,
+      "totalSectors": 3907049344,
+      "totalHeads": 255,
+      "totalCylinders": 243201,
+      "firmwareRevision": "5B2QGXA7",
+      "serialNum": "SER201",
+      "interfaceType": "NVMe",
+      "smartStatus": "passed",
+      "temperature": null,
+      "partitions": []
     }
-  ]
+  ],
+  "array": {
+    "disks": [
+      { "idx": 1, "name": "disk1", "status": "OK", "temp": 34 },
+      { "idx": 2, "name": "disk2", "status": "NOK", "temp": 45 },
+      { "idx": 3, "name": "cache", "status": "OK", "temp": 55 },
+      { "idx": 4, "name": "flash", "status": "OK", "temp": null }
+    ]
+  }
 }

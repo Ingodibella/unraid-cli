@@ -1,23 +1,23 @@
 #1
 name: appdata
-type: user
 size: 500.00 GB
 used: 320.00 GB
 free: 180.00 GB
-allocation: high-water
+cache: yes
+floor: 0
 
 #2
 name: media
-type: user
 size: 2.00 TB
 used: 1.50 TB
 free: 512.00 GB
-allocation: most-free
+cache: no
+floor: 0
 
 #3
 name: system
-type: cache
 size: 256.00 GB
 used: 128.00 GB
 free: 128.00 GB
-allocation: fill-up
+cache: yes
+floor: 0

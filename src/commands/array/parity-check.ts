@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { assertSafety } from '../../core/safety/guards.js';
+import type { ParityCheck } from '../../generated/array.js';
 import type { ArrayCommandDependencies } from './shared.js';
 import {
   applyArrayCommandOptions,
@@ -15,9 +16,27 @@ import {
 export interface ParityCheckActionResult {
   action: 'start' | 'pause' | 'resume' | 'cancel';
   status: string | null;
-  success: boolean;
-  message: string | null;
+  progress: number | null;
+  errors: number | null;
+  running: boolean | null;
+  paused: boolean | null;
+  correcting: boolean | null;
   warning?: string;
+}
+
+function toActionResult(
+  action: ParityCheckActionResult['action'],
+  payload: ParityCheck | null | undefined,
+): ParityCheckActionResult {
+  return {
+    action,
+    status: payload?.status ?? null,
+    progress: payload?.progress ?? null,
+    errors: payload?.errors ?? null,
+    running: payload?.running ?? null,
+    paused: payload?.paused ?? null,
+    correcting: payload?.correcting ?? null,
+  };
 }
 
 export function createParityCheckCommand(
@@ -33,18 +52,7 @@ export function createParityCheckCommand(
         await assertSafety('parity.start', { yes: options.yes, force: options.force });
 
         const mutation = await executeParityCheckStartMutation(options, dependencies);
-        const payload = mutation.parityCheck.start;
-
-        writeRenderedOutput(
-          {
-            action: 'start',
-            status: payload?.status ?? 'running',
-            success: payload?.success ?? true,
-            message: payload?.message ?? null,
-          } satisfies ParityCheckActionResult,
-          options,
-          dependencies,
-        );
+        writeRenderedOutput(toActionResult('start', mutation.parityCheck.start), options, dependencies);
       }),
   );
 
@@ -56,18 +64,7 @@ export function createParityCheckCommand(
         await assertSafety('parity.pause', { yes: options.yes, force: options.force });
 
         const mutation = await executeParityCheckPauseMutation(options, dependencies);
-        const payload = mutation.parityCheck.pause;
-
-        writeRenderedOutput(
-          {
-            action: 'pause',
-            status: payload?.status ?? 'paused',
-            success: payload?.success ?? true,
-            message: payload?.message ?? null,
-          } satisfies ParityCheckActionResult,
-          options,
-          dependencies,
-        );
+        writeRenderedOutput(toActionResult('pause', mutation.parityCheck.pause), options, dependencies);
       }),
   );
 
@@ -79,18 +76,7 @@ export function createParityCheckCommand(
         await assertSafety('parity.resume', { yes: options.yes, force: options.force });
 
         const mutation = await executeParityCheckResumeMutation(options, dependencies);
-        const payload = mutation.parityCheck.resume;
-
-        writeRenderedOutput(
-          {
-            action: 'resume',
-            status: payload?.status ?? 'running',
-            success: payload?.success ?? true,
-            message: payload?.message ?? null,
-          } satisfies ParityCheckActionResult,
-          options,
-          dependencies,
-        );
+        writeRenderedOutput(toActionResult('resume', mutation.parityCheck.resume), options, dependencies);
       }),
   );
 
@@ -102,16 +88,12 @@ export function createParityCheckCommand(
         await assertSafety('parity.cancel', { yes: options.yes, force: options.force });
 
         const mutation = await executeParityCheckCancelMutation(options, dependencies);
-        const payload = mutation.parityCheck.cancel;
-
+        const result = toActionResult('cancel', mutation.parityCheck.cancel);
         writeRenderedOutput(
           {
-            action: 'cancel',
-            status: payload?.status ?? 'cancelled',
-            success: payload?.success ?? true,
-            message: payload?.message ?? null,
+            ...result,
             warning: 'Parity check was cancelled before completion.',
-          } satisfies ParityCheckActionResult,
+          },
           options,
           dependencies,
         );

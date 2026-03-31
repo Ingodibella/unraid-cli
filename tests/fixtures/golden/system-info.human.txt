@@ -1,6 +1,14 @@
-osPlatform: Linux
+hostname: tower
+platform: Linux
 distro: Unraid
 release: 6.12.10
-hostname: tower
-uptime: 93784
-uptimeHuman: 1 day, 2 hours, 3 minutes, 4 seconds
+kernel: 6.1.74-Unraid
+arch: x64
+time: 2026-03-31T12:00:00Z
+cpu: Intel Core i7-12700
+cpuCores: 12
+cpuSpeed: 3.6
+unraidVersion: 6.12.10
+apiVersion: 1.4.0
+serverName: tower
+serverStatus: ONLINE

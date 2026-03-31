@@ -1,20 +1,23 @@
 #1
-name: nginx
+id: docker:abc123
+names: nginx
 image: nginx:1.27
-status: running
+state: RUNNING
+status: Up 1 day
 ports: 8080->80/tcp
-uptime: 1d 2h
 
 #2
-name: redis
+id: docker:def456
+names: redis
 image: redis:7
-status: paused
+state: PAUSED
+status: Up 2 days (Paused)
 ports: 6379->6379/tcp
-uptime: 2d 5h
 
 #3
-name: postgres
+id: docker:ghi789
+names: postgres
 image: postgres:16
-status: stopped
+state: EXITED
+status: Exited (0) 5 hours ago
 ports: none
-uptime: 0s

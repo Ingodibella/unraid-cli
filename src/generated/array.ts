@@ -13,6 +13,15 @@ export interface ArraySlotDisk {
   numErrors?: number | null;
 }
 
+export interface ParityCheck {
+  status: string | null;
+  progress: number | null;
+  errors: number | null;
+  running: boolean | null;
+  paused: boolean | null;
+  correcting: boolean | null;
+}
+
 export interface ArrayQuery {
   array: {
     state: string;
@@ -22,13 +31,7 @@ export interface ArrayQuery {
     };
     boot: ArraySlotDisk | null;
     parities: ArraySlotDisk[];
-    parityCheckStatus: {
-      status: string;
-      progress: number | null;
-      errors: number | null;
-      running: boolean | null;
-      paused: boolean | null;
-    } | null;
+    parityCheckStatus: ParityCheck | null;
     disks: ArraySlotDisk[];
     caches: ArraySlotDisk[];
   };
@@ -46,20 +49,20 @@ export interface ParityHistoryQuery {
   parityHistory: ParityHistoryEntry[];
 }
 
-export interface ArraySetStateMutation {
-  array: { setState: { state: string } };
+export interface ArrayStartMutation {
+  array: { startArray: string | null };
 }
 
-export interface ArraySetStateMutationVariables {
-  desiredState: 'START' | 'STOP';
+export interface ArrayStopMutation {
+  array: { stopArray: string | null };
 }
 
 export interface ParityCheckControlMutation {
   parityCheck: {
-    start?: unknown;
-    pause?: unknown;
-    resume?: unknown;
-    cancel?: unknown;
+    start?: ParityCheck | null;
+    pause?: ParityCheck | null;
+    resume?: ParityCheck | null;
+    cancel?: ParityCheck | null;
   };
 }
 
@@ -93,6 +96,7 @@ export const ARRAY_QUERY = gql`
         size
         status
         temp
+        numErrors
       }
       parityCheckStatus {
         status
@@ -100,6 +104,7 @@ export const ARRAY_QUERY = gql`
         errors
         running
         paused
+        correcting
       }
       disks {
         idx
@@ -137,12 +142,18 @@ export const PARITY_HISTORY_QUERY = gql`
   }
 `;
 
-export const ARRAY_SET_STATE_MUTATION = gql`
-  mutation ArraySetState($desiredState: ArrayStateInputState!) {
+export const ARRAY_START_MUTATION = gql`
+  mutation ArrayStart {
     array {
-      setState(input: { desiredState: $desiredState }) {
-        state
-      }
+      startArray
+    }
+  }
+`;
+
+export const ARRAY_STOP_MUTATION = gql`
+  mutation ArrayStop {
+    array {
+      stopArray
     }
   }
 `;
@@ -150,7 +161,14 @@ export const ARRAY_SET_STATE_MUTATION = gql`
 export const PARITY_CHECK_START_MUTATION = gql`
   mutation ParityCheckStart {
     parityCheck {
-      start(correct: false)
+      start {
+        status
+        progress
+        errors
+        running
+        paused
+        correcting
+      }
     }
   }
 `;
@@ -158,7 +176,14 @@ export const PARITY_CHECK_START_MUTATION = gql`
 export const PARITY_CHECK_PAUSE_MUTATION = gql`
   mutation ParityCheckPause {
     parityCheck {
-      pause
+      pause {
+        status
+        progress
+        errors
+        running
+        paused
+        correcting
+      }
     }
   }
 `;
@@ -166,7 +191,14 @@ export const PARITY_CHECK_PAUSE_MUTATION = gql`
 export const PARITY_CHECK_RESUME_MUTATION = gql`
   mutation ParityCheckResume {
     parityCheck {
-      resume
+      resume {
+        status
+        progress
+        errors
+        running
+        paused
+        correcting
+      }
     }
   }
 `;
@@ -174,7 +206,14 @@ export const PARITY_CHECK_RESUME_MUTATION = gql`
 export const PARITY_CHECK_CANCEL_MUTATION = gql`
   mutation ParityCheckCancel {
     parityCheck {
-      cancel
+      cancel {
+        status
+        progress
+        errors
+        running
+        paused
+        correcting
+      }
     }
   }
 `;

@@ -1,82 +1,10 @@
 {
-  "vms": [
-    {
-      "id": "vm-101",
-      "name": "ubuntu-dev",
-      "status": "running",
-      "state": "running",
-      "vcpus": 4,
-      "memory": 8589934592,
-      "diskSize": 68719476736,
-      "os": "Ubuntu 24.04",
-      "autostart": true,
-      "createdAt": "2026-03-10T10:15:00.000Z",
-      "updatedAt": "2026-03-31T09:30:00.000Z",
-      "ipAddress": "192.168.1.50",
-      "vncPort": 5901,
-      "inspect": {
-        "cpu": {
-          "model": "host-passthrough",
-          "sockets": 1,
-          "cores": 4
-        },
-        "devices": {
-          "disk": "vda",
-          "network": "virtio"
-        }
-      }
-    },
-    {
-      "id": "vm-102",
-      "name": "win11",
-      "status": "stopped",
-      "state": "shut off",
-      "vcpus": 6,
-      "memory": 17179869184,
-      "diskSize": 137438953472,
-      "os": "Windows 11",
-      "autostart": false,
-      "createdAt": "2026-02-01T12:00:00.000Z",
-      "updatedAt": "2026-03-30T16:15:00.000Z",
-      "ipAddress": null,
-      "vncPort": 5902,
-      "inspect": {
-        "cpu": {
-          "model": "host-passthrough",
-          "sockets": 1,
-          "cores": 6
-        },
-        "devices": {
-          "disk": "vda",
-          "network": "e1000"
-        }
-      }
-    },
-    {
-      "id": "vm-103",
-      "name": "haos",
-      "status": "paused",
-      "state": "paused",
-      "vcpus": 2,
-      "memory": 4294967296,
-      "diskSize": 34359738368,
-      "os": "Home Assistant OS",
-      "autostart": true,
-      "createdAt": "2026-01-15T07:00:00.000Z",
-      "updatedAt": "2026-03-31T07:45:00.000Z",
-      "ipAddress": "192.168.1.60",
-      "vncPort": 5903,
-      "inspect": {
-        "cpu": {
-          "model": "host-passthrough",
-          "sockets": 1,
-          "cores": 2
-        },
-        "devices": {
-          "disk": "vda",
-          "network": "virtio"
-        }
-      }
-    }
-  ]
+  "vms": {
+    "domains": [
+      { "id": "vm-101", "name": "ubuntu-dev", "state": "RUNNING" },
+      { "id": "vm-102", "name": "win11", "state": "SHUTOFF" },
+      { "id": "vm-103", "name": "haos", "state": "PAUSED" }
+    ],
+    "domain": null
+  }
 }

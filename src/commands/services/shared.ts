@@ -6,7 +6,7 @@ import { NotFoundError } from '../../core/errors/index.js';
 import { paginate } from '../../core/filters/index.js';
 import { createClient, type UcliGraphQLClient } from '../../core/graphql/client.js';
 import { renderOutput } from '../../core/output/renderer.js';
-import { SERVICE_QUERY, SERVICES_QUERY, type ServiceQuery, type ServiceQueryVariables, type ServiceRecord, type ServicesQuery } from '../../generated/services.js';
+import { SERVICES_QUERY, type ServiceRecord, type ServicesQuery } from '../../generated/services.js';
 
 export interface ServicesCommandDependencies {
   createGraphQLClient: typeof createClient;
@@ -22,10 +22,7 @@ function toGraphQLEndpoint(host: string): string {
   return host.endsWith('/graphql') ? host : `${host.replace(/\/$/, '')}/graphql`;
 }
 
-function createServicesClient(
-  options: GlobalOptions,
-  dependencies: ServicesCommandDependencies = defaultServicesCommandDependencies,
-): UcliGraphQLClient {
+function createServicesClient(options: GlobalOptions, dependencies: ServicesCommandDependencies = defaultServicesCommandDependencies): UcliGraphQLClient {
   const resolvedConfig = resolveConfig(options);
   const auth = resolveAuth({
     host: options.host ?? resolvedConfig.host,
@@ -44,29 +41,23 @@ function createServicesClient(
 export async function fetchServices(
   options: GlobalOptions,
   dependencies: ServicesCommandDependencies = defaultServicesCommandDependencies,
-): Promise<ServicesQuery> {
-  return createServicesClient(options, dependencies).execute<ServicesQuery>(SERVICES_QUERY);
+): Promise<ServiceRecord[]> {
+  const data = await createServicesClient(options, dependencies).execute<ServicesQuery>(SERVICES_QUERY);
+  return data.services;
 }
 
 export async function fetchService(
-  name: string,
+  idOrName: string,
   options: GlobalOptions,
   dependencies: ServicesCommandDependencies = defaultServicesCommandDependencies,
 ): Promise<ServiceRecord> {
-  const data = await createServicesClient(options, dependencies).execute<ServiceQuery, ServiceQueryVariables>(SERVICE_QUERY, { name });
-
-  if (data.service == null) {
-    throw new NotFoundError(`Service not found: ${name}`);
-  }
-
-  return data.service;
+  const services = await fetchServices(options, dependencies);
+  const service = services.find((entry) => entry.id === idOrName || entry.name === idOrName) ?? null;
+  if (service == null) throw new NotFoundError(`Service not found: ${idOrName}`);
+  return service;
 }
 
-export function writeRenderedOutput(
-  data: unknown,
-  options: GlobalOptions,
-  dependencies: ServicesCommandDependencies = defaultServicesCommandDependencies,
-): void {
+export function writeRenderedOutput(data: unknown, options: GlobalOptions, dependencies: ServicesCommandDependencies = defaultServicesCommandDependencies): void {
   dependencies.stdoutWrite(
     renderOutput(data, {
       format: options.output,
@@ -95,7 +86,7 @@ export function applyServicesCommandOptions(command: Command): Command {
 
 export function applyServicesListOptions(command: Command): Command {
   return applyServicesCommandOptions(command)
-    .option('--filter <expr>', 'Filter expression (e.g. status=running)')
+    .option('--filter <expr>', 'Filter expression (e.g. online=true)')
     .option('--sort <expr>', 'Sort expression (e.g. name:asc)')
     .option('--page <number>', 'Page number for paginated results', Number.parseInt)
     .option('--page-size <number>', 'Items per page', Number.parseInt)
@@ -109,9 +100,5 @@ export function resolveServicesOptions(command: Command): GlobalOptions {
 }
 
 export function paginateItems<T>(items: readonly T[], options: GlobalOptions): T[] {
-  return paginate(items, {
-    page: options.page,
-    pageSize: options.pageSize,
-    all: options.all,
-  }).items;
+  return paginate(items, { page: options.page, pageSize: options.pageSize, all: options.all }).items;
 }

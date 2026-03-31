@@ -42,7 +42,19 @@ export interface ServerQuery {
   } | null;
 }
 
-export interface SystemSnapshotQuery extends InfoQuery, ServerQuery {}
+export interface ArrayQuery {
+  array: {
+    state: string;
+    parityCheckStatus: {
+      status: string;
+      progress: number | null;
+      running: boolean | null;
+      paused: boolean | null;
+    };
+  };
+}
+
+export interface SystemSnapshotQuery extends InfoQuery, ServerQuery, ArrayQuery {}
 
 export const SYSTEM_SNAPSHOT_QUERY = gql`
   query SystemSnapshot {
@@ -81,6 +93,15 @@ export const SYSTEM_SNAPSHOT_QUERY = gql`
       status
       lanip
       wanip
+    }
+    array {
+      state
+      parityCheckStatus {
+        status
+        progress
+        running
+        paused
+      }
     }
   }
 `;

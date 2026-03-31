@@ -27,60 +27,73 @@ describe('containers write commands', () => {
     vi.clearAllMocks();
 
     const states = new Map<string, string>([
-      ['nginx', 'running'],
-      ['redis', 'paused'],
-      ['postgres', 'stopped'],
+      ['docker:abc123', 'RUNNING'],
+      ['docker:def456', 'PAUSED'],
+      ['docker:ghi789', 'EXITED'],
     ]);
 
-    executeMock.mockImplementation((document: string, variables?: { name?: string }) => {
-      const name = variables?.name ?? 'nginx';
+    const names = new Map<string, string>([
+      ['docker:abc123', 'nginx'],
+      ['docker:def456', 'redis'],
+      ['docker:ghi789', 'postgres'],
+    ]);
+
+    const resolveId = (input: string) => {
+      if (states.has(input)) {
+        return input;
+      }
+      for (const [id, name] of names.entries()) {
+        if (name === input) {
+          return id;
+        }
+      }
+      return input;
+    };
+
+    executeMock.mockImplementation((document: string, variables?: { id?: string }) => {
+      const id = resolveId(variables?.id ?? 'docker:abc123');
+      const name = names.get(id) ?? 'nginx';
 
       if (document.includes('mutation DockerStart')) {
-        states.set(name, 'running');
-        return Promise.resolve({ docker: { start: { success: true, message: `started ${name}` } } });
+        states.set(id, 'RUNNING');
+        return Promise.resolve({ docker: { start: { id, names: [`/${name}`], state: 'RUNNING' } } });
       }
 
       if (document.includes('mutation DockerStop')) {
-        states.set(name, 'stopped');
-        return Promise.resolve({ docker: { stop: { success: true, message: `stopped ${name}` } } });
+        states.set(id, 'EXITED');
+        return Promise.resolve({ docker: { stop: { id, names: [`/${name}`], state: 'EXITED' } } });
       }
 
       if (document.includes('mutation DockerPause')) {
-        states.set(name, 'paused');
-        return Promise.resolve({ docker: { pause: { success: true, message: `paused ${name}` } } });
+        states.set(id, 'PAUSED');
+        return Promise.resolve({ docker: { pause: { id, names: [`/${name}`], state: 'PAUSED' } } });
       }
 
       if (document.includes('mutation DockerUnpause')) {
-        states.set(name, 'running');
-        return Promise.resolve({ docker: { unpause: { success: true, message: `unpaused ${name}` } } });
+        states.set(id, 'RUNNING');
+        return Promise.resolve({ docker: { unpause: { id, names: [`/${name}`], state: 'RUNNING' } } });
       }
 
-      if (document.includes('mutation DockerRemoveContainer')) {
-        states.delete(name);
-        return Promise.resolve({ docker: { removeContainer: { success: true, message: `removed ${name}` } } });
+      if (document.includes('mutation DockerRemove')) {
+        states.delete(id);
+        names.delete(id);
+        return Promise.resolve({ docker: { remove: true } });
       }
 
-      if (document.includes('query DockerContainer')) {
-        const state = states.get(name);
+      if (document.includes('query DockerSnapshot')) {
         return Promise.resolve({
           docker: {
-            container: state == null
-              ? null
-              : {
-                id: `${name}-id`,
-                name: `/${name}`,
-                image: `${name}:latest`,
-                status: state,
-                state,
-                command: null,
-                createdAt: null,
-                startedAt: null,
-                uptime: null,
-                ports: [],
-                logs: null,
-                inspect: null,
-                stats: null,
-              },
+            containers: [...states.entries()].map(([containerId, state]) => ({
+              id: containerId,
+              names: [`/${names.get(containerId) ?? containerId}`],
+              image: `${names.get(containerId) ?? 'container'}:latest`,
+              imageId: `sha256:${containerId}`,
+              state,
+              status: state,
+              created: 0,
+              ports: [],
+              autoStart: true,
+            })),
           },
         });
       }
@@ -113,10 +126,10 @@ describe('containers write commands', () => {
   });
 
   it.each([
-    ['start', 'postgres', 'running', 'mutation DockerStart'],
-    ['stop', 'nginx', 'stopped', 'mutation DockerStop'],
-    ['pause', 'nginx', 'paused', 'mutation DockerPause'],
-    ['unpause', 'redis', 'running', 'mutation DockerUnpause'],
+    ['start', 'postgres', 'RUNNING', 'mutation DockerStart'],
+    ['stop', 'nginx', 'EXITED', 'mutation DockerStop'],
+    ['pause', 'nginx', 'PAUSED', 'mutation DockerPause'],
+    ['unpause', 'redis', 'RUNNING', 'mutation DockerUnpause'],
   ])('executes %s with S1 safety and shows new state', async (cmd, name, expectedState, mutationText) => {
     const program = createProgram();
     let stdout = '';
@@ -129,7 +142,7 @@ describe('containers write commands', () => {
 
     const parsed = JSON.parse(stdout) as Record<string, unknown>;
     expect(parsed).toMatchObject({ name, state: expectedState, success: true });
-    expect(executeMock).toHaveBeenCalledWith(expect.stringContaining(mutationText), { name });
+    expect(executeMock).toHaveBeenCalledWith(expect.stringContaining(mutationText), expect.objectContaining({ id: expect.any(String) }));
   });
 
   it('executes restart as stop then start', async () => {
@@ -150,7 +163,7 @@ describe('containers write commands', () => {
     expect(startIndex).toBeGreaterThan(stopIndex);
 
     const parsed = JSON.parse(stdout) as Record<string, unknown>;
-    expect(parsed).toMatchObject({ name: 'nginx', state: 'running', success: true });
+    expect(parsed).toMatchObject({ name: 'nginx', state: 'RUNNING', success: true });
   });
 
   it('requires --yes for S1 commands when non-interactive', async () => {
@@ -190,7 +203,7 @@ describe('containers write commands', () => {
     await program.parseAsync(['node', 'ucli', 'containers', 'remove', 'postgres', '--yes', '--force', '--output', 'json']);
 
     const parsed = JSON.parse(stdout) as Record<string, unknown>;
-    expect(parsed).toMatchObject({ name: 'postgres', state: 'removed', success: true });
-    expect(executeMock).toHaveBeenCalledWith(expect.stringContaining('mutation DockerRemoveContainer'), { name: 'postgres' });
+    expect(parsed).toMatchObject({ name: 'postgres', state: 'REMOVED', success: true });
+    expect(executeMock).toHaveBeenCalledWith(expect.stringContaining('mutation DockerRemove'), { id: 'docker:ghi789' });
   });
 });

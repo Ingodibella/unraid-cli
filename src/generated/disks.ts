@@ -18,9 +18,6 @@ export interface DiskRecord {
   totalSectors: number;
   totalHeads: number;
   totalCylinders: number;
-  totalTracks: number;
-  tracksPerCylinder: number;
-  sectorsPerTrack: number;
   firmwareRevision: string;
   serialNum: string;
   interfaceType: string;
@@ -33,28 +30,33 @@ export interface DisksQuery {
   disks: DiskRecord[];
 }
 
-export interface DiskQuery {
-  disk: DiskRecord | null;
-}
-
 export interface AssignableDisksQuery {
   assignableDisks: DiskRecord[];
 }
 
-export interface DiskQueryVariables {
-  id: string;
+export interface ArrayDiskTempRecord {
+  idx: number | null;
+  name: string | null;
+  status: string | null;
+  temp: number | null;
+}
+
+export interface ArrayDisksTempQuery {
+  array: {
+    disks: ArrayDiskTempRecord[];
+  };
 }
 
 export interface ArrayDiskMutation {
   array: {
-    mountArrayDisk?: { id: string } | null;
-    unmountArrayDisk?: { id: string } | null;
+    mountArrayDisk?: string | null;
+    unmountArrayDisk?: string | null;
     clearArrayDiskStatistics?: boolean | null;
   };
 }
 
 export interface DiskMutationVariables {
-  id: string;
+  idx: number;
 }
 
 const DISK_FIELDS = gql`
@@ -69,9 +71,6 @@ const DISK_FIELDS = gql`
     totalSectors
     totalHeads
     totalCylinders
-    totalTracks
-    tracksPerCylinder
-    sectorsPerTrack
     firmwareRevision
     serialNum
     interfaceType
@@ -80,6 +79,7 @@ const DISK_FIELDS = gql`
     partitions {
       name
       size
+      type
       fsType
     }
   }
@@ -94,15 +94,6 @@ export const DISKS_QUERY = gql`
   }
 `;
 
-export const DISK_QUERY = gql`
-  ${DISK_FIELDS}
-  query Disk($id: PrefixedID!) {
-    disk(id: $id) {
-      ...DiskFields
-    }
-  }
-`;
-
 export const ASSIGNABLE_DISKS_QUERY = gql`
   ${DISK_FIELDS}
   query AssignableDisks {
@@ -112,30 +103,39 @@ export const ASSIGNABLE_DISKS_QUERY = gql`
   }
 `;
 
-export const DISK_MOUNT_MUTATION = gql`
-  mutation DiskMount($id: PrefixedID!) {
+export const ARRAY_DISKS_TEMP_QUERY = gql`
+  query ArrayDisksTemp {
     array {
-      mountArrayDisk(id: $id) {
-        id
+      disks {
+        idx
+        name
+        status
+        temp
       }
+    }
+  }
+`;
+
+export const DISK_MOUNT_MUTATION = gql`
+  mutation DiskMount($idx: Int!) {
+    array {
+      mountArrayDisk(idx: $idx)
     }
   }
 `;
 
 export const DISK_UNMOUNT_MUTATION = gql`
-  mutation DiskUnmount($id: PrefixedID!) {
+  mutation DiskUnmount($idx: Int!) {
     array {
-      unmountArrayDisk(id: $id) {
-        id
-      }
+      unmountArrayDisk(idx: $idx)
     }
   }
 `;
 
 export const DISK_CLEAR_STATS_MUTATION = gql`
-  mutation DiskClearStats($id: PrefixedID!) {
+  mutation DiskClearStats($idx: Int!) {
     array {
-      clearArrayDiskStatistics(id: $id)
+      clearArrayDiskStatistics(idx: $idx)
     }
   }
 `;

@@ -12,26 +12,41 @@ import {
 } from './shared.js';
 
 export interface ArrayDeviceRecord {
+  idx: number | null;
   name: string | null;
+  device: string | null;
   size: string;
   status: string | null;
-  temperature: string;
-  filesystem: string | null;
+  rotational: boolean | null;
+  temp: string;
+  numReads: number | null;
+  numWrites: number | null;
+  numErrors: number | null;
 }
 
 export function mapArrayDevice(disk: {
+  idx?: number | null;
   name: string | null;
+  device: string | null;
   size: number | null;
   status: string | null;
-  temperature: number | null;
-  filesystem: string | null;
+  rotational?: boolean | null;
+  temp: number | null;
+  numReads?: number | null;
+  numWrites?: number | null;
+  numErrors?: number | null;
 }): ArrayDeviceRecord {
   return {
+    idx: disk.idx ?? null,
     name: disk.name,
-    size: formatBytes(disk.size),
+    device: disk.device,
+    size: formatBytes(disk.size != null ? disk.size * 1024 : null),
     status: disk.status,
-    temperature: disk.temperature != null ? `${disk.temperature}C` : 'unknown',
-    filesystem: disk.filesystem,
+    rotational: disk.rotational ?? null,
+    temp: disk.temp != null ? `${disk.temp}C` : 'unknown',
+    numReads: disk.numReads ?? null,
+    numWrites: disk.numWrites ?? null,
+    numErrors: disk.numErrors ?? null,
   };
 }
 
@@ -39,7 +54,7 @@ export function createArrayDevicesCommand(
   dependencies: ArrayCommandDependencies = defaultArrayCommandDependencies,
 ): Command {
   return applyArrayDevicesOptions(new Command('devices'))
-    .description('List all array disks with name, size, status, temp, filesystem')
+    .description('List array disks with schema-aligned fields')
     .action(async function handleArrayDevices() {
       const options = resolveArrayOptions(this);
       const snapshot = await fetchArray(options, dependencies);

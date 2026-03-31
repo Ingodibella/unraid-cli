@@ -111,7 +111,7 @@ describe('array command group', () => {
     expect(parsed.parityErrors).toBe(0);
   });
 
-  it('array devices lists all disks in table mode', async () => {
+  it('array devices lists all disks in json mode', async () => {
     const program = createProgram();
     let stdout = '';
     process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
@@ -125,7 +125,7 @@ describe('array command group', () => {
     expect(Array.isArray(parsed)).toBe(true);
     expect(parsed).toHaveLength(4);
     expect(parsed[0]?.name).toBe('disk1');
-    expect(parsed[0]?.status).toBe('healthy');
+    expect(parsed[0]?.status).toBe('DISK_OK');
     expect(typeof parsed[0]?.size).toBe('string');
   });
 
@@ -137,11 +137,11 @@ describe('array command group', () => {
       return true;
     });
 
-    await program.parseAsync(['node', 'ucli', 'array', 'devices', '--output', 'json', '--filter', 'status=healthy']);
+    await program.parseAsync(['node', 'ucli', 'array', 'devices', '--output', 'json', '--filter', 'status=DISK_OK']);
 
     const parsed = JSON.parse(stdout) as Array<Record<string, unknown>>;
     expect(Array.isArray(parsed)).toBe(true);
-    expect(parsed.every((d) => d['status'] === 'healthy')).toBe(true);
+    expect(parsed.every((d) => d['status'] === 'DISK_OK')).toBe(true);
   });
 
   it('array devices supports --sort', async () => {
@@ -194,7 +194,7 @@ describe('array command group', () => {
     expect(typeof parsed[0]?.duration).toBe('string');
   });
 
-  it('formatBytes handles null gracefully', async () => {
+  it('formatters handle null values gracefully', async () => {
     const program = createProgram();
     let stdout = '';
     process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
@@ -204,13 +204,10 @@ describe('array command group', () => {
 
     executeMock.mockResolvedValue({
       array: {
-        state: 'Stopped',
-        capacity: null,
-        used: null,
-        free: null,
-        diskCount: 0,
+        state: 'STOPPED',
+        capacity: { kilobytes: { total: null, used: null, free: null } },
+        parityCheckStatus: null,
         disks: [],
-        parity: null,
       },
     });
 

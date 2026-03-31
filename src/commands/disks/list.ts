@@ -15,7 +15,7 @@ import {
 export interface DiskListRecord {
   name: string | null;
   size: string;
-  status: string | null;
+  smartStatus: string | null;
   temp: string;
   type: string | null;
 }
@@ -24,7 +24,7 @@ export function mapDiskListRecord(disk: Awaited<ReturnType<typeof fetchDisks>>['
   return {
     name: disk.name,
     size: formatBytes(disk.size),
-    status: disk.status,
+    smartStatus: disk.smartStatus,
     temp: formatTemperature(disk.temperature),
     type: disk.type,
   };
@@ -34,7 +34,7 @@ export function createDisksListCommand(
   dependencies: DisksCommandDependencies = defaultDisksCommandDependencies,
 ): Command {
   return applyDisksListOptions(new Command('list'))
-    .description('List all disks with size, health, temperature, and type')
+    .description('List all disks with size, SMART status, temperature, and type')
     .action(async function handleDisksList() {
       const options = resolveDisksOptions(this);
       const localOptions = this.opts<{ filter?: string; sort?: string }>();

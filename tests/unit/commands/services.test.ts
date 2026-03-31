@@ -5,7 +5,7 @@ import { createProgram } from '../../../src/cli/index.js';
 
 const fixture = JSON.parse(
   readFileSync(resolve(process.cwd(), 'tests/fixtures/services-response.json'), 'utf8'),
-) as Record<string, unknown>;
+) as { services: Array<Record<string, unknown>> };
 
 const { executeMock, createClientMock } = vi.hoisted(() => {
   const execute = vi.fn();
@@ -31,16 +31,7 @@ vi.mock('../../../src/core/graphql/client.js', async (importOriginal) => {
 describe('services command group', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    executeMock.mockImplementation((document: string, variables?: { name?: string }) => {
-      if (document.includes('service(name: $name)')) {
-        const name = variables?.name ?? 'docker';
-        const services = fixture.services as Array<Record<string, unknown>>;
-        const match = services.find((service) => service['name'] === name) ?? null;
-        return Promise.resolve({ service: match });
-      }
-
-      return Promise.resolve({ services: fixture.services });
-    });
+    executeMock.mockResolvedValue({ services: fixture.services });
 
     process.env.UCLI_HOST = 'http://tower.local:7777';
     process.env.UCLI_API_KEY = 'test-api-key';
@@ -70,13 +61,13 @@ describe('services command group', () => {
 
     const parsed = JSON.parse(stdout) as Array<Record<string, unknown>>;
     expect(parsed).toEqual([
-      { name: 'docker', status: 'running', enabled: true },
-      { name: 'smbd', status: 'running', enabled: true },
-      { name: 'nfsd', status: 'stopped', enabled: false },
+      { id: 'service:docker', name: 'docker', online: true, version: '25.0.3', uptime: '2026-03-31T10:00:00.000Z' },
+      { id: 'service:smbd', name: 'smbd', online: true, version: '4.20.0', uptime: '2026-03-31T11:00:00.000Z' },
+      { id: 'service:nfsd', name: 'nfsd', online: false, version: null, uptime: null },
     ]);
   });
 
-  it('services get returns detailed service info', async () => {
+  it('services get returns service info', async () => {
     const program = createProgram();
     let stdout = '';
     process.stdout.write = vi.fn((chunk: string | Uint8Array) => {
@@ -88,11 +79,11 @@ describe('services command group', () => {
 
     const parsed = JSON.parse(stdout) as Record<string, unknown>;
     expect(parsed).toMatchObject({
+      id: 'service:docker',
       name: 'docker',
-      status: 'running',
-      pid: 1024,
-      uptime: '1d 3h',
-      description: 'Docker daemon',
+      online: true,
+      version: '25.0.3',
+      uptime: { timestamp: '2026-03-31T10:00:00.000Z' },
     });
   });
 
@@ -111,7 +102,7 @@ describe('services command group', () => {
       services: Array<Record<string, unknown>>;
     };
 
-    expect(parsed.summary).toEqual({ running: 2, stopped: 1, other: 0 });
+    expect(parsed.summary).toEqual({ online: 2, offline: 1 });
     expect(parsed.services).toHaveLength(3);
   });
 });

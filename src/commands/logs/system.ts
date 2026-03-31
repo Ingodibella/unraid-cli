@@ -1,12 +1,6 @@
 import { Command } from 'commander';
 import type { LogsCommandDependencies } from './shared.js';
-import {
-  applyLogsCommandOptions,
-  defaultLogsCommandDependencies,
-  fetchLogsSnapshot,
-  resolveLogsOptions,
-  writeRenderedOutput,
-} from './shared.js';
+import { applyLogsCommandOptions, defaultLogsCommandDependencies, fetchLogFile, resolveLogsOptions, writeRenderedOutput } from './shared.js';
 
 export function createLogsSystemCommand(
   dependencies: LogsCommandDependencies = defaultLogsCommandDependencies,
@@ -15,15 +9,14 @@ export function createLogsSystemCommand(
     .description('Show system log content')
     .action(async function handleLogsSystem() {
       const options = resolveLogsOptions(this);
-      const snapshot = await fetchLogsSnapshot(options, dependencies);
-      const systemLog = snapshot.logs.system;
+      const systemLog = await fetchLogFile('syslog', options, dependencies);
 
       writeRenderedOutput({
-        name: systemLog?.name ?? 'syslog',
-        path: systemLog?.path ?? '/var/log/syslog',
-        size: systemLog?.size ?? null,
-        updatedAt: systemLog?.updatedAt ?? null,
-        content: systemLog?.content ?? null,
+        name: systemLog.name,
+        path: systemLog.path,
+        size: systemLog.size,
+        modifiedAt: systemLog.modifiedAt,
+        content: systemLog.content,
       }, options, dependencies);
     });
 }

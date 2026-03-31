@@ -7,17 +7,17 @@ import { paginate } from '../../core/filters/index.js';
 import { createClient, type UcliGraphQLClient } from '../../core/graphql/client.js';
 import { renderOutput } from '../../core/output/renderer.js';
 import {
+  ARRAY_DISKS_TEMP_QUERY,
   ASSIGNABLE_DISKS_QUERY,
   DISK_CLEAR_STATS_MUTATION,
   DISK_MOUNT_MUTATION,
-  DISK_QUERY,
   DISK_UNMOUNT_MUTATION,
   DISKS_QUERY,
   type ArrayDiskMutation,
+  type ArrayDisksTempQuery,
   type AssignableDisksQuery,
   type DiskMutationVariables,
-  type DiskQuery,
-  type DiskQueryVariables,
+  type DiskRecord,
   type DisksQuery,
 } from '../../generated/disks.js';
 
@@ -72,14 +72,23 @@ export async function fetchDisk(
   name: string,
   options: GlobalOptions,
   dependencies: DisksCommandDependencies = defaultDisksCommandDependencies,
-): Promise<NonNullable<DiskQuery['disk']>> {
-  const data = await createDisksClient(options, dependencies).execute<DiskQuery, DiskQueryVariables>(DISK_QUERY, { name });
+): Promise<DiskRecord> {
+  const data = await fetchDisks(options, dependencies);
+  const normalized = name.toLowerCase();
+  const disk = data.disks.find((entry) => entry.name.toLowerCase() === normalized) ?? null;
 
-  if (data.disk == null) {
+  if (disk == null) {
     throw new NotFoundError(`Disk not found: ${name}`);
   }
 
-  return data.disk;
+  return disk;
+}
+
+export async function fetchArrayDiskTemps(
+  options: GlobalOptions,
+  dependencies: DisksCommandDependencies = defaultDisksCommandDependencies,
+): Promise<ArrayDisksTempQuery> {
+  return createDisksClient(options, dependencies).execute<ArrayDisksTempQuery>(ARRAY_DISKS_TEMP_QUERY);
 }
 
 export async function fetchAssignableDisks(
@@ -90,32 +99,32 @@ export async function fetchAssignableDisks(
 }
 
 export async function mountDisk(
-  name: string,
+  idx: number,
   options: GlobalOptions,
   dependencies: DisksCommandDependencies = defaultDisksCommandDependencies,
 ): Promise<ArrayDiskMutation> {
-  return createDisksClient(options, dependencies).execute<ArrayDiskMutation, DiskMutationVariables>(DISK_MOUNT_MUTATION, { name });
+  return createDisksClient(options, dependencies).execute<ArrayDiskMutation, DiskMutationVariables>(DISK_MOUNT_MUTATION, { idx });
 }
 
 export async function unmountDisk(
-  name: string,
+  idx: number,
   options: GlobalOptions,
   dependencies: DisksCommandDependencies = defaultDisksCommandDependencies,
 ): Promise<ArrayDiskMutation> {
   return createDisksClient(options, dependencies).execute<ArrayDiskMutation, DiskMutationVariables>(
     DISK_UNMOUNT_MUTATION,
-    { name },
+    { idx },
   );
 }
 
 export async function clearDiskStats(
-  name: string,
+  idx: number,
   options: GlobalOptions,
   dependencies: DisksCommandDependencies = defaultDisksCommandDependencies,
 ): Promise<ArrayDiskMutation> {
   return createDisksClient(options, dependencies).execute<ArrayDiskMutation, DiskMutationVariables>(
     DISK_CLEAR_STATS_MUTATION,
-    { name },
+    { idx },
   );
 }
 
@@ -154,7 +163,7 @@ export function applyDisksCommandOptions(command: Command): Command {
 
 export function applyDisksListOptions(command: Command): Command {
   return applyDisksCommandOptions(command)
-    .option('--filter <expr>', 'Filter expression (e.g. status=healthy)')
+    .option('--filter <expr>', 'Filter expression (e.g. smartStatus=PASSED)')
     .option('--sort <expr>', 'Sort expression (e.g. name:asc)')
     .option('--page <number>', 'Page number for paginated results', Number.parseInt)
     .option('--page-size <number>', 'Items per page', Number.parseInt)
@@ -212,10 +221,11 @@ export function paginateItems<T>(items: readonly T[], options: GlobalOptions): T
   }).items;
 }
 
-export function usagePercent(used: number | null | undefined, size: number | null | undefined): number | null {
-  if (used == null || size == null || size <= 0) {
-    return null;
+export function parseDiskIdx(value: string): number {
+  const idx = Number.parseInt(value, 10);
+  if (!Number.isInteger(idx) || idx < 0) {
+    throw new Error(`Invalid disk idx: ${value}`);
   }
 
-  return Number(((used / size) * 100).toFixed(1));
+  return idx;
 }

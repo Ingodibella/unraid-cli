@@ -15,8 +15,7 @@ import {
 export function createNetworkInterfacesCommand(
   dependencies: NetworkCommandDependencies = defaultNetworkCommandDependencies,
 ): Command {
-  const interfaces = new Command('interfaces')
-    .description('Inspect network interfaces');
+  const interfaces = new Command('interfaces').description('Inspect network interfaces');
 
   interfaces.addCommand(
     applyNetworkListOptions(new Command('list'))
@@ -26,15 +25,9 @@ export function createNetworkInterfacesCommand(
         const localOptions = this.opts<{ filter?: string; sort?: string }>();
         const snapshot = await fetchNetwork(options, dependencies);
 
-        let rows = snapshot.network.interfaces;
-
-        if (localOptions.filter) {
-          rows = applyFilters(rows, localOptions.filter);
-        }
-
-        if (localOptions.sort) {
-          rows = applySort(rows, localOptions.sort);
-        }
+        let rows = snapshot.info.networkInterfaces;
+        if (localOptions.filter) rows = applyFilters(rows, localOptions.filter);
+        if (localOptions.sort) rows = applySort(rows, localOptions.sort);
 
         writeRenderedOutput(paginateItems(rows, options), options, dependencies);
       }),
