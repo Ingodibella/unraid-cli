@@ -10,22 +10,40 @@ import {
 } from './shared.js';
 
 export interface SystemInfoRecord {
-  osPlatform: string | null;
+  hostname: string | null;
+  platform: string | null;
   distro: string | null;
   release: string | null;
-  hostname: string | null;
-  uptime: number | null;
-  uptimeHuman: string;
+  kernel: string | null;
+  arch: string | null;
+  time: string;
+  cpu: string | null;
+  cpuCores: number | null;
+  cpuSpeed: number | null;
+  unraidVersion: string | null;
+  apiVersion: string | null;
+  serverName: string | null;
+  serverStatus: string | null;
 }
 
 export function mapSystemInfo(snapshot: Awaited<ReturnType<typeof fetchSystemSnapshot>>): SystemInfoRecord {
+  const { info, server } = snapshot;
+  const cpuBrand = [info.cpu.manufacturer, info.cpu.brand].filter(Boolean).join(' ') || null;
   return {
-    osPlatform: snapshot.info.osPlatform,
-    distro: snapshot.info.distro,
-    release: snapshot.info.release,
-    hostname: snapshot.info.hostname,
-    uptime: snapshot.info.uptime,
-    uptimeHuman: formatUptime(snapshot.info.uptime),
+    hostname: info.os.hostname,
+    platform: info.os.platform,
+    distro: info.os.distro,
+    release: info.os.release,
+    kernel: info.os.kernel,
+    arch: info.os.arch,
+    time: info.time,
+    cpu: cpuBrand,
+    cpuCores: info.cpu.cores,
+    cpuSpeed: info.cpu.speed,
+    unraidVersion: info.versions.core.unraid,
+    apiVersion: info.versions.core.api,
+    serverName: server?.name ?? null,
+    serverStatus: server?.status ?? null,
   };
 }
 

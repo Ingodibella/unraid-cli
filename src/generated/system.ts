@@ -2,38 +2,43 @@ import { gql } from '../core/graphql/client.js';
 
 export interface InfoQuery {
   info: {
-    osPlatform: string | null;
-    distro: string | null;
-    release: string | null;
-    hostname: string | null;
-    uptime: number | null;
+    time: string;
+    os: {
+      platform: string | null;
+      distro: string | null;
+      release: string | null;
+      hostname: string | null;
+      kernel: string | null;
+      arch: string | null;
+    };
+    cpu: {
+      manufacturer: string | null;
+      brand: string | null;
+      cores: number | null;
+      threads: number | null;
+      speed: number | null;
+    };
+    memory: {
+      layout: Array<{
+        size: number | null;
+        type: string | null;
+      }>;
+    };
+    versions: {
+      core: {
+        unraid: string | null;
+        api: string | null;
+      };
+    };
   };
 }
 
 export interface ServerQuery {
   server: {
-    state: string | null;
-    dockerRunning: boolean | null;
-    vmRunning: boolean | null;
-    cpuUsage: number | null;
-    memoryUsage: number | null;
-    memoryTotal: number | null;
-    storageUsed: number | null;
-    storageTotal: number | null;
-    cacheUsage: number | null;
-    parityStatus: string | null;
-    parityProgress: number | null;
-    temps: {
-      cpu: number | null;
-      motherboard: number | null;
-      array: number | null;
-    } | null;
-    disks: Array<{
-      name: string | null;
-      status: string | null;
-      temperature: number | null;
-    }>;
-  };
+    name: string;
+    status: string;
+    lanip: string;
+  } | null;
 }
 
 export interface SystemSnapshotQuery extends InfoQuery, ServerQuery {}
@@ -41,34 +46,39 @@ export interface SystemSnapshotQuery extends InfoQuery, ServerQuery {}
 export const SYSTEM_SNAPSHOT_QUERY = gql`
   query SystemSnapshot {
     info {
-      osPlatform
-      distro
-      release
-      hostname
-      uptime
+      time
+      os {
+        platform
+        distro
+        release
+        hostname
+        kernel
+        arch
+      }
+      cpu {
+        manufacturer
+        brand
+        cores
+        threads
+        speed
+      }
+      memory {
+        layout {
+          size
+          type
+        }
+      }
+      versions {
+        core {
+          unraid
+          api
+        }
+      }
     }
     server {
-      state
-      dockerRunning
-      vmRunning
-      cpuUsage
-      memoryUsage
-      memoryTotal
-      storageUsed
-      storageTotal
-      cacheUsage
-      parityStatus
-      parityProgress
-      temps {
-        cpu
-        motherboard
-        array
-      }
-      disks {
-        name
-        status
-        temperature
-      }
+      name
+      status
+      lanip
     }
   }
 `;
