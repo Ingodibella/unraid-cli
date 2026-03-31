@@ -75,6 +75,12 @@ describe('renderHuman', () => {
     expect(result).not.toContain('#1');
     expect(result).toContain('name: tower');
   });
+
+  it('escapes terminal control characters in string values', () => {
+    const result = renderHuman({ hostname: '\u001b[31mtower\u001b[0m' }, { noColor: true });
+    expect(result).toContain('hostname: \\x1B[31mtower\\x1B[0m');
+    expect(result).not.toContain('\u001b[');
+  });
 });
 
 describe('structured renderers', () => {

@@ -79,24 +79,40 @@ function formatValue(value: unknown, painter: typeof chalk): string {
 }
 
 function formatString(value: string, painter: typeof chalk): string {
-  const lowered = value.toLowerCase();
+  const sanitizedValue = sanitizeControlCharacters(value);
+  const lowered = sanitizedValue.toLowerCase();
   if (['running', 'healthy', 'online', 'ok', 'success'].includes(lowered)) {
-    return painter.green(value);
+    return painter.green(sanitizedValue);
   }
 
   if (['stopped', 'offline', 'failed', 'error', 'alert', 'critical', 'fatal'].includes(lowered)) {
-    return painter.red(value);
+    return painter.red(sanitizedValue);
   }
 
   if (['degraded', 'warning', 'pending', 'notice'].includes(lowered)) {
-    return painter.yellow(value);
+    return painter.yellow(sanitizedValue);
   }
 
   if (['info'].includes(lowered)) {
-    return painter.blue(value);
+    return painter.blue(sanitizedValue);
   }
 
-  return value;
+  return sanitizedValue;
+}
+
+function sanitizeControlCharacters(value: string): string {
+  return value.replace(/[\u0000-\u001f\u007f-\u009f]/g, (char) => {
+    if (char === '\t') {
+      return '\\t';
+    }
+    if (char === '\n') {
+      return '\\n';
+    }
+    if (char === '\r') {
+      return '\\r';
+    }
+    return `\\x${char.charCodeAt(0).toString(16).padStart(2, '0').toUpperCase()}`;
+  });
 }
 
 function formatNumber(value: number): string {
