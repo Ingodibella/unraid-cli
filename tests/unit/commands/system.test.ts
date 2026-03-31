@@ -1,4 +1,4 @@
-import { readFileSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdirSync, rmSync, writeFileSync, chmodSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createProgram } from '../../../src/cli/index.js';
@@ -65,8 +65,9 @@ describe('system command group', () => {
     let stdout = '';
     tmpConfigDir = resolve(process.cwd(), '.tmp-test-config-system');
     mkdirSync(join(tmpConfigDir, 'ucli'), { recursive: true });
+    const configPath = join(tmpConfigDir, 'ucli', 'config.yaml');
     writeFileSync(
-      join(tmpConfigDir, 'ucli', 'config.yaml'),
+      configPath,
       `
 default_profile: tower
 profiles:
@@ -76,6 +77,7 @@ profiles:
 `,
       'utf8',
     );
+    if (process.platform !== 'win32') chmodSync(configPath, 0o600);
 
     delete process.env.UCLI_HOST;
     delete process.env.UCLI_API_KEY;

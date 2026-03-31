@@ -179,6 +179,21 @@ profiles:
     const path = writeConfig(tmpDir, 'default_profile: 12345\n');
     expect(() => loadConfigFile(path)).toThrow(ConfigValidationError);
   });
+
+  it('throws ConfigValidationError for insecure config file permissions', () => {
+    if (process.platform === 'win32') {
+      return;
+    }
+
+    const path = writeConfig(tmpDir, 'default_profile: home\n');
+    chmodSync(path, 0o644);
+    process.env['UCLI_STRICT_PERMISSIONS'] = 'true';
+    try {
+      expect(() => loadConfigFile(path)).toThrow(ConfigValidationError);
+    } finally {
+      delete process.env['UCLI_STRICT_PERMISSIONS'];
+    }
+  });
 });
 
 describe('resolveProfile', () => {
