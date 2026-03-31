@@ -1,0 +1,160 @@
+{
+  "docker": {
+    "containers": [
+      {
+        "id": "abc123",
+        "name": "/nginx",
+        "image": "nginx:1.27",
+        "status": "running",
+        "state": "running",
+        "command": "nginx -g 'daemon off;'",
+        "createdAt": "2026-03-30T09:00:00.000Z",
+        "startedAt": "2026-03-30T09:00:05.000Z",
+        "uptime": "1d 2h",
+        "ports": [
+          {
+            "ip": "0.0.0.0",
+            "privatePort": 80,
+            "publicPort": 8080,
+            "type": "tcp"
+          }
+        ],
+        "logs": "nginx started\nready",
+        "inspect": {
+          "config": {
+            "hostname": "nginx"
+          },
+          "state": {
+            "running": true,
+            "status": "running"
+          }
+        },
+        "stats": {
+          "cpuPercent": 3.4,
+          "memoryUsage": 67108864,
+          "memoryLimit": 268435456,
+          "memoryPercent": 25,
+          "networkRx": 1048576,
+          "networkTx": 2097152,
+          "blockRead": 524288,
+          "blockWrite": 262144,
+          "pids": 12
+        }
+      },
+      {
+        "id": "def456",
+        "name": "/redis",
+        "image": "redis:7",
+        "status": "paused",
+        "state": "paused",
+        "command": "redis-server",
+        "createdAt": "2026-03-29T12:00:00.000Z",
+        "startedAt": "2026-03-29T12:00:03.000Z",
+        "uptime": "2d 5h",
+        "ports": [
+          {
+            "ip": "0.0.0.0",
+            "privatePort": 6379,
+            "publicPort": 6379,
+            "type": "tcp"
+          }
+        ],
+        "logs": "Ready to accept connections",
+        "inspect": {
+          "config": {
+            "hostname": "redis"
+          },
+          "state": {
+            "running": false,
+            "paused": true,
+            "status": "paused"
+          }
+        },
+        "stats": {
+          "cpuPercent": 0.4,
+          "memoryUsage": 134217728,
+          "memoryLimit": 536870912,
+          "memoryPercent": 25,
+          "networkRx": 2048,
+          "networkTx": 1024,
+          "blockRead": 0,
+          "blockWrite": 4096,
+          "pids": 5
+        }
+      },
+      {
+        "id": "ghi789",
+        "name": "/postgres",
+        "image": "postgres:16",
+        "status": "stopped",
+        "state": "stopped",
+        "command": "docker-entrypoint.sh postgres",
+        "createdAt": "2026-03-28T08:00:00.000Z",
+        "startedAt": "2026-03-28T08:00:03.000Z",
+        "uptime": "0s",
+        "ports": [],
+        "logs": "database system is shut down",
+        "inspect": {
+          "config": {
+            "hostname": "postgres"
+          },
+          "state": {
+            "running": false,
+            "status": "exited"
+          }
+        },
+        "stats": {
+          "cpuPercent": 0,
+          "memoryUsage": 0,
+          "memoryLimit": 536870912,
+          "memoryPercent": 0,
+          "networkRx": 0,
+          "networkTx": 0,
+          "blockRead": 0,
+          "blockWrite": 0,
+          "pids": 0
+        }
+      }
+    ],
+    "container": {
+      "id": "abc123",
+      "name": "/nginx",
+      "image": "nginx:1.27",
+      "status": "running",
+      "state": "running",
+      "command": "nginx -g 'daemon off;'",
+      "createdAt": "2026-03-30T09:00:00.000Z",
+      "startedAt": "2026-03-30T09:00:05.000Z",
+      "uptime": "1d 2h",
+      "ports": [
+        {
+          "ip": "0.0.0.0",
+          "privatePort": 80,
+          "publicPort": 8080,
+          "type": "tcp"
+        }
+      ],
+      "logs": "nginx started\nready",
+      "inspect": {
+        "config": {
+          "hostname": "nginx"
+        },
+        "state": {
+          "running": true,
+          "status": "running"
+        }
+      },
+      "stats": {
+        "cpuPercent": 3.4,
+        "memoryUsage": 67108864,
+        "memoryLimit": 268435456,
+        "memoryPercent": 25,
+        "networkRx": 1048576,
+        "networkTx": 2097152,
+        "blockRead": 524288,
+        "blockWrite": 262144,
+        "pids": 12
+      }
+    }
+  }
+}

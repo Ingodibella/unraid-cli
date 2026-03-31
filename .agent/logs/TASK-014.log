@@ -1,0 +1,29 @@
+TASK-014 completed on 2026-03-31.
+
+Summary:
+- Implemented containers command group with list, get, status, inspect, logs, and stats subcommands.
+- Added GraphQL queries and TypeScript types for docker snapshot and container detail access.
+- Registered containers command in the CLI.
+- Added docker fixture coverage and unit tests for list, detail, filtering, inspect, logs, stats, and output modes.
+
+Files changed:
+- src/cli/index.ts
+- src/commands/containers/index.ts
+- src/commands/containers/list.ts
+- src/commands/containers/get.ts
+- src/commands/containers/status.ts
+- src/commands/containers/inspect.ts
+- src/commands/containers/logs.ts
+- src/commands/containers/stats.ts
+- src/commands/containers/shared.ts
+- src/generated/containers.ts
+- tests/fixtures/docker-response.json
+- tests/unit/commands/containers.test.ts
+- .agent/tasks.json
+
+Validation:
+- npm run typecheck && npx vitest run tests/unit/commands/containers.test.ts
+- npm test
+
+Result:
+- TASK-014 marked done.
