@@ -1,0 +1,19 @@
+TASK-017: Command: shares list|get|usage
+Status: done
+Date: 2026-03-31
+
+Implementation:
+- src/generated/shares.ts (GraphQL query + types)
+- src/commands/shares/ (index, list, get, usage, shared)
+- CLI registration in src/cli/index.ts
+- tests/fixtures/shares-response.json
+- tests/unit/commands/shares.test.ts (5 tests)
+
+Notes:
+- Shares commands follow S0 read pattern with filter, sort, page support on list and usage
+- Usage output includes per-share percentages and aggregate summary
+
+Test:
+- npm run typecheck && npx vitest run tests/unit/commands/shares.test.ts
+- npm test
+- Result: 314/314 tests green (18 files)

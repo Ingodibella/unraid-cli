@@ -1,0 +1,28 @@
+{
+  "shares": [
+    {
+      "name": "appdata",
+      "type": "user",
+      "size": 536870912000,
+      "used": 343597383680,
+      "free": 193273528320,
+      "allocation": "high-water"
+    },
+    {
+      "name": "media",
+      "type": "user",
+      "size": 2199023255552,
+      "used": 1649267441664,
+      "free": 549755813888,
+      "allocation": "most-free"
+    },
+    {
+      "name": "system",
+      "type": "cache",
+      "size": 274877906944,
+      "used": 137438953472,
+      "free": 137438953472,
+      "allocation": "fill-up"
+    }
+  ]
+}

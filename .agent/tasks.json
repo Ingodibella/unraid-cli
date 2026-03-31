@@ -192,7 +192,7 @@
       "id": "TASK-017",
       "name": "Command: shares list|get|usage",
       "priority": 17,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-017.md",
       "dependencies": [
         "TASK-004",

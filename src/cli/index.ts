@@ -17,6 +17,7 @@ import { createDisksCommand } from '../commands/disks/index.js';
 import { createNotificationsCommand } from '../commands/notifications/index.js';
 import { createSystemCommand } from '../commands/system/index.js';
 import { createVmsCommand } from '../commands/vms/index.js';
+import { createSharesCommand } from '../commands/shares/index.js';
 import { DEFAULTS, OUTPUT_FORMATS } from './globals.js';
 
 /** Parse an integer from string (ignores Commander's second arg to avoid radix issues) */
@@ -112,6 +113,7 @@ export function createProgram(): Command {
   program.addCommand(createContainersCommand());
   program.addCommand(createNotificationsCommand());
   program.addCommand(createVmsCommand());
+  program.addCommand(createSharesCommand());
 
   return program;
 }
