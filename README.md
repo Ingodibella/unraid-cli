@@ -22,7 +22,7 @@ ucli wraps the Unraid GraphQL API into a stateless CLI with `json`, `yaml`, `tab
 
 ## Quick start
 
-### npm (planned)
+### npm
 
 ```bash
 npm install -g unraid-cli
