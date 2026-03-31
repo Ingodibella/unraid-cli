@@ -251,8 +251,9 @@ describe('resolveConfig', () => {
   it('uses active profile from config file', () => {
     const configDir = join(tmpDir, 'ucli');
     mkdirSync(configDir, { recursive: true });
+    const configPath = join(configDir, 'config.yaml');
     writeFileSync(
-      join(configDir, 'config.yaml'),
+      configPath,
       `
 default_profile: home
 profiles:
@@ -262,6 +263,7 @@ profiles:
     timeout: 60
 `
     );
+    if (process.platform !== 'win32') chmodSync(configPath, 0o600);
     const env = { XDG_CONFIG_HOME: tmpDir };
     const result = resolveConfig({}, env);
     expect(result.host).toBe('http://tower:7777');
@@ -273,8 +275,9 @@ profiles:
   it('CLI flags override env vars and profile', () => {
     const configDir = join(tmpDir, 'ucli');
     mkdirSync(configDir, { recursive: true });
+    const configPath = join(configDir, 'config.yaml');
     writeFileSync(
-      join(configDir, 'config.yaml'),
+      configPath,
       `
 default_profile: home
 profiles:
@@ -283,6 +286,7 @@ profiles:
     output: table
 `
     );
+    if (process.platform !== 'win32') chmodSync(configPath, 0o600);
     const env = {
       XDG_CONFIG_HOME: tmpDir,
       UCLI_HOST: 'http://env-server:7777',
