@@ -1,5 +1,5 @@
 import { EXIT_CODE_RUNTIME_ERROR, type UcliExitCode } from './codes.js';
-import { GraphQLResponseError, UcliError, isUcliError } from './graphql-errors.js';
+import { GraphQLResponseError, isUcliError } from './graphql-errors.js';
 import { HttpError, NetworkError, RateLimitError, TimeoutError, TransportError } from './transport-errors.js';
 
 export interface FormatUserErrorOptions {

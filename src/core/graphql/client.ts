@@ -62,7 +62,7 @@ export function createClient(options: GraphQLClientOptions): UcliGraphQLClient {
   const inner = new GraphQLClient(endpoint, {
     headers,
     // graphql-request v7 uses fetch under the hood; inject timeout via signal
-    fetch: (url: RequestInfo | URL, init?: RequestInit) => {
+    fetch: (url: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeout);
       const fetchInit: RequestInit = { ...init, signal: controller.signal };

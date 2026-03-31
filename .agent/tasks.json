@@ -92,7 +92,7 @@
       "id": "TASK-009",
       "name": "Filter, Sort, and Pagination Engine",
       "priority": 9,
-      "status": "pending",
+      "status": "done",
       "spec": "tasks/TASK-009.md",
       "dependencies": [
         "TASK-007"

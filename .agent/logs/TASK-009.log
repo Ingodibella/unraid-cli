@@ -1,0 +1,22 @@
+TASK-009 completed on 2026-03-31.
+
+Scope
+- implemented client-side filter parsing and application in src/core/filters/filter.ts
+- implemented multi-field sort parsing and application in src/core/filters/sort.ts
+- implemented pagination state resolution and slicing in src/core/filters/paging.ts
+- exported filter utilities via src/core/filters/index.ts
+- kept src/core/paging/index.ts as a compatibility re-export to ../filters/paging.js
+- validated and kept the existing tests/unit/core/filters.test.ts created by the previous worker
+- fixed two repo typecheck issues uncovered during validation in src/core/errors/user-errors.ts and src/core/graphql/client.ts
+
+Validation
+- npm test -- tests/unit/core/filters.test.ts
+- npm run typecheck && npm test
+
+Result
+- targeted filters test: passed, 13 tests
+- full suite: passed, 256 tests across 10 files
+- typecheck: passed
+
+Task status
+- updated .agent/tasks.json: TASK-009 -> done
