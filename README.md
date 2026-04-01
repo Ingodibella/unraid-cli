@@ -7,6 +7,7 @@
   <p align="center">
     <img src="https://img.shields.io/badge/TypeScript-5.6%2B-blue?logo=typescript&logoColor=white" alt="TypeScript 5.6+">
     <img src="https://img.shields.io/badge/Unraid-7.2%2B-orange?logo=unraid&logoColor=white" alt="Unraid 7.2+">
+    <img src="https://img.shields.io/npm/v/unraid-cli?logo=npm&label=npm" alt="npm version">
     <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
     <img src="https://img.shields.io/badge/AI_agent-ready-blueviolet" alt="AI Agent Ready">
   </p>
