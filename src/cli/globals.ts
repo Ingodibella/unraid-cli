@@ -104,7 +104,7 @@ export function resolveGlobalOptions(raw: Record<string, unknown>): GlobalOption
     quiet: raw['quiet'] as boolean | undefined,
     yes: raw['yes'] as boolean | undefined,
     force: raw['force'] as boolean | undefined,
-    noColor: raw['noColor'] as boolean | undefined,
+    noColor: (raw['noColor'] as boolean | undefined) ?? (raw['color'] === false ? true : undefined),
   };
 }
 
