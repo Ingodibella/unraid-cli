@@ -25,11 +25,11 @@ export function createContainersRestartCommand(
     .argument('<container>', 'Container ID or name')
     .action(async function handleContainersRestart(containerArg: string) {
       const options = resolveContainersOptions(this);
-      const localOptions = this.opts<RestartOptions>();
+      const mergedOptions = this.optsWithGlobals<RestartOptions>();
 
       await assertSafety('containers.restart', {
-        yes: localOptions.yes,
-        force: localOptions.force,
+        yes: mergedOptions.yes,
+        force: mergedOptions.force,
       });
 
       const target = await fetchContainer(containerArg, options, dependencies);

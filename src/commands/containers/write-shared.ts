@@ -35,11 +35,11 @@ export function createContainerWriteCommand(
     .argument('<container>', 'Container ID or name')
     .action(async function handleContainerWrite(containerArg: string) {
       const options = resolveContainersOptions(this);
-      const localOptions = this.opts<WriteCommandOptions>();
+      const mergedOptions = this.optsWithGlobals<WriteCommandOptions>();
 
       await assertSafety(input.safetyPath, {
-        yes: localOptions.yes,
-        force: localOptions.force,
+        yes: mergedOptions.yes,
+        force: mergedOptions.force,
       });
 
       const target = await fetchContainer(containerArg, options, dependencies);
